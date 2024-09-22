@@ -1,5 +1,5 @@
-streamlit
-streamlit-authenticator
-pyyaml
-bcrypt
-sqlite3
+streamlit==1.14.0
+streamlit-authenticator==0.1.5
+pyyaml==6.0
+bcrypt==3.2.0
+sqlite3==0.1.0
