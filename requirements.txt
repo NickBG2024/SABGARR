@@ -1,0 +1,5 @@
+streamlit
+streamlit-authenticator
+pyyaml
+bcrypt
+sqlite3
