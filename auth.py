@@ -7,13 +7,13 @@ def authenticate_user():
     credentials = {
         "usernames": {
             "admin_user": {
-                "name": st.secrets["admin_name"],
-                "password": st.secrets["admin_password"]
+                "name": st.secrets["credentials"]["usernames.admin_user.name"],
+                "password": st.secrets["credentials"]["usernames.admin_user.password"]
             }
         }
     }
 
-    # Create the authenticator object
+    # Use streamlit_authenticator to create an authenticator object
     authenticator = stauth.Authenticate(
         credentials,
         "myapp_cookie",
@@ -21,12 +21,12 @@ def authenticate_user():
         cookie_expiry_days=30
     )
 
-    # Login method
+    # Call the authentication method
     name, authentication_status, username = authenticator.login("Login", "main")
 
+    # Display welcome message and logout option
     if authentication_status:
         st.sidebar.write(f"Welcome, {name}!")
         authenticator.logout("Logout", "sidebar")
-    
-    return authentication_status, username
 
+    return authentication_status, username
