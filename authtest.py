@@ -19,7 +19,9 @@ def authenticate_user():
     )
 
     try:
+        # Make sure 'main' is being used correctly
         name, authentication_status, username = authenticator.login("Login", "main")
+        
         if authentication_status:
             st.write(f"Welcome {name}!")
         elif authentication_status is False:
@@ -34,6 +36,7 @@ def authenticate_user():
 # Call the authentication function
 is_admin = authenticate_user()
 
-# Only display "welcome" if authenticated
+# Only display "You are authenticated" if authenticated
 if is_admin:
     st.write("You are authenticated and logged in!")
+
