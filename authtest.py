@@ -1,8 +1,6 @@
 import streamlit as st
 import streamlit_authenticator as stauth
 
-st.write("welcome")
-
 def authenticate_user():
     credentials = {
         "usernames": {
@@ -26,7 +24,16 @@ def authenticate_user():
             st.write(f"Welcome {name}!")
         elif authentication_status is False:
             st.error("Username/password is incorrect.")
+        else:
+            st.warning("Please log in.")
         return authentication_status
     except ValueError as e:
         st.error(f"Login error: {e}")
         return False
+
+# Call the authentication function
+is_admin = authenticate_user()
+
+# Only display "welcome" if authenticated
+if is_admin:
+    st.write("You are authenticated and logged in!")
