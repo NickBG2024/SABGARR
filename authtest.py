@@ -23,7 +23,7 @@ def authenticate_user():
     try:
         name, authentication_status, username = authenticator.login("Login", "main")
         if authentication_status:
-            st.success(f"Welcome {name}!")
+            st.write(f"Welcome {name}!")
         elif authentication_status is False:
             st.error("Username/password is incorrect.")
         return authentication_status
