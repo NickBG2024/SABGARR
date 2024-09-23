@@ -13,6 +13,10 @@ def authenticate_user():
         }
     }
 
+    # Display the credentials for debugging (excluding sensitive info)
+    st.write("Credentials being used:")
+    st.json(credentials)  # This will format it nicely in JSON
+
     authenticator = stauth.Authenticate(
         credentials,
         "myapp",
@@ -22,8 +26,8 @@ def authenticate_user():
 
     try:
         st.write("Attempting to log in...")
-        # Using 'main' as the location
-        name, authentication_status, username = authenticator.login("Login", "main")
+        # Test different locations
+        name, authentication_status, username = authenticator.login("Login", "sidebar")
         
         st.write(f"Authentication status: {authentication_status}")
         
