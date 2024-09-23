@@ -1,6 +1,8 @@
 import streamlit as st
 import streamlit_authenticator as stauth
 
+st.write("welcome")
+
 def authenticate_user():
     credentials = {
         "usernames": {
