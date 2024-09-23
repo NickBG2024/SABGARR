@@ -1,9 +1,7 @@
 import streamlit as st
 import streamlit_authenticator as stauth
 
-# Authenticate user
 def authenticate_user():
-    # Load credentials from Streamlit secrets
     credentials = {
         "usernames": {
             "admin_user": {
@@ -13,7 +11,6 @@ def authenticate_user():
         }
     }
 
-    # Use streamlit_authenticator to create an authenticator object
     authenticator = stauth.Authenticate(
         credentials,
         "myapp",
@@ -21,7 +18,6 @@ def authenticate_user():
         cookie_expiry_days=30
     )
 
-    # Call the authentication method
     name, authentication_status, username = authenticator.login("Login", "main")
 
-    return authentication_status, username
+    return authentication_status
