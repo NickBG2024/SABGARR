@@ -18,9 +18,12 @@ def authenticate_user():
         cookie_expiry_days=30
     )
 
-    # Test with just 'main'
     try:
         name, authentication_status, username = authenticator.login("Login", "main")
+        if authentication_status:
+            st.success(f"Welcome {name}!")
+        elif authentication_status is False:
+            st.error("Username/password is incorrect.")
         return authentication_status
     except ValueError as e:
         st.error(f"Login error: {e}")
