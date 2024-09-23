@@ -30,7 +30,7 @@ def authenticate_user():
             st.warning("Please log in.")
         return authentication_status
     except ValueError as e:
-        st.error(f"Login error: {e}")
+        st.error(f"Loginn error: {e}")
         return False
 
 # Call the authentication function
