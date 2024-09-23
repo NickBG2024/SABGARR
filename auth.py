@@ -1,29 +1,32 @@
 import streamlit as st
 import streamlit_authenticator as stauth
-import yaml
-import bcrypt
 
 # Authenticate user
 def authenticate_user():
     # Load credentials from Streamlit secrets
     credentials = {
         "usernames": {
-            "admin": {
+            "admin_user": {
                 "name": st.secrets["admin_name"],
                 "password": st.secrets["admin_password"]
             }
         }
     }
 
-    # Use streamlit_authenticator to create an authenticator object
+    # Create the authenticator object
     authenticator = stauth.Authenticate(
         credentials,
-        "myapp",
-        "auth",
+        "myapp_cookie",
+        "auth_key",
         cookie_expiry_days=30
     )
 
-    # Call the authentication method
+    # Login method
     name, authentication_status, username = authenticator.login("Login", "main")
 
-    return authentication_status
+    if authentication_status:
+        st.sidebar.write(f"Welcome, {name}!")
+        authenticator.logout("Logout", "sidebar")
+    
+    return authentication_status, username
+
