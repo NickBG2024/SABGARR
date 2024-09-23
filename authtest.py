@@ -27,7 +27,7 @@ def authenticate_user():
     try:
         st.write("Attempting to log in...")
         # Test different locations
-        name, authentication_status, username = authenticator.login("Login", "sidebar")
+        name, authentication_status, username = authenticator.login("Login", "main")
         
         st.write(f"Authentication status: {authentication_status}")
         
