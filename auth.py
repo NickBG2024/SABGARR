@@ -22,7 +22,7 @@ def authenticate_user():
     )
 
     # Call the authentication method
-    name, authentication_status, username = authenticator.login("Login", "main")
+    name, authentication_status, username = authenticator.login("Login", "sidebar")
 
     if authentication_status:
         st.success(f"Welcome {name}!")
@@ -32,4 +32,3 @@ def authenticate_user():
         st.warning("Please enter your username and password.")
         
     return authentication_status
-
