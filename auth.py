@@ -22,6 +22,14 @@ def authenticate_user():
     )
 
     # Call the authentication method
-    name, authentication_status, username = authenticator.login("Login", "sidebar")  # Keep 'main' or change to 'sidebar'
+    name, authentication_status, username = authenticator.login("Login", "sidebar")
 
+    if authentication_status:
+        st.success(f"Welcome {name}!")
+    elif authentication_status is False:
+        st.error("Username or password is incorrect.")
+    elif authentication_status is None:
+        st.warning("Please enter your username and password.")
+        
     return authentication_status
+
