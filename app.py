@@ -10,7 +10,7 @@ conn = create_connection()
 is_admin = authenticate_user()
 
 # Streamlit title
-st.title("Backgammon Match Results")
+st.title("SABGA Backgammon: Round Robin 2025")
 
 if is_admin:
     st.sidebar.title("Admin Dashboard")
@@ -27,4 +27,4 @@ if is_admin:
             st.error("No match found in the subject.")
 else:
     st.sidebar.title("Public Section")
-    st.write("Welcome to the Backgammon Community!")
+    st.write("Welcome to the first national Round Robin leagues in South Africa. The Round Robin leagues will run in a number of cycles over the course of each calendar year, with promotion and relegation between various Divisions. This league is an opportunity for the best South African players to reveal themselves.")
