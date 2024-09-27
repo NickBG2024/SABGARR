@@ -80,3 +80,13 @@ def get_matches():
 
 # Add other relevant functions to insert and retrieve data...
 
+
+# Example function to retrieve leaderboard
+def get_matches():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Players")
+    leaderboard = cursor.fetchall()
+    conn.close()
+    return leaderboard
+
