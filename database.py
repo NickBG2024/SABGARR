@@ -1,4 +1,5 @@
 import sqlite3
+import streamlit as st
 
 def create_connection():
     conn = sqlite3.connect('backgammon.db')
