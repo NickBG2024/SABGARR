@@ -78,9 +78,6 @@ def get_matches():
     conn.close()
     return matches
 
-# Add other relevant functions to insert and retrieve data...
-
-
 # Example function to retrieve leaderboard
 def get_leaderboard():
     conn = create_connection()
