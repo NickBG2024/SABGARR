@@ -1,18 +1,17 @@
 import streamlit as st
-from database import create_connection, get_leaderboard, get_matches
+from database import get_leaderboard, get_matches
 
-# Connect to the database
-conn = create_connection()
-
-# Streamlit title
+# Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
 
-# Retrieve and display leaderboard
-st.subheader("Leaderboard")
-leaderboard = get_leaderboard(conn)
-st.table(leaderboard)
+st.sidebar.title("Public Section")
+page = st.sidebar.selectbox("View", ["Leaderboard", "Fixtures", "Match History"])
 
-# Retrieve and display match history
-st.subheader("Match History")
-matches = get_matches(conn)  # Pass conn here
-st.table(matches)
+if page == "Leaderboard":
+    leaderboard = get_leaderboard()
+    st.table(leaderboard)
+elif page == "Fixtures":
+    st.write("Fixtures will be listed here")
+elif page == "Match History":
+    matches = get_matches()
+    st.table(matches)
