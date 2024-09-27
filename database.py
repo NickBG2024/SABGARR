@@ -111,4 +111,13 @@ def get_leaderboard():
         st.error(f"Error retrieving leaderboard: {e}")
         return []
 
+def check_tables():
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = cursor.fetchall()
+    conn.close()
+
+    st.write("Tables in the database:", tables)
 
