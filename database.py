@@ -82,7 +82,7 @@ def get_matches():
 
 
 # Example function to retrieve leaderboard
-def get_matches():
+def get_leaderboard():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Players")
