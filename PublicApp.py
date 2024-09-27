@@ -1,5 +1,5 @@
 import streamlit as st
-from database import get_leaderboard, get_matches
+from database import get_leaderboard, get_matches, check_tables
 
 # Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
