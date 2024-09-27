@@ -82,9 +82,9 @@ def get_matches():
             st.error("Matches is empty or not found.")
             
         return matches
-except Exception as e:
-    st.error(f"Error retrieving matches: {e}")
-    return []
+    except Exception as e:
+        st.error(f"Error retrieving matches: {e}")
+        return []
 
 # Example function to retrieve leaderboard
 def get_leaderboard():
