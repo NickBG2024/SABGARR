@@ -76,14 +76,39 @@ def get_matches():
     cursor.execute("SELECT * FROM Matches")
     matches = cursor.fetchall()
     conn.close()
+
+    if not matches:
+        st.error("Matches is empty or not found.")
+        
     return matches
+
+except Exception as e:
+    st.error(f"Error retrieving leaderboard: {e}")
+    return []
+
 
 # Example function to retrieve leaderboard
 def get_leaderboard():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Players")
-    leaderboard = cursor.fetchall()
-    conn.close()
-    return leaderboard
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT Name, GamesPlayed, TotalWins, WinPercentage, AveragePR 
+            FROM Players 
+            ORDER BY WinPercentage DESC 
+            LIMIT 10
+        ''')
+        
+        leaderboard = cursor.fetchall()
+        conn.close()
+        
+        if not leaderboard:
+            st.error("Leaderboard is empty or not found.")
+        
+        return leaderboard
+    except Exception as e:
+        st.error(f"Error retrieving leaderboard: {e}")
+        return []
+
 
