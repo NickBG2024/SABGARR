@@ -71,18 +71,19 @@ def create_match_type_table():
 
 # Example function to retrieve matches
 def get_matches():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Matches")
-    matches = cursor.fetchall()
-    conn.close()
-
-    if not matches:
-        st.error("Matches is empty or not found.")
-        
-    return matches
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Matches")
+        matches = cursor.fetchall()
+        conn.close()
+    
+        if not matches:
+            st.error("Matches is empty or not found.")
+            
+        return matches
 except Exception as e:
-    st.error(f"Error retrieving leaderboard: {e}")
+    st.error(f"Error retrieving matches: {e}")
     return []
 
 # Example function to retrieve leaderboard
