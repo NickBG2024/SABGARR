@@ -1,62 +1,82 @@
 import sqlite3
-import pandas as pd
 
-# Function to create a database connection
-def create_connection(db_file="backgammon.db"):
-    """Create a connection to the SQLite database specified by db_file."""
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except sqlite3.Error as e:
-        print(e)
-    
+def create_connection():
+    conn = sqlite3.connect('backgammon.db')
     return conn
 
-# Function to get leaderboard data
-def get_leaderboard(conn):
-    """Retrieve leaderboard data from the database."""
-    query = "SELECT * FROM leaderboard ORDER BY points DESC"
-    try:
-        df = pd.read_sql_query(query, conn)
-        return df
-    except Exception as e:
-        print(f"Error fetching leaderboard: {e}")
-        return pd.DataFrame()
-
-# Function to get match history
-def get_matches(conn):
-    """Retrieve match data from the database."""
-    query = "SELECT * FROM matches ORDER BY match_date DESC"
-    try:
-        df = pd.read_sql_query(query, conn)
-        return df
-    except Exception as e:
-        print(f"Error fetching matches: {e}")
-        return pd.DataFrame()
-
-# Function to insert a player into the database
-def insert_player(conn, name, email):
-    """Insert a player into the players table."""
-    try:
-        cur = conn.cursor()
-        cur.execute("INSERT INTO players (name, email) VALUES (?, ?)", (name, email))
-        conn.commit()
-    except Exception as e:
-        print(f"Error inserting player: {e}")
-
-# Function to insert match data into the database
-def insert_match(conn, player_1_values, player_2_values):
-    """Insert match data into the matches table."""
-    try:
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO matches (player_1, player_1_points, player_1_pr, player_1_luck, player_2, player_2_points, player_2_pr, player_2_luck) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                player_1_values[0], player_1_values[1], player_1_values[2], player_1_values[3],
-                player_2_values[0], player_2_values[1], player_2_values[2], player_2_values[3],
-            )
+# Create the Players table
+def create_players_table():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Players (
+            PlayerID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Name TEXT NOT NULL,
+            Nickname TEXT,
+            Email TEXT,
+            GamesPlayed INTEGER DEFAULT 0,
+            TotalWins INTEGER DEFAULT 0,
+            TotalLosses INTEGER DEFAULT 0,
+            WinPercentage REAL DEFAULT 0.0,
+            AveragePR REAL DEFAULT 0.0,
+            MedianPR REAL DEFAULT 0.0,
+            HighestLuck REAL DEFAULT 0.0,
+            LowestLuck REAL DEFAULT 0.0,
+            AverageLuck REAL DEFAULT 0.0,
+            CurrentLeague TEXT,
+            DaysIdle INTEGER DEFAULT 0
         )
-        conn.commit()
-    except Exception as e:
-        print(f"Error inserting match data: {e}")
+    ''')
+    conn.commit()
+    conn.close()
+
+# Create the Matches table
+def create_matches_table():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Matches (
+            MatchID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Date TEXT NOT NULL,
+            TimeCompleted TEXT,
+            MatchTypeID INTEGER,
+            Player1ID INTEGER,
+            Player2ID INTEGER,
+            Player1Points INTEGER,
+            Player2Points INTEGER,
+            Player1PR REAL,
+            Player2PR REAL,
+            Player1Luck REAL,
+            Player2Luck REAL,
+            FOREIGN KEY (Player1ID) REFERENCES Players (PlayerID),
+            FOREIGN KEY (Player2ID) REFERENCES Players (PlayerID),
+            FOREIGN KEY (MatchTypeID) REFERENCES MatchType (MatchTypeID)
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Create the MatchType table
+def create_match_type_table():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS MatchType (
+            MatchTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
+            MatchTypeTitle TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Example function to retrieve matches
+def get_matches():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Matches")
+    matches = cursor.fetchall()
+    conn.close()
+    return matches
+
+# Add other relevant functions to insert and retrieve data...
+
