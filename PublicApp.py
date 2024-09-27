@@ -4,6 +4,8 @@ from database import get_leaderboard, get_matches
 # Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
 
+check_tables()
+
 st.sidebar.title("Public Section")
 page = st.sidebar.selectbox("View", ["Leaderboard", "Fixtures", "Match History"])
 
