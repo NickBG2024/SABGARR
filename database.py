@@ -81,7 +81,6 @@ def get_matches():
         st.error("Matches is empty or not found.")
         
     return matches
-
 except Exception as e:
     st.error(f"Error retrieving leaderboard: {e}")
     return []
