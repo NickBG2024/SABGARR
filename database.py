@@ -85,7 +85,6 @@ except Exception as e:
     st.error(f"Error retrieving leaderboard: {e}")
     return []
 
-
 # Example function to retrieve leaderboard
 def get_leaderboard():
     try:
