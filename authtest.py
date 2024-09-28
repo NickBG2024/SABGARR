@@ -1,49 +1,45 @@
+import mysql.connector
 import streamlit as st
-import streamlit_authenticator as stauth
 
-st.write("Welcome to the authentication app!")
-
-def authenticate_user():
-    credentials = {
-        "usernames": {
-            "admin_user": {
-                "name": st.secrets["admin"]["name"],
-                "password": st.secrets["admin"]["password"]
-            }
-        }
-    }
-
-    # Display the credentials for debugging (excluding sensitive info)
-    st.write("Credentials being used:")
-    st.json(credentials)  # This will format it nicely in JSON
-
-    authenticator = stauth.Authenticate(
-        credentials,
-        "myapp",
-        "auth",
-        cookie_expiry_days=30
-    )
-
+def create_connection():
     try:
-        st.write("Attempting to log in...")
-        # Test different locations
-        name, authentication_status, username = authenticator.login("Login", "main")
-        
-        st.write(f"Authentication status: {authentication_status}")
-        
-        if authentication_status:
-            st.write(f"Welcome {name}!")
-        elif authentication_status is False:
-            st.error("Username/password is incorrect.")
-        else:
-            st.warning("Please log in.")
-        return authentication_status
-    except ValueError as e:
-        st.error(f"Login error: {e}")
-        return False
+        conn = mysql.connector.connect(
+            host="sql58.jnb2.host-h.net",
+            user="sabga_admin",
+            password="6f5f73102v7Y1A",
+            database="sabga_test"
+        )
+        if conn.is_connected():
+            st.success("Connected to the database!")
+        return conn
+    except mysql.connector.Error as e:
+        st.error(f"Error connecting to the database: {e}")
+        return None
 
-# Call the authentication function
-is_admin = authenticate_user()
+def test_database_connection():
+    conn = create_connection()
+    if conn:
+        cursor = conn.cursor()
 
-if is_admin:
-    st.write("You are authenticated and logged in!")
+        # Query to show all tables
+        try:
+            cursor.execute("SHOW TABLES;")
+            tables = cursor.fetchall()
+            st.write("Tables in the database:", tables)
+
+            # Run a simple query to test fetching data (assuming Players table exists)
+            cursor.execute("SELECT * FROM Players LIMIT 5;")
+            rows = cursor.fetchall()
+            if rows:
+                st.write("Sample data from Players table:")
+                st.write(rows)
+            else:
+                st.write("Players table is empty or doesn't exist.")
+        except Exception as e:
+            st.error(f"Error querying the database: {e}")
+        finally:
+            conn.close()
+
+# Run the test
+st.title("Test MySQL Database Connection")
+test_database_connection()
