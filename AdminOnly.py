@@ -1,55 +1,50 @@
 import streamlit as st
-import streamlit_authenticator as stauth
-from database import create_connection, insert_match, insert_player
+from database import create_connection
 
-# Authenticate the user (only admins)
-def authenticate_user():
-    credentials = {
-        "usernames": {
-            "admin_user": {
-                "name": "Admin",
-                "password": "$2b$12$EF2tc/IEF0fRw6hj06gft.5A1Ojs3KcV5lpehzf4RkDzBI43dbvCW"  # Your hashed password
-            }
-        }
-    }
-    
-    authenticator = stauth.Authenticate(
-        credentials, 
-        "myapp", 
-        "auth", 
-        cookie_expiry_days=30
-    )
-    
-    name, authentication_status, username = authenticator.login("Admin Login", "sidebar")
-    
-    if authentication_status:
-        st.write(f"Welcome, {name}!")
-        return True
-    elif authentication_status is False:
-        st.error("Invalid username/password")
-        return False
-    else:
-        return False
-
-# Main Admin functionality
-def admin_panel():
-    # Database connection
+# Add a player to the Players table
+def add_player(name, nickname, email):
     conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Players (Name, Nickname, Email) 
+        VALUES (%s, %s, %s)
+    ''', (name, nickname, email))
+    conn.commit()
+    conn.close()
+    st.success(f"Player {name} added to the database.")
 
-    # Admin only controls
-    st.title("Admin Dashboard")
+# Add a match type to the MatchType table
+def add_match_type(match_type_title):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO MatchType (MatchTypeTitle) 
+        VALUES (%s)
+    ''', (match_type_title,))
+    conn.commit()
+    conn.close()
+    st.success(f"Match type '{match_type_title}' added to the database.")
 
-    # Example of player management section
-    st.subheader("Player Management")
+# Streamlit admin panel
+st.sidebar.title("Admin Only")
+st.sidebar.write("Populate the database.")
+
+# Add player section
+with st.sidebar.form(key="add_player_form"):
+    st.write("Add a new player")
     player_name = st.text_input("Player Name")
-    player_email = st.text_input("Player Email")
-    
-    if st.button("Add Player"):
-        insert_player(conn, player_name, player_email)
-        st.success(f"Player {player_name} added successfully!")
+    player_nickname = st.text_input("Nickname")
+    player_email = st.text_input("Email")
+    submit_player = st.form_submit_button(label="Add Player")
 
-    # You can add more admin functionalities as needed (match management, etc.)
-    
-# Entry point for the app
-if authenticate_user():
-    admin_panel()
+    if submit_player and player_name and player_email:
+        add_player(player_name, player_nickname, player_email)
+
+# Add match type section
+with st.sidebar.form(key="add_match_type_form"):
+    st.write("Add a new match type")
+    match_type = st.text_input("Match Type Title")
+    submit_match_type = st.form_submit_button(label="Add Match Type")
+
+    if submit_match_type and match_type:
+        add_match_type(match_type)
