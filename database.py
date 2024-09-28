@@ -15,28 +15,28 @@ def create_connection():
     except mysql.connector.Error as e:
         st.error(f"Error connecting to the database: {e}")
         return None
-        
+
 # Create the Players table
 def create_players_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Players (
-            PlayerID INTEGER PRIMARY KEY AUTOINCREMENT,
-            Name TEXT NOT NULL,
-            Nickname TEXT,
-            Email TEXT,
-            GamesPlayed INTEGER DEFAULT 0,
-            TotalWins INTEGER DEFAULT 0,
-            TotalLosses INTEGER DEFAULT 0,
-            WinPercentage REAL DEFAULT 0.0,
-            AveragePR REAL DEFAULT 0.0,
-            MedianPR REAL DEFAULT 0.0,
-            HighestLuck REAL DEFAULT 0.0,
-            LowestLuck REAL DEFAULT 0.0,
-            AverageLuck REAL DEFAULT 0.0,
-            CurrentLeague TEXT,
-            DaysIdle INTEGER DEFAULT 0
+            PlayerID INT AUTO_INCREMENT PRIMARY KEY,
+            Name VARCHAR(255) NOT NULL,
+            Nickname VARCHAR(255),
+            Email VARCHAR(255),
+            GamesPlayed INT DEFAULT 0,
+            TotalWins INT DEFAULT 0,
+            TotalLosses INT DEFAULT 0,
+            WinPercentage FLOAT DEFAULT 0.0,
+            AveragePR FLOAT DEFAULT 0.0,
+            MedianPR FLOAT DEFAULT 0.0,
+            HighestLuck FLOAT DEFAULT 0.0,
+            LowestLuck FLOAT DEFAULT 0.0,
+            AverageLuck FLOAT DEFAULT 0.0,
+            CurrentLeague VARCHAR(255),
+            DaysIdle INT DEFAULT 0
         )
     ''')
     conn.commit()
@@ -48,21 +48,21 @@ def create_matches_table():
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Matches (
-            MatchID INTEGER PRIMARY KEY AUTOINCREMENT,
-            Date TEXT NOT NULL,
-            TimeCompleted TEXT,
-            MatchTypeID INTEGER,
-            Player1ID INTEGER,
-            Player2ID INTEGER,
-            Player1Points INTEGER,
-            Player2Points INTEGER,
-            Player1PR REAL,
-            Player2PR REAL,
-            Player1Luck REAL,
-            Player2Luck REAL,
-            FOREIGN KEY (Player1ID) REFERENCES Players (PlayerID),
-            FOREIGN KEY (Player2ID) REFERENCES Players (PlayerID),
-            FOREIGN KEY (MatchTypeID) REFERENCES MatchType (MatchTypeID)
+            MatchID INT AUTO_INCREMENT PRIMARY KEY,
+            Date DATE NOT NULL,
+            TimeCompleted TIME,
+            MatchTypeID INT,
+            Player1ID INT,
+            Player2ID INT,
+            Player1Points INT,
+            Player2Points INT,
+            Player1PR FLOAT,
+            Player2PR FLOAT,
+            Player1Luck FLOAT,
+            Player2Luck FLOAT,
+            FOREIGN KEY (Player1ID) REFERENCES Players(PlayerID),
+            FOREIGN KEY (Player2ID) REFERENCES Players(PlayerID),
+            FOREIGN KEY (MatchTypeID) REFERENCES MatchType(MatchTypeID)
         )
     ''')
     conn.commit()
@@ -74,8 +74,8 @@ def create_match_type_table():
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS MatchType (
-            MatchTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
-            MatchTypeTitle TEXT NOT NULL
+            MatchTypeID INT AUTO_INCREMENT PRIMARY KEY,
+            MatchTypeTitle VARCHAR(255) NOT NULL
         )
     ''')
     conn.commit()
@@ -89,10 +89,10 @@ def get_matches():
         cursor.execute("SELECT * FROM Matches")
         matches = cursor.fetchall()
         conn.close()
-    
+
         if not matches:
-            st.error("Matches is empty or not found.")
-            
+            st.error("No matches found.")
+        
         return matches
     except Exception as e:
         st.error(f"Error retrieving matches: {e}")
@@ -103,17 +103,15 @@ def get_leaderboard():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        
         cursor.execute('''
-            SELECT Name, GamesPlayed, TotalWins, WinPercentage, AveragePR 
-            FROM Players 
-            ORDER BY WinPercentage DESC 
+            SELECT Name, GamesPlayed, TotalWins, WinPercentage, AveragePR
+            FROM Players
+            ORDER BY WinPercentage DESC
             LIMIT 10
         ''')
-        
         leaderboard = cursor.fetchall()
         conn.close()
-        
+
         if not leaderboard:
             st.error("Leaderboard is empty or not found.")
         
@@ -122,13 +120,13 @@ def get_leaderboard():
         st.error(f"Error retrieving leaderboard: {e}")
         return []
 
+# Function to check existing tables
 def check_tables():
     conn = create_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    cursor.execute("SHOW TABLES")
     tables = cursor.fetchall()
     conn.close()
 
     st.write("Tables in the database:", tables)
-
