@@ -1,10 +1,21 @@
-import sqlite3
+import mysql.connector
 import streamlit as st
 
 def create_connection():
-    conn = sqlite3.connect('backgammon.db')
-    return conn
-
+    try:
+        conn = mysql.connector.connect(
+            host="sql58.jnb2.host-h.net",
+            user="sabga_admin",
+            password="6f5f73102v7Y1A",
+            database="sabga_test"
+        )
+        if conn.is_connected():
+            st.success("Connected to the database!")
+        return conn
+    except mysql.connector.Error as e:
+        st.error(f"Error connecting to the database: {e}")
+        return None
+        
 # Create the Players table
 def create_players_table():
     conn = create_connection()
