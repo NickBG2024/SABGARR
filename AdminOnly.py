@@ -1,5 +1,5 @@
 import streamlit as st
-from database import create_connection
+from database import create_connection, get_players, get_match_types, get_all_matches
 
 # Add a player to the Players table
 def add_player(name, nickname, email):
@@ -32,9 +32,18 @@ def add_match_result(player1_id, player2_id, player1_points, player2_points):
 
 # Sidebar buttons to choose which form to display
 st.sidebar.title("Admin Only")
+
+# Form options
 option = st.sidebar.radio(
     "Select an option:",
     ("Add Player", "Add Match Type", "Add Match Result")
+)
+
+# Section for viewing data
+st.sidebar.title("View Data")
+view_option = st.sidebar.radio(
+    "View:",
+    ("Show all Players", "Show all Match Types", "Show all Matches")
 )
 
 # Main section
@@ -44,7 +53,6 @@ st.title("SABGA Admin Only")
 if option == "Add Player":
     st.header("Add a New Player")
 
-    # Initialize session state for player form
     if 'player_name' not in st.session_state:
         st.session_state['player_name'] = ""
     if 'player_nickname' not in st.session_state:
@@ -67,7 +75,6 @@ if option == "Add Player":
 elif option == "Add Match Type":
     st.header("Add a New Match Type")
 
-    # Initialize session state for match type form
     if 'match_type' not in st.session_state:
         st.session_state['match_type'] = ""
 
@@ -91,3 +98,19 @@ elif option == "Add Match Result":
 
         if submit_match_result and player1_id and player2_id and player1_points and player2_points:
             add_match_result(player1_id, player2_id, player1_points, player2_points)
+
+# Display data based on the 'View Data' selection
+if view_option == "Show all Players":
+    st.header("All Players")
+    players = get_players()  # Retrieve players from the database
+    st.table(players)  # Display players as a table
+
+elif view_option == "Show all Match Types":
+    st.header("All Match Types")
+    match_types = get_match_types()  # Retrieve match types from the database
+    st.table(match_types)  # Display match types as a table
+
+elif view_option == "Show all Matches":
+    st.header("All Matches")
+    matches = get_all_matches()  # Retrieve all matches from the database
+    st.table(matches)  # Display matches as a table
