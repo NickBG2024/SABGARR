@@ -1,5 +1,5 @@
 import streamlit as st
-from database import add_player, add_match_type, add_match_result, get_players, get_match_types, get_matches
+from database import add_player, add_match_type, add_match_result, get_players, get_match_types, get_match_results
 
 st.title("SABGA Admin Only")
 
@@ -11,7 +11,7 @@ show_add_match_result_form = st.sidebar.checkbox("Add Match Result")
 # New checkboxes for showing tables
 show_players = st.sidebar.checkbox("Show all Players")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
-show_matches = st.sidebar.checkbox("Show all Matches")
+show_match_results = st.sidebar.checkbox("Show all Match Results")
 
 # Headings and forms for adding data
 if show_add_player_form:
@@ -75,11 +75,11 @@ if show_match_types:
     else:
         st.error("No match types found.")
 
-if show_matches:
-    st.subheader("All Matches")
-    matches = get_matches()
-    if matches:
-        st.write("MatchID | Date | Time Completed | Match Type ID | Player 1 ID | Player 2 ID | Player 1 Points | Player 2 Points | Player 1 PR | Player 2 PR | Player 1 Luck | Player 2 Luck")
-        st.table(matches)
+if show_match_results:
+    st.subheader("All Match Results")
+    match_results = get_match_results()
+    if match_results:
+        st.write("MatchResultID | Date | Time Completed | Match Type ID | Player 1 ID | Player 2 ID | Player 1 Points | Player 2 Points | Player 1 PR | Player 2 PR | Player 1 Luck | Player 2 Luck")
+        st.table(match_results)
     else:
-        st.error("No matches found.")
+        st.error("No match results found.")
