@@ -1,5 +1,5 @@
 import streamlit as st
-from database import add_player, add_match_type, add_match_result, get_all_players, get_all_match_types, get_all_matches
+from database import add_player, add_match_type, add_match_result, get_players, get_match_types, get_matches
 
 st.title("SABGA Admin Only")
 
@@ -59,7 +59,7 @@ if show_add_match_result_form:
 # Display tables based on checkboxes
 if show_players:
     st.subheader("All Players")
-    players = get_all_players()
+    players = get_players()
     if players:
         st.write("PlayerID | Name | Nickname | Email | Games Played | Total Wins | Total Losses | Win Percentage | Average PR")
         st.table(players)
@@ -68,7 +68,7 @@ if show_players:
 
 if show_match_types:
     st.subheader("All Match Types")
-    match_types = get_all_match_types()
+    match_types = get_match_types()
     if match_types:
         st.write("MatchTypeID | MatchTypeTitle")
         st.table(match_types)
@@ -77,7 +77,7 @@ if show_match_types:
 
 if show_matches:
     st.subheader("All Matches")
-    matches = get_all_matches()
+    matches = get_matches()
     if matches:
         st.write("MatchID | Date | Time Completed | Match Type ID | Player 1 ID | Player 2 ID | Player 1 Points | Player 2 Points | Player 1 PR | Player 2 PR | Player 1 Luck | Player 2 Luck")
         st.table(matches)
