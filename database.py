@@ -1,6 +1,7 @@
 import mysql.connector
 import streamlit as st
 
+# Create a connection to the database
 def create_connection():
     try:
         conn = mysql.connector.connect(
@@ -81,24 +82,68 @@ def create_match_type_table():
     conn.commit()
     conn.close()
 
-# Example function to retrieve matches
-def get_matches():
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Matches")
-        matches = cursor.fetchall()
-        conn.close()
+# Insert a new player
+def add_player(name, nickname, email):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Players (Name, Nickname, Email) 
+        VALUES (%s, %s, %s)
+    ''', (name, nickname, email))
+    conn.commit()
+    conn.close()
 
-        if not matches:
-            st.error("No matches found.")
-        
-        return matches
-    except Exception as e:
-        st.error(f"Error retrieving matches: {e}")
-        return []
+# Insert a new match type
+def add_match_type(match_type_title):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO MatchType (MatchTypeTitle) 
+        VALUES (%s)
+    ''', (match_type_title,))
+    conn.commit()
+    conn.close()
 
-# Example function to retrieve leaderboard
+# Insert a new match result
+def add_match_result(player1_id, player2_id, player1_points, player2_points, match_type_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Matches 
+        (Date, Player1ID, Player2ID, Player1Points, Player2Points, MatchTypeID) 
+        VALUES (NOW(), %s, %s, %s, %s, %s)
+    ''', (player1_id, player2_id, player1_points, player2_points, match_type_id))
+    conn.commit()
+    conn.close()
+
+# Retrieve all players from the Players table
+def get_players():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Players")
+    players = cursor.fetchall()
+    conn.close()
+    return players
+
+# Retrieve all match types from the MatchType table
+def get_match_types():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM MatchType")
+    match_types = cursor.fetchall()
+    conn.close()
+    return match_types
+
+# Retrieve all matches from the Matches table
+def get_all_matches():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Matches")
+    matches = cursor.fetchall()
+    conn.close()
+    return matches
+
+# Retrieve matches for the leaderboard
 def get_leaderboard():
     try:
         conn = create_connection()
