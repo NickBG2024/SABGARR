@@ -1,116 +1,85 @@
 import streamlit as st
-from database import create_connection, get_players, get_match_types, get_all_matches
+from database import add_player, add_match_type, add_match_result, get_all_players, get_all_match_types, get_all_matches
 
-# Add a player to the Players table
-def add_player(name, nickname, email):
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO Players (Name, Nickname, Email) 
-        VALUES (%s, %s, %s)
-    ''', (name, nickname, email))
-    conn.commit()
-    conn.close()
-    st.success(f"Player {name} added to the database.")
-
-# Add a match type to the MatchType table
-def add_match_type(match_type_title):
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO MatchType (MatchTypeTitle) 
-        VALUES (%s)
-    ''', (match_type_title,))
-    conn.commit()
-    conn.close()
-    st.success(f"Match type '{match_type_title}' added to the database.")
-
-# Add match result (this is a placeholder function, implement actual logic if needed)
-def add_match_result(player1_id, player2_id, player1_points, player2_points):
-    st.write(f"Result added: Player 1 (ID {player1_id}) scored {player1_points}, Player 2 (ID {player2_id}) scored {player2_points}.")
-    # Implement actual match result saving to DB here
-
-# Sidebar buttons to choose which form to display
-st.sidebar.title("Admin Only")
-
-# Form options
-option = st.sidebar.radio(
-    "Select an option:",
-    ("Add Player", "Add Match Type", "Add Match Result")
-)
-
-# Section for viewing data
-st.sidebar.title("View Data")
-view_option = st.sidebar.radio(
-    "View:",
-    ("Show all Players", "Show all Match Types", "Show all Matches")
-)
-
-# Main section
 st.title("SABGA Admin Only")
 
-# Display the form based on sidebar selection
-if option == "Add Player":
-    st.header("Add a New Player")
+# Sidebar checkboxes
+show_add_player_form = st.sidebar.checkbox("Add Player")
+show_add_match_type_form = st.sidebar.checkbox("Add Match Type")
+show_add_match_result_form = st.sidebar.checkbox("Add Match Result")
 
-    if 'player_name' not in st.session_state:
-        st.session_state['player_name'] = ""
-    if 'player_nickname' not in st.session_state:
-        st.session_state['player_nickname'] = ""
-    if 'player_email' not in st.session_state:
-        st.session_state['player_email'] = ""
+# New checkboxes for showing tables
+show_players = st.sidebar.checkbox("Show all Players")
+show_match_types = st.sidebar.checkbox("Show all Match Types")
+show_matches = st.sidebar.checkbox("Show all Matches")
 
-    with st.form(key="add_player_form"):
-        player_name = st.text_input("Player Name", value=st.session_state['player_name'], key="player_name_input")
-        player_nickname = st.text_input("Nickname", value=st.session_state['player_nickname'], key="player_nickname_input")
-        player_email = st.text_input("Email", value=st.session_state['player_email'], key="player_email_input")
-        submit_player = st.form_submit_button(label="Add Player")
+# Headings and forms for adding data
+if show_add_player_form:
+    st.subheader("Add Player")
+    with st.form(key='add_player_form'):
+        name = st.text_input("Name")
+        nickname = st.text_input("Heroes Nickname")
+        email = st.text_input("Email Address")
+        submitted = st.form_submit_button("Add Player")
+        if submitted:
+            add_player(name, nickname, email)
+            st.success("Player added successfully!")
+            st.experimental_rerun()
 
-        if submit_player and player_name and player_email:
-            add_player(player_name, player_nickname, player_email)
-            st.session_state['player_name'] = ""
-            st.session_state['player_nickname'] = ""
-            st.session_state['player_email'] = ""
+if show_add_match_type_form:
+    st.subheader("Add Match Type")
+    with st.form(key='add_match_type_form'):
+        match_type_title = st.text_input("Match Type Title")
+        submitted = st.form_submit_button("Add Match Type")
+        if submitted:
+            add_match_type(match_type_title)
+            st.success("Match type added successfully!")
+            st.experimental_rerun()
 
-elif option == "Add Match Type":
-    st.header("Add a New Match Type")
+if show_add_match_result_form:
+    st.subheader("Add Match Result")
+    with st.form(key='add_match_result_form'):
+        date = st.date_input("Date")
+        time_completed = st.time_input("Time Completed")
+        player1_id = st.number_input("Player 1 ID", min_value=1)
+        player2_id = st.number_input("Player 2 ID", min_value=1)
+        match_type_id = st.number_input("Match Type ID", min_value=1)
+        player1_points = st.number_input("Player 1 Points", min_value=0)
+        player2_points = st.number_input("Player 2 Points", min_value=0)
+        player1_pr = st.number_input("Player 1 PR", min_value=0.0)
+        player2_pr = st.number_input("Player 2 PR", min_value=0.0)
+        player1_luck = st.number_input("Player 1 Luck", min_value=0.0)
+        player2_luck = st.number_input("Player 2 Luck", min_value=0.0)
+        submitted = st.form_submit_button("Add Match Result")
+        if submitted:
+            add_match_result(date, time_completed, player1_id, player2_id, match_type_id, player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck)
+            st.success("Match result added successfully!")
+            st.experimental_rerun()
 
-    if 'match_type' not in st.session_state:
-        st.session_state['match_type'] = ""
+# Display tables based on checkboxes
+if show_players:
+    st.subheader("All Players")
+    players = get_all_players()
+    if players:
+        st.write("PlayerID | Name | Nickname | Email | Games Played | Total Wins | Total Losses | Win Percentage | Average PR")
+        st.table(players)
+    else:
+        st.error("No players found.")
 
-    with st.form(key="add_match_type_form"):
-        match_type = st.text_input("Match Type Title", value=st.session_state['match_type'], key="match_type_input")
-        submit_match_type = st.form_submit_button(label="Add Match Type")
+if show_match_types:
+    st.subheader("All Match Types")
+    match_types = get_all_match_types()
+    if match_types:
+        st.write("MatchTypeID | MatchTypeTitle")
+        st.table(match_types)
+    else:
+        st.error("No match types found.")
 
-        if submit_match_type and match_type:
-            add_match_type(match_type)
-            st.session_state['match_type'] = ""
-
-elif option == "Add Match Result":
-    st.header("Add a Match Result")
-
-    with st.form(key="add_match_result_form"):
-        player1_id = st.text_input("Player 1 ID")
-        player2_id = st.text_input("Player 2 ID")
-        player1_points = st.text_input("Player 1 Points")
-        player2_points = st.text_input("Player 2 Points")
-        submit_match_result = st.form_submit_button(label="Add Match Result")
-
-        if submit_match_result and player1_id and player2_id and player1_points and player2_points:
-            add_match_result(player1_id, player2_id, player1_points, player2_points)
-
-# Display data based on the 'View Data' selection
-if view_option == "Show all Players":
-    st.header("All Players")
-    players = get_players()  # Retrieve players from the database
-    st.table(players)  # Display players as a table
-
-elif view_option == "Show all Match Types":
-    st.header("All Match Types")
-    match_types = get_match_types()  # Retrieve match types from the database
-    st.table(match_types)  # Display match types as a table
-
-elif view_option == "Show all Matches":
-    st.header("All Matches")
-    matches = get_all_matches()  # Retrieve all matches from the database
-    st.table(matches)  # Display matches as a table
+if show_matches:
+    st.subheader("All Matches")
+    matches = get_all_matches()
+    if matches:
+        st.write("MatchID | Date | Time Completed | Match Type ID | Player 1 ID | Player 2 ID | Player 1 Points | Player 2 Points | Player 1 PR | Player 2 PR | Player 1 Luck | Player 2 Luck")
+        st.table(matches)
+    else:
+        st.error("No matches found.")
