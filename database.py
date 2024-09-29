@@ -43,13 +43,13 @@ def create_players_table():
     conn.commit()
     conn.close()
 
-# Create the Matches table
-def create_matches_table():
+# Create the MatchResults table
+def create_match_results_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Matches (
-            MatchID INT AUTO_INCREMENT PRIMARY KEY,
+        CREATE TABLE IF NOT EXISTS MatchResults (
+            MatchResultID INT AUTO_INCREMENT PRIMARY KEY,
             Date DATE NOT NULL,
             TimeCompleted TIME,
             MatchTypeID INT,
@@ -109,7 +109,7 @@ def add_match_result(player1_id, player2_id, player1_points, player2_points, mat
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO Matches 
+        INSERT INTO MatchResults 
         (Date, Player1ID, Player2ID, Player1Points, Player2Points, MatchTypeID) 
         VALUES (NOW(), %s, %s, %s, %s, %s)
     ''', (player1_id, player2_id, player1_points, player2_points, match_type_id))
@@ -151,20 +151,20 @@ def get_match_types():
         return []
 
 # Function to retrieve all matches
-def get_matches():
+def get_match_results():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Matches")
-        matches = cursor.fetchall()
+        cursor.execute("SELECT * FROM MatchResults")
+        matchresults = cursor.fetchall()
         conn.close()
 
-        if not matches:
-            st.error("No matches found.")
+        if not matchresults:
+            st.error("No match results found.")
         
-        return matches
+        return matchresults
     except Exception as e:
-        st.error(f"Error retrieving matches: {e}")
+        st.error(f"Error retrieving match results: {e}")
         return []
         
 # Retrieve matches for the leaderboard
