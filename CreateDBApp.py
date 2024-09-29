@@ -1,5 +1,5 @@
 import streamlit as st
-from database import create_players_table, create_matches_table, create_match_type_table
+from database import create_players_table, create_match_results_table, create_match_type_table
 
 st.title("Create Backgammon Database")
 
