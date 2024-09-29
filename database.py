@@ -116,33 +116,57 @@ def add_match_result(player1_id, player2_id, player1_points, player2_points, mat
     conn.commit()
     conn.close()
 
-# Retrieve all players from the Players table
+# Function to retrieve all players
 def get_players():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Players")
-    players = cursor.fetchall()
-    conn.close()
-    return players
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Players")
+        players = cursor.fetchall()
+        conn.close()
 
-# Retrieve all match types from the MatchType table
+        if not players:
+            st.error("No players found.")
+        
+        return players
+    except Exception as e:
+        st.error(f"Error retrieving players: {e}")
+        return []
+
+# Function to retrieve all match types
 def get_match_types():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM MatchType")
-    match_types = cursor.fetchall()
-    conn.close()
-    return match_types
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM MatchType")
+        match_types = cursor.fetchall()
+        conn.close()
 
-# Retrieve all matches from the Matches table
-def get_all_matches():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Matches")
-    matches = cursor.fetchall()
-    conn.close()
-    return matches
+        if not match_types:
+            st.error("No match types found.")
+        
+        return match_types
+    except Exception as e:
+        st.error(f"Error retrieving match types: {e}")
+        return []
 
+# Function to retrieve all matches
+def get_matches():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Matches")
+        matches = cursor.fetchall()
+        conn.close()
+
+        if not matches:
+            st.error("No matches found.")
+        
+        return matches
+    except Exception as e:
+        st.error(f"Error retrieving matches: {e}")
+        return []
+        
 # Retrieve matches for the leaderboard
 def get_leaderboard():
     try:
