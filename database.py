@@ -167,8 +167,8 @@ def get_match_results():
         st.error(f"Error retrieving match results: {e}")
         return []
         
-# Retrieve matches for the leaderboard
-def get_leaderboard():
+# Retrieve standings
+def get_standings():
     try:
         conn = create_connection()
         cursor = conn.cursor()
@@ -178,15 +178,15 @@ def get_leaderboard():
             ORDER BY WinPercentage DESC
             LIMIT 10
         ''')
-        leaderboard = cursor.fetchall()
+        standings = cursor.fetchall()
         conn.close()
 
-        if not leaderboard:
-            st.error("Leaderboard is empty or not found.")
+        if not standings:
+            st.error("Standings is empty or not found.")
         
-        return leaderboard
+        return standings
     except Exception as e:
-        st.error(f"Error retrieving leaderboard: {e}")
+        st.error(f"Error retrieving standings: {e}")
         return []
 
 # Function to check existing tables
