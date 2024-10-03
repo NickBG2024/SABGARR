@@ -8,9 +8,6 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
-# Display tables in the sidebar
-tablecheck = check_tables()
-
 # Add an icon image to sidebar
 st.sidebar.markdown(
     """
