@@ -11,7 +11,7 @@ st.write("Welcome to the homepage of the South African Backgammon Round Robin! T
 # Add an icon image to sidebar
 st.sidebar.markdown(
     """
-    <div style='text-align: center;'>
+    <div style='text-align: center; margin: 20px 5px 20px 5px;'>
         <img src='https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg' width='250'/>
     </div>
     """, unsafe_allow_html=True
