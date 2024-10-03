@@ -12,7 +12,7 @@ st.write("Welcome to the homepage of the South African Backgammon Round Robin! T
 tablecheck = check_tables()
 
 # Add an icon image to sidebar
-st.sidebar.image("https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg", width = 100)
+st.sidebar.image("https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg", width = 250)
 
 st.sidebar.title("Display selection: ")
 page = st.sidebar.selectbox("View", ["Leaderboard", "Fixtures", "Match History"])
