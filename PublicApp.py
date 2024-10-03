@@ -19,16 +19,17 @@ st.sidebar.markdown(
 
 
 st.sidebar.title("Display selection: ")
-page = st.sidebar.selectbox("View", ["Leaderboard", "Fixtures", "Match History"])
+page = st.sidebar.selectbox("View", ["Standings", "Fixtures", "Match History"])
 
 # Show Standings
 if page == "Standings":
     standings = get_standings()
+    st.write("Here are the standings for the current season:")
     st.table(standings)
 
 # Show Fixtures
 elif page == "Fixtures":
-    st.write("Fixtures will be listed here")
+    st.write("We are currently between seasons, stay tuned for upcoming fixtures.")
 
 # Show Match History
 elif page == "Match History":
