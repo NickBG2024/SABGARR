@@ -3,6 +3,7 @@ import streamlit as st
 # Content outside the tabs (above)
 st.title("SABGA Backgammon Dashboard")
 st.write("General stats and announcements can go here.")
+st.write(st.__version__)
 
 # Create tabs in a section
 tab1, tab2, tab3 = st.tabs(["Leaderboard", "Match History", "Standings"])
