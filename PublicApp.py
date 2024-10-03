@@ -21,8 +21,8 @@ st.sidebar.markdown(
 st.sidebar.title("Display selection: ")
 page = st.sidebar.selectbox("View", ["Leaderboard", "Fixtures", "Match History"])
 
-# Show Leaderboard
-if page == "Leaderboard":
+# Show Standings
+if page == "Standings":
     standings = get_standings()
     st.table(standings)
 
@@ -36,7 +36,7 @@ elif page == "Match History":
     st.table(match_results)
 
 # In the main section
-st.sidebar.metric(label="Total Wins", value="34", delta="5")
+st.sidebar.metric(label="Players", value="34", delta="5")
 
 # In the sidebar
-st.sidebar.metric(label="Win Percentage", value="70%", delta="-3%")
+st.sidebar.metric(label="Matches played", value="70%", delta="-3%")
