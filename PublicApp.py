@@ -6,6 +6,7 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 
 # Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
+st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
 # Display tables in the sidebar
 tablecheck = check_tables()
@@ -13,7 +14,7 @@ tablecheck = check_tables()
 # Add an icon image to sidebar
 st.sidebar.image("https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg", width = 100)
 
-st.sidebar.title("Public Section")
+st.sidebar.title("Display selection: ")
 page = st.sidebar.selectbox("View", ["Leaderboard", "Fixtures", "Match History"])
 
 # Show Leaderboard
