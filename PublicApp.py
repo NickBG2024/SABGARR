@@ -20,6 +20,11 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
+# In the main section
+st.metric(label="Total Wins", value="34", delta="5")
+
+# In the sidebar
+st.sidebar.metric(label="Win Percentage", value="70%", delta="-3%")
 
 st.sidebar.title("Display selection: ")
 page = st.sidebar.selectbox("View", ["Leaderboard", "Fixtures", "Match History"])
