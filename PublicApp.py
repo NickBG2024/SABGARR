@@ -1,6 +1,9 @@
 import streamlit as st
 from database import get_standings, get_match_results, check_tables
 
+# Add a header image at the top of the page
+st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
+
 # Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
 
