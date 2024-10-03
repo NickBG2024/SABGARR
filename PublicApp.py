@@ -10,6 +10,9 @@ st.title("SABGA Backgammon: Round Robin 2025")
 # Display tables in the sidebar
 tablecheck = check_tables()
 
+# Add an icon image to sidebar
+st.sidebar.image("https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg", width = 100)
+
 st.sidebar.title("Public Section")
 page = st.sidebar.selectbox("View", ["Leaderboard", "Fixtures", "Match History"])
 
