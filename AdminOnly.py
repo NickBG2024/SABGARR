@@ -1,7 +1,21 @@
 import streamlit as st
 from database import add_player, add_match_type, add_match_result, get_players, get_match_types, get_match_results
 
-st.title("SABGA Admin Only")
+# Add a header image at the top of the page
+st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
+
+# Public-facing app for all users
+st.title("SABGA Backgammon: Admin page")
+st.write("Welcome to the admin page of South African Backgammon Round Robin! This page is for admins to manage the SABGA National Round Robin.")
+
+# Add an icon image to sidebar
+st.sidebar.markdown(
+    """
+    <div style='text-align: center;'>
+        <img src='https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg' width='250'/>
+    </div>
+    """, unsafe_allow_html=True
+)
 
 # Sidebar checkboxes
 show_add_player_form = st.sidebar.checkbox("Add Player")
