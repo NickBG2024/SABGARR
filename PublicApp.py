@@ -41,6 +41,22 @@ if page == "Standings":
     with tab3:
         st.header("Round Robin Stats")
         st.write("Display the RR stats here.")
+        # Create tabs in a section
+    tab1, tab2, tab3 = st.tabs(["Current Season", "Past Seasons", "Round Robin Stats"])
+
+    # Content for each tab
+    with tab1:
+        st.header("Current Season")
+        st.write("SABGA Round Robin Season 1 (Jan 2024 - March 2024)")
+        st.table(standings)
+    
+    with tab2:
+        st.header("Past Seasons")
+        st.write("Display the past seasons, more tabs?.")
+    
+    with tab3:
+        st.header("Round Robin Stats")
+        st.write("Display the RR stats here.")
 
 # Show Fixtures
 elif page == "Fixtures":
