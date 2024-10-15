@@ -43,7 +43,6 @@ if page == "Standings":
         st.write("Display the RR stats here.")
         # Create tabs in a section
     tab4, tab5, tab6, tab7 = st.tabs(["Stats by Player", "Stats by Season", "Stats by Year", "Historical Stats"])
-
     # Content for each tab
     with tab4:
         st.header("Stats by Player")
