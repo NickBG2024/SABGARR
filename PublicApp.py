@@ -42,23 +42,23 @@ if page == "Standings":
         st.header("Round Robin Stats")
         st.write("Display the RR stats here.")
         # Create tabs in a section
-    tab4, tab5, tab6, tab7 = st.tabs(["Stats by Player", "Stats by Season", "Stats by Year", "Historical Stats"])
-    # Content for each tab
-    with tab4:
-        st.header("Stats by Player")
-        st.write("Select a player from the dropdown to view their stats")
+        tab4, tab5, tab6, tab7 = st.tabs(["Stats by Player", "Stats by Season", "Stats by Year", "Historical Stats"])
+        # Content for each tab
+        with tab4:
+            st.header("Stats by Player")
+            st.write("Select a player from the dropdown to view their stats")
+        
+        with tab5:
+            st.header("Stats by Season")
+            st.write("Select the season from the dropdown to view season's stats")
+        
+        with tab6:
+            st.header("Stats by Year")
+            st.write("Select the year from the dropdown to view year's stats")
     
-    with tab5:
-        st.header("Stats by Season")
-        st.write("Select the season from the dropdown to view season's stats")
-    
-    with tab6:
-        st.header("Stats by Year")
-        st.write("Select the year from the dropdown to view year's stats")
-
-    with tab7:
-        st.header("Historical Stats")
-        st.write("Overall stats, from all time:")
+        with tab7:
+            st.header("Historical Stats")
+            st.write("Overall stats, from all time:")
 
 # Show Fixtures
 elif page == "Fixtures":
