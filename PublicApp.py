@@ -36,27 +36,30 @@ if page == "Standings":
     
     with tab2:
         st.header("Past Seasons")
-        st.write("Display the past seasons, more tabs?.")
+        st.write("Use the tabs below to browse previous season standings.")
     
     with tab3:
         st.header("Round Robin Stats")
         st.write("Display the RR stats here.")
         # Create tabs in a section
-    tab1, tab2, tab3 = st.tabs(["Current Season", "Past Seasons", "Round Robin Stats"])
+    tab4, tab5, tab6, tab7 = st.tabs(["Stats by Player", "Stats by Season", "Stats by Year", "Historical Stats"])
 
     # Content for each tab
-    with tab1:
-        st.header("Current Season")
-        st.write("SABGA Round Robin Season 1 (Jan 2024 - March 2024)")
-        st.table(standings)
+    with tab4:
+        st.header("Stats by Player")
+        st.write("Select a player from the dropdown to view their stats")
     
-    with tab2:
-        st.header("Past Seasons")
-        st.write("Display the past seasons, more tabs?.")
+    with tab5:
+        st.header("Stats by Season")
+        st.write("Select the season from the dropdown to view season's stats")
     
-    with tab3:
-        st.header("Round Robin Stats")
-        st.write("Display the RR stats here.")
+    with tab6:
+        st.header("Stats by Year")
+        st.write("Select the year from the dropdown to view year's stats")
+
+    with tab7:
+        st.header("Historical Stats")
+        st.write("Overall stats, from all time:")
 
 # Show Fixtures
 elif page == "Fixtures":
