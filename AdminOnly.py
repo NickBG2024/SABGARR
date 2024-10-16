@@ -17,6 +17,16 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
+# Retrieve the current status of the email checker
+email_checker_status = get_email_checker_status()
+
+# Checkbox to toggle email checker on/off
+email_checker_checkbox = st.sidebar.checkbox("Enable Email Checker", value=email_checker_status)
+
+if email_checker_checkbox != email_checker_status:
+    set_email_checker_status(email_checker_checkbox)
+    st.success(f"Email Checker {'enabled' if email_checker_checkbox else 'disabled'}")
+    
 # Sidebar checkboxes
 show_add_player_form = st.sidebar.checkbox("Add Player")
 show_add_match_type_form = st.sidebar.checkbox("Add Match Type")
