@@ -1,5 +1,5 @@
 import streamlit as st
-from database import create_players_table, create_match_results_table, create_match_type_table
+from database import create_players_table, create_match_results_table, create_match_type_table, create_appsettings_table
 
 st.title("Create Backgammon Database")
 
@@ -14,3 +14,7 @@ if st.button("Create Match Results Table"):
 if st.button("Create Match Type Table"):
     create_match_type_table()
     st.success("Match Type table created.")
+
+if st.button("Create appSettings Table"):
+    create_appsettings_table()
+    st.success("App settings table created.")
