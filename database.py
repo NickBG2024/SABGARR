@@ -17,6 +17,23 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+# Retrieve the email checker status
+def get_email_checker_status():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT EmailCheckerEnabled FROM AppSettings LIMIT 1")
+    status = cursor.fetchone()[0]
+    conn.close()
+    return status
+
+# Update the email checker status
+def set_email_checker_status(status):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE AppSettings SET EmailCheckerEnabled = %s", (status,))
+    conn.commit()
+    conn.close()
+    
 # Create the Players table
 def create_players_table():
     conn = create_connection()
