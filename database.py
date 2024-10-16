@@ -99,6 +99,19 @@ def create_match_type_table():
     conn.commit()
     conn.close()
 
+# Add table for AppSettings
+def create_appsettings_table():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+         CREATE TABLE IF NOT EXISTS AppSettings (
+            SettingID INT AUTO_INCREMENT PRIMARY KEY,
+            EmailCheckerEnabled BOOLEAN DEFAULT TRUE
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    
 # Insert a new player
 def add_player(name, nickname, email):
     conn = create_connection()
