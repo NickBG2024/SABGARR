@@ -21,8 +21,19 @@ def create_connection():
 def get_email_checker_status():
     conn = create_connection()
     cursor = conn.cursor()
+    
+    # Ensure the AppSettings table has at least one row
     cursor.execute("SELECT EmailCheckerEnabled FROM AppSettings LIMIT 1")
-    status = cursor.fetchone()[0]
+    result = cursor.fetchone()
+    
+    # If no row is found, insert default value (enabled) into AppSettings
+    if result is None:
+        cursor.execute("INSERT INTO AppSettings (EmailCheckerEnabled) VALUES (TRUE)")
+        conn.commit()
+        status = True  # Default to enabled if no record exists
+    else:
+        status = result[0]
+    
     conn.close()
     return status
 
