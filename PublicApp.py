@@ -11,6 +11,7 @@ st.write("Welcome to the homepage of the South African Backgammon Round Robin! T
 # Check if the email checker is enabled
 if get_email_checker_status():
     #check_for_new_emails()  # Function that checks for new emails and parses them
+    st.info("Email checker not created yet.")
 else:
     st.info("Email checker is currently disabled by the admin.")
     
