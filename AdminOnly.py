@@ -27,7 +27,7 @@ if email_checker_checkbox != email_checker_status:
     set_email_checker_status(email_checker_checkbox)
     st.success(f"Email Checker {'enabled' if email_checker_checkbox else 'disabled'}")
     
-# Sidebar checkboxes
+# Sidebar checkboxes for adding to databases
 st.sidebar.subheader("Add to Databases")
 show_add_player_form = st.sidebar.checkbox("Add Player")
 show_add_match_type_form = st.sidebar.checkbox("Add Match Type")
@@ -38,6 +38,11 @@ st.sidebar.subheader("Show Databases")
 show_players = st.sidebar.checkbox("Show all Players")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
 show_match_results = st.sidebar.checkbox("Show all Match Results")
+
+# New checkboxes to updating a row
+st.sidebar.subheader("Update Table Content")
+page = st.sidebar.selectbox("View", ["Players","Match Types","Match Results"])
+
 
 # Headings and forms for adding data
 if show_add_player_form:
