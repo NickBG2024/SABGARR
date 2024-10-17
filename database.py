@@ -1,5 +1,6 @@
 import mysql.connector
 import email
+import imaplib
 import streamlit as st
 
 # Create a connection to the database
