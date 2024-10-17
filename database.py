@@ -1,4 +1,5 @@
 import mysql.connector
+import email
 import streamlit as st
 
 # Create a connection to the database
@@ -19,6 +20,32 @@ def create_connection():
 
 # Check for new emails
 def check_for_new_emails():
+    # Get email credentials from Streamlit Secrets
+    EMAIL = st.secrets["imap"]["email"]
+    PASSWORD = st.secrets["imap"]["password"]
+    
+    # Try connecting to the email server
+    try:
+        mail = imaplib.IMAP4_SSL('mail.sabga.co.za', 993)
+        mail.login(EMAIL, PASSWORD)
+        mail.select('inbox')
+        st.write("Login successful")
+    except imaplib.IMAP4.error as e:
+        st.error(f"IMAP login failed: {str(e)}")
+    
+    # Search for emails with "Admin: A league match was played" in the subject
+    status, messages = mail.search(None, '(SUBJECT "Admin: A league match was played")')
+    
+    # Check the number of emails found
+    email_ids = messages[0].split()
+    
+    # Display how many emails were found
+    if email_ids:
+        st.write(f"Found {len(email_ids)} emails with 'Admin: A league match was played' in the subject.")
+    else:
+        st.write("No emails found with this search term in the subject.")
+# Logout from the email server
+mail.logout()
     
 # Retrieve the email checker status
 def get_email_checker_status():
