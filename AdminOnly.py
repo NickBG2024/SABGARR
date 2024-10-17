@@ -28,11 +28,13 @@ if email_checker_checkbox != email_checker_status:
     st.success(f"Email Checker {'enabled' if email_checker_checkbox else 'disabled'}")
     
 # Sidebar checkboxes
+st.sidebar.subhead("Add to Databases")
 show_add_player_form = st.sidebar.checkbox("Add Player")
 show_add_match_type_form = st.sidebar.checkbox("Add Match Type")
 show_add_match_result_form = st.sidebar.checkbox("Add Match Result")
 
 # New checkboxes for showing tables
+st.sidebar.subhead("Show Databases")
 show_players = st.sidebar.checkbox("Show all Players")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
 show_match_results = st.sidebar.checkbox("Show all Match Results")
