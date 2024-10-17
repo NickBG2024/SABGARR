@@ -45,8 +45,8 @@ def check_for_new_emails():
         st.write(f"Found {len(email_ids)} emails with 'Admin: A league match was played' in the subject.")
     else:
         st.write("No emails found with this search term in the subject.")
-# Logout from the email server
-mail.logout()
+    # Logout from the email server
+    mail.logout()
     
 # Retrieve the email checker status
 def get_email_checker_status():
