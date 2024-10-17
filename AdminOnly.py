@@ -41,7 +41,7 @@ show_match_results = st.sidebar.checkbox("Show all Match Results")
 
 # New checkboxes to updating a row
 st.sidebar.subheader("Update Table Content")
-page = st.sidebar.selectbox(["Players","Match Types","Match Results"])
+page = st.sidebar.selectbox("",["Players","Match Types","Match Results"])
 st.sidebar.write(".....")
 
 # Headings and forms for adding data
