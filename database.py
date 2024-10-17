@@ -17,6 +17,9 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+# Check for new emails
+def check_for_new_emails():
+    
 # Retrieve the email checker status
 def get_email_checker_status():
     conn = create_connection()
