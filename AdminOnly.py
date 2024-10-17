@@ -44,6 +44,48 @@ st.sidebar.subheader("Update Table Content")
 page = st.sidebar.selectbox("",["Players","Match Types","Match Results"])
 st.sidebar.write(".....")
 
+# Editing Players
+if page == "Players":
+    st.subheader("Edit Player")
+
+    # Fetch all players to populate the selectbox
+    players = get_players()
+
+    if players:
+        # Create a dictionary to map player names to their IDs for selection
+        player_dict = {f"{player[1]} (ID: {player[0]})": player for player in players}
+        selected_player = st.selectbox("Select Player to Edit", list(player_dict.keys()))
+
+        if selected_player:
+            player_data = player_dict[selected_player]
+            player_id = player_data[0]  # Extract the PlayerID
+
+            # Prepopulate form with the selected player's data
+            with st.form(key='edit_player_form'):
+                name = st.text_input("Name", value=player_data[1])
+                nickname = st.text_input("Nickname", value=player_data[2])
+                email = st.text_input("Email", value=player_data[3])
+
+                # Form submission
+                submitted = st.form_submit_button("Update Player")
+                if submitted:
+                    # Call update function to update the player in the database
+                    update_player(player_id, name, nickname, email)
+                    st.success("Player updated successfully!")
+                    st.experimental_rerun()
+
+# Add this function to update player in database
+def update_player(player_id, name, nickname, email):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE Players
+        SET Name = %s, Nickname = %s, Email = %s
+        WHERE PlayerID = %s
+    ''', (name, nickname, email, player_id))
+    conn.commit()
+    conn.close()
+
 # Headings and forms for adding data
 if show_add_player_form:
     st.subheader("Add Player")
