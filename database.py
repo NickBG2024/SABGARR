@@ -102,6 +102,24 @@ def create_players_table():
     conn.commit()
     conn.close()
 
+# Create the Fixtures table
+def create_fixtures_table():
+    conn = create_connection()
+    cursor = conn.cursor()
+    curson.execute('''
+     CREATE TABLE IF NOT EXISTS Fixtures (
+            FixtureID INT AUTO_INCREMENT PRIMARY KEY,
+            MatchTypeID INT,
+            Player1ID INT,
+            Player2ID INT,
+            FOREIGN KEY (Player1ID) REFERENCES Players(PlayerID),
+            FOREIGN KEY (Player2ID) REFERENCES Players(PlayerID),
+            FOREIGN KEY (MatchTypeID) REFERENCES MatchType(MatchTypeID)
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    
 # Create the MatchResults table
 def create_match_results_table():
     conn = create_connection()
