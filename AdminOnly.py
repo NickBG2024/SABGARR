@@ -73,6 +73,100 @@ if page == "Players":
                     update_player(player_id, name, nickname, email)
                     st.success("Player updated successfully!")
                     st.experimental_rerun()
+                    
+# Editing Match Types
+if page == "Match Types":
+    st.subheader("Edit Match Type")
+
+    # Fetch all match types
+    match_types = get_match_types()
+
+    if match_types:
+        # Create a dictionary to map match type titles to their IDs for selection
+        match_type_dict = {f"{match_type[1]} (ID: {match_type[0]})": match_type for match_type in match_types}
+        selected_match_type = st.selectbox("Select Match Type to Edit", list(match_type_dict.keys()))
+
+        if selected_match_type:
+            match_type_data = match_type_dict[selected_match_type]
+            match_type_id = match_type_data[0]  # Extract the MatchTypeID
+
+            # Prepopulate form with the selected match type's data
+            with st.form(key='edit_match_type_form'):
+                match_type_title = st.text_input("Match Type Title", value=match_type_data[1])
+
+                # Form submission
+                submitted = st.form_submit_button("Update Match Type")
+                if submitted:
+                    # Call update function to update the match type in the database
+                    update_match_type(match_type_id, match_type_title)
+                    st.success("Match type updated successfully!")
+                    st.experimental_rerun()
+
+# Add this function to update match type in database
+def update_match_type(match_type_id, match_type_title):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE MatchTypes
+        SET MatchTypeTitle = %s
+        WHERE MatchTypeID = %s
+    ''', (match_type_title, match_type_id))
+    conn.commit()
+    conn.close()
+
+# Editing Match Results
+if page == "Match Results":
+    st.subheader("Edit Match Result")
+
+    # Fetch all match results
+    match_results = get_match_results()
+
+    if match_results:
+        # Create a dictionary to map match result IDs to their data for selection
+        match_result_dict = {f"Match ID {match_result[0]} (Date: {match_result[1]})": match_result for match_result in match_results}
+        selected_match_result = st.selectbox("Select Match Result to Edit", list(match_result_dict.keys()))
+
+        if selected_match_result:
+            match_result_data = match_result_dict[selected_match_result]
+            match_result_id = match_result_data[0]  # Extract the MatchResultID
+
+            # Prepopulate form with the selected match result's data
+            with st.form(key='edit_match_result_form'):
+                date = st.date_input("Date", value=match_result_data[1])
+                time_completed = st.time_input("Time Completed", value=match_result_data[2])
+                match_type_id = st.number_input("Match Type ID", min_value=1, value=match_result_data[3])
+                player1_id = st.number_input("Player 1 ID", min_value=1, value=match_result_data[4])
+                player2_id = st.number_input("Player 2 ID", min_value=1, value=match_result_data[5])
+                player1_points = st.number_input("Player 1 Points", min_value=0, value=match_result_data[6])
+                player2_points = st.number_input("Player 2 Points", min_value=0, value=match_result_data[7])
+                player1_pr = st.number_input("Player 1 PR", min_value=0.0, value=match_result_data[8])
+                player2_pr = st.number_input("Player 2 PR", min_value=0.0, value=match_result_data[9])
+                player1_luck = st.number_input("Player 1 Luck", min_value=0.0, value=match_result_data[10])
+                player2_luck = st.number_input("Player 2 Luck", min_value=0.0, value=match_result_data[11])
+
+                # Form submission
+                submitted = st.form_submit_button("Update Match Result")
+                if submitted:
+                    # Call update function to update the match result in the database
+                    update_match_result(match_result_id, date, time_completed, match_type_id, player1_id, player2_id,
+                                        player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck)
+                    st.success("Match result updated successfully!")
+                    st.experimental_rerun()
+
+# Add this function to update match result in database
+def update_match_result(match_result_id, date, time_completed, match_type_id, player1_id, player2_id,
+                        player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE MatchResults
+        SET Date = %s, TimeCompleted = %s, MatchTypeID = %s, Player1ID = %s, Player2ID = %s,
+            Player1Points = %s, Player2Points = %s, Player1PR = %s, Player2PR = %s, Player1Luck = %s, Player2Luck = %s
+        WHERE MatchResultID = %s
+    ''', (date, time_completed, match_type_id, player1_id, player2_id, player1_points, player2_points,
+          player1_pr, player2_pr, player1_luck, player2_luck, match_result_id))
+    conn.commit()
+    conn.close()
 
 # Add this function to update player in database
 def update_player(player_id, name, nickname, email):
