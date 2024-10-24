@@ -39,7 +39,7 @@ st.sidebar.subheader("Show Databases")
 show_players = st.sidebar.checkbox("Show all Players")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
 show_match_results = st.sidebar.checkbox("Show all Match Results")
-show_fixures = st.side.checkbox("Show all Fixtures")
+show_fixures = st.sidebar.checkbox("Show all Fixtures")
 
 # New checkboxes to updating a row
 st.sidebar.subheader("Update Table Content")
