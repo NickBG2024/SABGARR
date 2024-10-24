@@ -106,7 +106,7 @@ def create_players_table():
 def create_fixtures_table():
     conn = create_connection()
     cursor = conn.cursor()
-    curson.execute('''
+    cursor.execute('''
      CREATE TABLE IF NOT EXISTS Fixtures (
             FixtureID INT AUTO_INCREMENT PRIMARY KEY,
             MatchTypeID INT,
