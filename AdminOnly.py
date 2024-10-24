@@ -209,6 +209,9 @@ if show_add_match_type_form:
             st.success("Match type added successfully!")
             st.experimental_rerun()
 
+if show_add_fixture_form:
+    st.subheader("Add Fixture")
+    
 if show_add_match_result_form:
     st.subheader("Add Match Result")
     with st.form(key='add_match_result_form'):
