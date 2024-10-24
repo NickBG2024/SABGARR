@@ -32,16 +32,18 @@ st.sidebar.subheader("Add to Databases")
 show_add_player_form = st.sidebar.checkbox("Add Player")
 show_add_match_type_form = st.sidebar.checkbox("Add Match Type")
 show_add_match_result_form = st.sidebar.checkbox("Add Match Result")
+show_add_fixture_form = st.sidebar.checkbox("Add Fixture")
 
 # New checkboxes for showing tables
 st.sidebar.subheader("Show Databases")
 show_players = st.sidebar.checkbox("Show all Players")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
 show_match_results = st.sidebar.checkbox("Show all Match Results")
+show_fixures = st.side.checkbox("Show all Fixtures")
 
 # New checkboxes to updating a row
 st.sidebar.subheader("Update Table Content")
-page = st.sidebar.selectbox("",["Players","Match Types","Match Results"])
+page = st.sidebar.selectbox("",["Players","Match Types","Match Results","Fixtures"])
 st.sidebar.write("Editing fields will open in main section -->")
 
 # Editing Players
@@ -114,6 +116,10 @@ def update_match_type(match_type_id, match_type_title):
     conn.commit()
     conn.close()
 
+# Editing Fixtures
+if page = "Fixtures":
+    st.subheader("Edit Fixture")
+    
 # Editing Match Results
 if page == "Match Results":
     st.subheader("Edit Match Result")
@@ -250,3 +256,7 @@ if show_match_results:
         st.table(match_results)
     else:
         st.error("No match results found.")
+
+if show_fixures:
+    st.subheader("All fixtures")
+    
