@@ -42,7 +42,7 @@ show_match_results = st.sidebar.checkbox("Show all Match Results")
 # New checkboxes to updating a row
 st.sidebar.subheader("Update Table Content")
 page = st.sidebar.selectbox("",["Players","Match Types","Match Results"])
-st.sidebar.write(".....")
+st.sidebar.write("Editing fields will open in main section -->")
 
 # Editing Players
 if page == "Players":
