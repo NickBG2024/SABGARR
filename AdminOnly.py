@@ -1,5 +1,6 @@
 import streamlit as st
-from database import add_player, add_match_type, add_match_result, get_fixtures, get_players, get_match_types, get_match_results, get_email_checker_status, set_email_checker_status
+from database import add_player, add_match_type, add_match_result, get_fixtures, get_players, get_match_types, get_match_results, get_email_checker_status, set_email_checker_status, add_series, add_match_type_to_series, get_series, get_series_match_types, 
+    update_series_title, update_match_type_in_series
 
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)
@@ -33,6 +34,7 @@ show_add_player_form = st.sidebar.checkbox("Add Player")
 show_add_match_type_form = st.sidebar.checkbox("Add Match Type")
 show_add_match_result_form = st.sidebar.checkbox("Add Match Result")
 show_add_fixture_form = st.sidebar.checkbox("Add Fixture")
+show_add_series_form = st.sidebar.checkbox("Add Series")
 
 # New checkboxes for showing tables
 st.sidebar.subheader("Show Databases")
@@ -40,12 +42,77 @@ show_players = st.sidebar.checkbox("Show all Players")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
 show_match_results = st.sidebar.checkbox("Show all Match Results")
 show_fixtures = st.sidebar.checkbox("Show all Fixtures")
+show_series = st.sidebar.checkbox("Show all Series")
 
 # New checkboxes to updating a row
 st.sidebar.subheader("Update Table Content")
-page = st.sidebar.selectbox("",["Players","Match Types","Match Results","Fixtures"])
+
+# Dropdown for updating Series
+page = st.sidebar.selectbox("Select Table to Edit", ["Players", "Match Types", "Match Results", "Fixtures", "Series"])
 st.sidebar.write("Editing fields will open in main section -->")
 
+# 1. **Add Series Form**
+if show_add_series_form:
+    st.subheader("Add a New Series")
+
+    with st.form(key="add_series_form"):
+        series_title = st.text_input("Series Title")
+
+        # Submit to add the Series to the database
+        submitted = st.form_submit_button("Add Series")
+        if submitted and series_title:
+            add_series(series_title)
+            st.success(f"Series '{series_title}' added successfully!")
+            st.experimental_rerun()
+
+# 2. **Show Series Table Content**
+if show_series:
+    st.subheader("Series in Database")
+    series = get_series()
+    for s in series:
+        st.write(f"ID: {s[0]}, Title: {s[1]}")
+
+# 3. **Edit Series**
+if page == "Series":
+    st.subheader("Edit Series")
+
+    # Fetch all series
+    series = get_series()
+    if series:
+        # Map series titles to their IDs for selection
+        series_dict = {f"{s[1]} (ID: {s[0]})": s for s in series}
+        selected_series = st.selectbox("Select Series to Edit", list(series_dict.keys()))
+
+        if selected_series:
+            series_data = series_dict[selected_series]
+            series_id = series_data[0]
+
+            # Prepopulate the form with selected series data
+            with st.form(key='edit_series_form'):
+                series_title = st.text_input("Series Title", value=series_data[1])
+
+                # Form submission
+                submitted = st.form_submit_button("Update Series")
+                if submitted:
+                    update_series_title(series_id, series_title)
+                    st.success("Series updated successfully!")
+                    st.experimental_rerun()
+                    
+            # Show match types in the selected series
+            st.write("Match Types in this Series:")
+            match_types = get_series_match_types(series_id)
+            for match in match_types:
+                st.write(f"MatchType ID: {match[0]}, Title: {match[1]}")
+
+            # Option to add new match type to the series
+            with st.form(key="add_match_type_to_series_form"):
+                match_type_id = st.number_input("MatchType ID to Add", min_value=1)
+                submitted_add = st.form_submit_button("Add Match Type to Series")
+                if submitted_add:
+                    add_match_type_to_series(series_id, match_type_id)
+                    st.success("Match Type added to series!")
+                    st.experimental_rerun()
+                    
 # Editing Players
 if page == "Players":
     st.subheader("Edit Player")
