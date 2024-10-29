@@ -211,7 +211,16 @@ if show_add_match_type_form:
 
 if show_add_fixture_form:
     st.subheader("Add Fixture")
-    
+    with st.form(key='add_fixture_form'):
+        match_type_id = st.number_input("Match Type ID", min_value=1)
+        player1_id = st.number_input("Player 1 ID", min_value=1)
+        player2_id = st.number_input("Player 2 ID", min_value=1)
+        submitted = st.form_submit_button("Add Fixture")
+        if submitted:
+            add_fixture(match_type_id, player1_id, player2_id)
+            st.success("Fixture added successfully!")
+            st.experimental_rerun()
+            
 if show_add_match_result_form:
     st.subheader("Add Match Result")
     with st.form(key='add_match_result_form'):
@@ -262,4 +271,10 @@ if show_match_results:
 
 if show_fixtures:
     st.subheader("All fixtures")
+    fixtures = get_fixtures()
+    if fixtures:
+        st.write("FixtureID | MatchTypeID | Player1ID | Player2ID")
+        st.table(fixtures)
+    else:
+        st.error("No fixtures found.")
     
