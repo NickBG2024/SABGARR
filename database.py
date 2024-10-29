@@ -206,6 +206,35 @@ def add_match_result(player1_id, player2_id, player1_points, player2_points, mat
     conn.commit()
     conn.close()
 
+def add_fixture(match_type_id, player1_id, player2_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID)
+        VALUES (%s, %s, %s)
+    ''', (match_type_id, player1_id, player2_id))
+    conn.commit()
+    conn.close()
+
+def get_fixtures():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT FixtureID, MatchTypeID, Player1ID, Player2ID 
+            FROM Fixtures
+        ''')
+        fixtures = cursor.fetchall()
+        conn.close()
+
+        if not fixtures:
+            st.error("No fixtures found.")
+        
+        return fixtures
+    except Exception as e:
+        st.error(f"Error retrieving fixtures: {e}")
+        return []
+
 # Function to retrieve all players
 def get_players():
     try:
