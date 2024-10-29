@@ -63,6 +63,17 @@ def add_match_type_to_series(series_id, match_type_id):
     conn.commit()
     conn.close()
 
+def update_match_type_in_series(series_id, match_type_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE SeriesMatchTypes
+        SET MatchTypeID = %s
+        WHERE SeriesID = %s
+    ''', (match_type_id, series_id))
+    conn.commit()
+    conn.close()
+
 def update_series_title(series_id, series_title):
     conn = create_connection()
     cursor = conn.cursor()
