@@ -76,16 +76,22 @@ def set_email_checker_status(status):
     conn.commit()
     conn.close()
 
-def add_active_to_matchtype():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        ALTER TABLE MatchType 
-        ADD COLUMN Active BOOLEAN DEFAULT TRUE;
-    ''')
-    conn.commit()
-    conn.close()
-    
+def alter_matchresults():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            ALTER TABLE MatchResults
+            CHANGE COLUMN MatchID MatchResultID INT PRIMARY KEY,
+            ADD COLUMN FixtureID INT,
+            ADD CONSTRAINT FK_FixtureID FOREIGN KEY (FixtureID) REFERENCES Fixtures(FixtureID);
+        ''')
+        conn.commit()
+        print("MatchResults table altered successfully.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        conn.close()
     
 # Create the Players table
 def create_players_table():
