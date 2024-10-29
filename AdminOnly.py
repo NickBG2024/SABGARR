@@ -1,6 +1,21 @@
 import streamlit as st
-from database import add_player, add_match_type, add_match_result, get_fixtures, get_players, get_match_types, get_match_results, get_email_checker_status, set_email_checker_status, add_series, add_match_type_to_series, get_series, get_series_match_types, 
-    update_series_title, update_match_type_in_series
+from database import (
+    add_player,
+    add_match_type,
+    add_match_result,
+    get_fixtures,
+    get_players,
+    get_match_types,
+    get_match_results,
+    get_email_checker_status,
+    set_email_checker_status,
+    add_series,
+    add_match_type_to_series,
+    get_series,
+    get_series_match_types,
+    update_series_title,
+    update_match_type_in_series
+)
 
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)
