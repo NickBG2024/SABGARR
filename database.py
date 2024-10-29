@@ -153,7 +153,8 @@ def create_match_type_table():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS MatchType (
             MatchTypeID INT AUTO_INCREMENT PRIMARY KEY,
-            MatchTypeTitle VARCHAR(255) NOT NULL
+            MatchTypeTitle VARCHAR(255) NOT NULL,
+            Active BOOLEAN DEFAULT TRUE
         )
     ''')
     conn.commit()
