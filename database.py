@@ -19,6 +19,61 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+def add_series(series_title):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Series (SeriesTitle)
+        VALUES (%s)
+    ''', (series_title,))
+    conn.commit()
+    conn.close()
+
+def get_series():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT SeriesID, SeriesTitle
+        FROM Series
+    ''')
+    series = cursor.fetchall()
+    conn.close()
+    return series
+
+def get_series_match_types(series_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT MT.MatchTypeID, MT.MatchTypeTitle
+        FROM SeriesMatchTypes SMT
+        JOIN MatchType MT ON SMT.MatchTypeID = MT.MatchTypeID
+        WHERE SMT.SeriesID = %s
+    ''', (series_id,))
+    match_types = cursor.fetchall()
+    conn.close()
+    return match_types
+
+def add_match_type_to_series(series_id, match_type_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO SeriesMatchTypes (SeriesID, MatchTypeID)
+        VALUES (%s, %s)
+    ''', (series_id, match_type_id))
+    conn.commit()
+    conn.close()
+
+def update_series_title(series_id, series_title):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE Series
+        SET SeriesTitle = %s
+        WHERE SeriesID = %s
+    ''', (series_title, series_id))
+    conn.commit()
+    conn.close()
+
 # Check for new emails
 def check_for_new_emails():
     # Get email credentials from Streamlit Secrets
