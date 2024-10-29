@@ -1,5 +1,5 @@
 import streamlit as st
-from database import add_player, add_match_type, add_match_result, get_players, get_match_types, get_match_results, get_email_checker_status, set_email_checker_status
+from database import add_player, add_match_type, add_match_result, get_fixtures, get_players, get_match_types, get_match_results, get_email_checker_status, set_email_checker_status
 
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
