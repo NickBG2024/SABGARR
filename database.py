@@ -75,6 +75,17 @@ def set_email_checker_status(status):
     cursor.execute("UPDATE AppSettings SET EmailCheckerEnabled = %s", (status,))
     conn.commit()
     conn.close()
+
+def add_active_to_matchtype():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        ALTER TABLE MatchType 
+        ADD COLUMN Active BOOLEAN DEFAULT TRUE;
+    ''')
+    conn.commit()
+    conn.close()
+    
     
 # Create the Players table
 def create_players_table():
