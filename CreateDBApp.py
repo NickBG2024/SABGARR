@@ -1,5 +1,5 @@
 import streamlit as st
-from database import create_players_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table, add_active_to_matchtype
+from database import create_players_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table, alter_matchresults
 
 st.title("Create Backgammon Database")
 
@@ -23,6 +23,6 @@ if st.button("Create fixtures Table"):
     create_fixtures_table()
     st.success("Fixtures table created.")
 
-if st.button("Alter match-type"):
-    add_active_to_matchtype()
-    st.success("Altered match-type.")
+if st.button("Alter matchresults"):
+    alter_matchresults()
+    st.success("Altered matchresults.")
