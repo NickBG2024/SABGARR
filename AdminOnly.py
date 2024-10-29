@@ -260,6 +260,6 @@ if show_match_results:
     else:
         st.error("No match results found.")
 
-if show_fixures:
+if show_fixtures:
     st.subheader("All fixtures")
     
