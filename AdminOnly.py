@@ -117,7 +117,7 @@ def update_match_type(match_type_id, match_type_title):
     conn.close()
 
 # Editing Fixtures
-if page = "Fixtures":
+if page == "Fixtures":
     st.subheader("Edit Fixture")
     
 # Editing Match Results
