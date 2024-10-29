@@ -2,7 +2,7 @@ import streamlit as st
 from database import add_player, add_match_type, add_match_result, get_fixtures, get_players, get_match_types, get_match_results, get_email_checker_status, set_email_checker_status
 
 # Add a header image at the top of the page
-st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
+st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)
 
 # Public-facing app for all users
 st.title("SABGA Backgammon: Admin page")
@@ -95,24 +95,25 @@ if page == "Match Types":
             # Prepopulate form with the selected match type's data
             with st.form(key='edit_match_type_form'):
                 match_type_title = st.text_input("Match Type Title", value=match_type_data[1])
+                active_status = st.checkbox("Active", value=match_type_data[2])
 
                 # Form submission
                 submitted = st.form_submit_button("Update Match Type")
                 if submitted:
                     # Call update function to update the match type in the database
-                    update_match_type(match_type_id, match_type_title)
+                    update_match_type(match_type_id, match_type_title, active_status)
                     st.success("Match type updated successfully!")
                     st.experimental_rerun()
 
 # Add this function to update match type in database
-def update_match_type(match_type_id, match_type_title):
+def update_match_type(match_type_id, match_type_title, active_status):
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        UPDATE MatchTypes
-        SET MatchTypeTitle = %s
+        UPDATE MatchType
+        SET MatchTypeTitle = %s, Active = %s
         WHERE MatchTypeID = %s
-    ''', (match_type_title, match_type_id))
+    ''', (match_type_title, active_status, match_type_id))
     conn.commit()
     conn.close()
 
@@ -185,96 +186,3 @@ def update_player(player_id, name, nickname, email):
     ''', (name, nickname, email, player_id))
     conn.commit()
     conn.close()
-
-# Headings and forms for adding data
-if show_add_player_form:
-    st.subheader("Add Player")
-    with st.form(key='add_player_form'):
-        name = st.text_input("Name")
-        nickname = st.text_input("Heroes Nickname")
-        email = st.text_input("Email Address")
-        submitted = st.form_submit_button("Add Player")
-        if submitted:
-            add_player(name, nickname, email)
-            st.success("Player added successfully!")
-            st.experimental_rerun()
-
-if show_add_match_type_form:
-    st.subheader("Add Match Type")
-    with st.form(key='add_match_type_form'):
-        match_type_title = st.text_input("Match Type Title")
-        submitted = st.form_submit_button("Add Match Type")
-        if submitted:
-            add_match_type(match_type_title)
-            st.success("Match type added successfully!")
-            st.experimental_rerun()
-
-if show_add_fixture_form:
-    st.subheader("Add Fixture")
-    with st.form(key='add_fixture_form'):
-        match_type_id = st.number_input("Match Type ID", min_value=1)
-        player1_id = st.number_input("Player 1 ID", min_value=1)
-        player2_id = st.number_input("Player 2 ID", min_value=1)
-        submitted = st.form_submit_button("Add Fixture")
-        if submitted:
-            add_fixture(match_type_id, player1_id, player2_id)
-            st.success("Fixture added successfully!")
-            st.experimental_rerun()
-            
-if show_add_match_result_form:
-    st.subheader("Add Match Result")
-    with st.form(key='add_match_result_form'):
-        date = st.date_input("Date")
-        time_completed = st.time_input("Time Completed")
-        player1_id = st.number_input("Player 1 ID", min_value=1)
-        player2_id = st.number_input("Player 2 ID", min_value=1)
-        match_type_id = st.number_input("Match Type ID", min_value=1)
-        player1_points = st.number_input("Player 1 Points", min_value=0)
-        player2_points = st.number_input("Player 2 Points", min_value=0)
-        player1_pr = st.number_input("Player 1 PR", min_value=0.0)
-        player2_pr = st.number_input("Player 2 PR", min_value=0.0)
-        player1_luck = st.number_input("Player 1 Luck", min_value=0.0)
-        player2_luck = st.number_input("Player 2 Luck", min_value=0.0)
-        submitted = st.form_submit_button("Add Match Result")
-        if submitted:
-            add_match_result(date, time_completed, player1_id, player2_id, match_type_id, player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck)
-            st.success("Match result added successfully!")
-            st.experimental_rerun()
-
-# Display tables based on checkboxes
-if show_players:
-    st.subheader("All Players")
-    players = get_players()
-    if players:
-        st.write("PlayerID | Name | Nickname | Email | Games Played | Total Wins | Total Losses | Win Percentage | Average PR")
-        st.table(players)
-    else:
-        st.error("No players found.")
-
-if show_match_types:
-    st.subheader("All Match Types")
-    match_types = get_match_types()
-    if match_types:
-        st.write("MatchTypeID | MatchTypeTitle")
-        st.table(match_types)
-    else:
-        st.error("No match types found.")
-
-if show_match_results:
-    st.subheader("All Match Results")
-    match_results = get_match_results()
-    if match_results:
-        st.write("MatchResultID | Date | Time Completed | Match Type ID | Player 1 ID | Player 2 ID | Player 1 Points | Player 2 Points | Player 1 PR | Player 2 PR | Player 1 Luck | Player 2 Luck")
-        st.table(match_results)
-    else:
-        st.error("No match results found.")
-
-if show_fixtures:
-    st.subheader("All fixtures")
-    fixtures = get_fixtures()
-    if fixtures:
-        st.write("FixtureID | MatchTypeID | Player1ID | Player2ID")
-        st.table(fixtures)
-    else:
-        st.error("No fixtures found.")
-    
