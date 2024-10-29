@@ -92,7 +92,35 @@ def alter_matchresults():
         print(f"An error occurred: {e}")
     finally:
         conn.close()
+
+# Create Series table
+def create_series_table():
+    conn = create_connection()
+    cursor = conn.cursor()
     
+    # Create Series table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Series (
+            SeriesID INT PRIMARY KEY AUTO_INCREMENT,
+            SeriesTitle VARCHAR(100) NOT NULL
+        );
+    ''')
+    
+    # Create SeriesMatchTypes table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS SeriesMatchTypes (
+            SeriesMatchTypeID INT PRIMARY KEY AUTO_INCREMENT,
+            SeriesID INT,
+            MatchTypeID INT,
+            FOREIGN KEY (SeriesID) REFERENCES Series(SeriesID) ON DELETE CASCADE,
+            FOREIGN KEY (MatchTypeID) REFERENCES MatchType(MatchTypeID) ON DELETE CASCADE
+        );
+    ''')
+    
+    conn.commit()
+    print("Series and SeriesMatchTypes tables created successfully.")
+    conn.close()
+
 # Create the Players table
 def create_players_table():
     conn = create_connection()
