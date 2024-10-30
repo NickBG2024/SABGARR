@@ -62,9 +62,10 @@ show_series = st.sidebar.checkbox("Show all Series")
 # New checkboxes to updating a row
 st.sidebar.subheader("Update Table Content")
 
-# Dropdown for updating Series
-page = st.sidebar.selectbox("Select Table to Edit", ["Players", "Match Types", "Match Results", "Fixtures", "Series"])
-st.sidebar.write("Editing fields will open in main section -->")
+edit_players = st.sidebar.checkbox("Edit Players")
+edit_match_types = st.sidebar.checkbox("Edit Match Types")
+edit_match_results = st.sidebar.checkbox("Edit Match Results")
+edit_fixtures = st.sidebar.checkbox("Edit Fixtures")
 
 # 1. **Add Series Form**
 if show_add_series_form:
@@ -129,7 +130,7 @@ if page == "Series":
                     st.experimental_rerun()
                     
 # Editing Players
-if page == "Players":
+if edit_players:
     st.subheader("Edit Player")
 
     # Fetch all players to populate the selectbox
@@ -159,7 +160,7 @@ if page == "Players":
                     st.experimental_rerun()
                     
 # Editing Match Types
-if page == "Match Types":
+if edit_match_types:
     st.subheader("Edit Match Type")
 
     # Fetch all match types
@@ -200,11 +201,11 @@ def update_match_type(match_type_id, match_type_title, active_status):
     conn.close()
 
 # Editing Fixtures
-if page == "Fixtures":
+if edit_fixtures:
     st.subheader("Edit Fixture")
     
 # Editing Match Results
-if page == "Match Results":
+if edit_match_results:
     st.subheader("Edit Match Result")
 
     # Fetch all match results
