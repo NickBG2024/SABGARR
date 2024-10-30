@@ -66,6 +66,7 @@ edit_players = st.sidebar.checkbox("Edit Players")
 edit_match_types = st.sidebar.checkbox("Edit Match Types")
 edit_match_results = st.sidebar.checkbox("Edit Match Results")
 edit_fixtures = st.sidebar.checkbox("Edit Fixtures")
+edit_series = st.sidebar.checkbox("Edit Series")
 
 # 1. **Add Series Form**
 if show_add_series_form:
@@ -89,7 +90,7 @@ if show_series:
         st.write(f"ID: {s[0]}, Title: {s[1]}")
 
 # 3. **Edit Series**
-if page == "Series":
+if edit_series:
     st.subheader("Edit Series")
 
     # Fetch all series
