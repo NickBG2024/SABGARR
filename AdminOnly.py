@@ -79,6 +79,10 @@ if generate_fixtures:
     match_types = get_match_types()  # Assuming get_match_types() returns a list of tuples (MatchTypeID, MatchTypeTitle)
     players = get_players()  # Assuming get_players() returns a list of tuples (PlayerID, Name)
 
+    # Print statements to debug
+    print("Match Types:", match_types)
+    print("Players:", players)
+
     # Dropdown for Match Type selection
     match_type_id = st.selectbox("Select Match Type", [mt[0] for mt in match_types], format_func=lambda x: dict(match_types)[x])
 
