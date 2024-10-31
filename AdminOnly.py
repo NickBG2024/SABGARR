@@ -42,7 +42,11 @@ email_checker_checkbox = st.sidebar.checkbox("Enable Email Checker", value=email
 if email_checker_checkbox != email_checker_status:
     set_email_checker_status(email_checker_checkbox)
     st.success(f"Email Checker {'enabled' if email_checker_checkbox else 'disabled'}")
-    
+
+st.sidebar.subheader("ADMIN-FUNCTIONS")
+# Checkbox to access "Generate Fixtures" functionality
+generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
+
 # Sidebar checkboxes for adding to databases
 st.sidebar.subheader("Add to Databases")
 show_add_player_form = st.sidebar.checkbox("Add Player")
@@ -68,6 +72,51 @@ edit_match_results = st.sidebar.checkbox("Edit Match Results")
 edit_fixtures = st.sidebar.checkbox("Edit Fixtures")
 edit_series = st.sidebar.checkbox("Edit Series")
 
+# Generating Fixtures UI
+if generate_fixtures:
+    st.subheader("Generate Fixtures")
+
+    # Fetch available match types and players for dropdowns
+    match_types = get_match_types()  # Assuming get_match_types() returns a list of tuples (MatchTypeID, MatchTypeTitle)
+    players = get_players()  # Assuming get_players() returns a list of tuples (PlayerID, Name)
+
+    # Dropdown for Match Type selection
+    match_type_id = st.selectbox("Select Match Type", [mt[0] for mt in match_types], format_func=lambda x: dict(match_types)[x])
+
+    # Multi-select dropdowns for selecting up to 10 players
+    selected_players = []
+    for i in range(1, 11):
+        player = st.selectbox(f"Select Player {i}", options=[None] + players, format_func=lambda x: x[1] if x else "None")
+        if player:
+            selected_players.append(player[0])
+
+    # Ensure at least 3 players are selected
+    if len(selected_players) < 3:
+        st.warning("Please select at least 3 players to generate fixtures.")
+    else:
+        # Button to generate fixtures
+        if st.button("Generate Fixtures"):
+            generate_fixture_entries(match_type_id, selected_players)
+            st.success("Fixtures generated successfully!")
+
+# Define function to generate fixtures based on selected match type and players
+def generate_fixture_entries(match_type_id, player_ids):
+    conn = create_connection()
+    cursor = conn.cursor()
+    # Generate unique matchups between players
+    for i in range(len(player_ids)):
+        for j in range(i + 1, len(player_ids)):
+            player1_id, player2_id = player_ids[i], player_ids[j]
+            cursor.execute(
+                '''
+                INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID)
+                VALUES (%s, %s, %s)
+                ''',
+                (match_type_id, player1_id, player2_id)
+            )
+    conn.commit()
+    conn.close()
+    
 # 1. **Add Series Form**
 if show_add_series_form:
     st.subheader("Add a New Series")
