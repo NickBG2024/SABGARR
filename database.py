@@ -350,16 +350,16 @@ def get_fixtures():
 # Function to retrieve all players
 def get_players():
     try:
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Players")
-        players = cursor.fetchall()
-        conn.close()
+       conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT PlayerID, Name FROM Players")
+    players = cursor.fetchall()
+    conn.close()
 
         if not players:
             st.error("No players found.")
         
-        return players
+        return [(p[0], p[1]) for p in players]  # Ensure tuples with (ID, Name)
     except Exception as e:
         st.error(f"Error retrieving players: {e}")
         return []
@@ -369,14 +369,14 @@ def get_match_types():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM MatchType")
+        cursor.execute("SELECT MatchTypeID, MatchTypeTitle FROM MatchType WHERE active = 1")
         match_types = cursor.fetchall()
         conn.close()
 
         if not match_types:
             st.error("No match types found.")
         
-        return match_types
+        return [(mt[0], mt[1]) for mt in match_types]  # Ensure tuples with (ID, Title)
     except Exception as e:
         st.error(f"Error retrieving match types: {e}")
         return []
