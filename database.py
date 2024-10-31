@@ -19,6 +19,27 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+# In database.py
+def generate_fixture_entries(match_type_id, player_ids):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    # Generate fixtures for each unique pair of players
+    for i in range(len(player_ids)):
+        for j in range(i + 1, len(player_ids)):
+            player1_id = player_ids[i]
+            player2_id = player_ids[j]
+            cursor.execute(
+                """
+                INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID)
+                VALUES (%s, %s, %s)
+                """,
+                (match_type_id, player1_id, player2_id),
+            )
+
+    conn.commit()
+    conn.close()
+
 def add_series(series_title):
     conn = create_connection()
     cursor = conn.cursor()
