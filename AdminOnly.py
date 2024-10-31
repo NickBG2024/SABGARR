@@ -14,7 +14,8 @@ from database import (
     get_series,
     get_series_match_types,
     update_series_title,
-    update_match_type_in_series
+    update_match_type_in_series,
+    generate_fixture_entries,
 )
 
 # Add a header image at the top of the page
