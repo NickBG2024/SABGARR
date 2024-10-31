@@ -36,16 +36,11 @@ st.sidebar.markdown(
 # Retrieve the current status of the email checker
 email_checker_status = get_email_checker_status()
 
-# Checkbox to toggle email checker on/off
-email_checker_checkbox = st.sidebar.checkbox("Enable Email Checker", value=email_checker_status)
-
-if email_checker_checkbox != email_checker_status:
-    set_email_checker_status(email_checker_checkbox)
-    st.success(f"Email Checker {'enabled' if email_checker_checkbox else 'disabled'}")
-
-st.sidebar.subheader("ADMIN-FUNCTIONS")
+st.sidebar.subheader("Admin-Functions: Main")
 # Checkbox to access "Generate Fixtures" functionality
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
+# Checkbox to toggle email checker on/off
+email_checker_checkbox = st.sidebar.checkbox("Enable Email Checker", value=email_checker_status)
 
 # Sidebar checkboxes for adding to databases
 st.sidebar.subheader("Add to Databases")
@@ -71,6 +66,10 @@ edit_match_types = st.sidebar.checkbox("Edit Match Types")
 edit_match_results = st.sidebar.checkbox("Edit Match Results")
 edit_fixtures = st.sidebar.checkbox("Edit Fixtures")
 edit_series = st.sidebar.checkbox("Edit Series")
+
+if email_checker_checkbox != email_checker_status:
+    set_email_checker_status(email_checker_checkbox)
+    st.success(f"Email Checker {'enabled' if email_checker_checkbox else 'disabled'}")
 
 # Generating Fixtures UI
 if generate_fixtures:
