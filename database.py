@@ -350,11 +350,11 @@ def get_fixtures():
 # Function to retrieve all players
 def get_players():
     try:
-       conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT PlayerID, Name FROM Players")
-    players = cursor.fetchall()
-    conn.close()
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT PlayerID, Name FROM Players")
+        players = cursor.fetchall()
+        conn.close()
 
         if not players:
             st.error("No players found.")
