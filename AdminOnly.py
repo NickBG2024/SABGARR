@@ -6,7 +6,7 @@ from database import (
     add_match_result,
     get_fixtures,
     get_players_simple,
-    get_player_full,
+    get_players_full,
     get_match_types,
     get_match_results,
     get_email_checker_status,
