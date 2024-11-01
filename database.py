@@ -318,14 +318,17 @@ def add_player(name, nickname, email):
 
 # Insert a new match type
 def add_match_type(match_type_title, active):
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO MatchType (MatchTypeTitle) 
-        VALUES (%s)
-    ''', (match_type_title,active))
-    conn.commit()
-    conn.close()
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO MatchType (MatchTypeTitle, Active)
+            VALUES (%s, %s)
+        ''', (match_type_title, active))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        st.error(f"Error adding match type: {e}")
 
 # Insert a new match result
 def add_match_result(player1_id, player2_id, player1_points, player2_points, match_type_id):
