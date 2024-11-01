@@ -368,19 +368,35 @@ def get_fixtures():
         st.error(f"Error retrieving fixtures: {e}")
         return []
 
-# Function to retrieve all players
-def get_players():
+def get_players_full():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT PlayerID, Name FROM Players")
+        cursor.execute("SELECT PlayerID, Name, Nickname, GamesPlayed,AveragePR,CurrentLeague,DaysIdle FROM Players")
         players = cursor.fetchall()
         conn.close()
 
         if not players:
             st.error("No players found.")
         
-        return [(p[0], p[1]) for p in players]  # Ensure tuples with (ID, Name)
+        return [(p[0], p[1], p[2], p[3], p[4], p[5],p[6],p[7]) for p in players]  # Ensure tuples with (ID, Name, Nickname, GamesPlayed,AvePR,CurrentLeague,DaysIdle)
+    except Exception as e:
+        st.error(f"Error retrieving players: {e}")
+        return []
+    
+# Function to retrieve all players' ID, Name, Nickname
+def get_players_simple():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT PlayerID, Name, Nickname FROM Players")
+        players = cursor.fetchall()
+        conn.close()
+
+        if not players:
+            st.error("No players found.")
+        
+        return [(p[0], p[1], p[2]) for p in players]  # Ensure tuples with (ID, Name, Nickname)
     except Exception as e:
         st.error(f"Error retrieving players: {e}")
         return []
