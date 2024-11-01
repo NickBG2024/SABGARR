@@ -123,7 +123,78 @@ def generate_fixture_entries(match_type_id, player_ids):
     conn.commit()
     conn.close()
     
-# 1. **Add Series Form**
+# 1. ************************************ADDING FORMS********************************************
+if show_add_player_form:
+    st.subheader("Add a New Player")
+
+    with st.form(key="add_player_form"):
+        player_name = st.text_input("Player Name")
+        heroes_nickname = st.text_input("Heroes Nickname")
+        email = st.text_input("Email")
+
+        # Submit to add the Player to the database
+        submitted = st.form_submit_button("Add Player")
+        if submitted and player_name and heroes_nickname and email:
+            add_player(player_name, heroes_nickname, email)
+            st.success(f"Player '{player_name}' added successfully!")
+            st.experimental_rerun()
+
+if show_add_match_result_form:
+    st.subheader("Add a New Match Result")
+
+    with st.form(key="add_match_result_form"):
+        date = st.date_input("Date")
+        time_completed = st.time_input("Time Completed")
+        match_type_id = st.selectbox("Match Type", [mt[0] for mt in get_match_types()])
+        player1_id = st.selectbox("Player 1", [p[0] for p in get_players()])
+        player2_id = st.selectbox("Player 2", [p[0] for p in get_players()])
+        player1_points = st.number_input("Player 1 Points", min_value=0)
+        player2_points = st.number_input("Player 2 Points", min_value=0)
+        player1_pr = st.number_input("Player 1 PR", format="%.2f")
+        player2_pr = st.number_input("Player 2 PR", format="%.2f")
+        player1_luck = st.number_input("Player 1 Luck", format="%.2f")
+        player2_luck = st.number_input("Player 2 Luck", format="%.2f")
+
+        # Submit to add the Match Result to the database
+        submitted = st.form_submit_button("Add Match Result")
+        if submitted:
+            add_match_result(date, time_completed, match_type_id, player1_id, player2_id, 
+                             player1_points, player2_points, player1_pr, player2_pr, 
+                             player1_luck, player2_luck)
+            st.success("Match Result added successfully!")
+            st.experimental_rerun()
+
+if show_add_match_type_form:
+    st.subheader("Add a New Match Type")
+
+    with st.form(key="add_match_type_form"):
+        match_type_title = st.text_input("Match Type Title")
+        active = st.checkbox("Active", value=True)
+
+        # Submit to add the Match Type to the database
+        submitted = st.form_submit_button("Add Match Type")
+        if submitted and match_type_title:
+            add_match_type(match_type_title, active)
+            st.success(f"Match Type '{match_type_title}' added successfully!")
+            st.experimental_rerun()
+
+if show_add_fixture_form:
+    st.subheader("Add a New Fixture")
+
+    with st.form(key="add_fixture_form"):
+        match_type_id = st.selectbox("Match Type", [mt[0] for mt in get_match_types()])
+        player1_id = st.selectbox("Player 1", [p[0] for p in get_players()])
+        player2_id = st.selectbox("Player 2", [p[0] for p in get_players()])
+
+        # Submit to add the Fixture to the database
+        submitted = st.form_submit_button("Add Fixture")
+        if submitted and player1_id != player2_id:  # Ensure players are not the same
+            add_fixture(match_type_id, player1_id, player2_id)
+            st.success("Fixture added successfully!")
+            st.experimental_rerun()
+        elif submitted and player1_id == player2_id:
+            st.error("Player 1 and Player 2 cannot be the same.")
+
 if show_add_series_form:
     st.subheader("Add a New Series")
 
@@ -137,7 +208,7 @@ if show_add_series_form:
             st.success(f"Series '{series_title}' added successfully!")
             st.experimental_rerun()
 
-# 2. **Show Series Table Content**
+# 2. ********** SHOW TABLE CONTENTS ******************************************************
 if show_series:
     st.subheader("Series in Database")
     series = get_series()
@@ -211,7 +282,7 @@ if show_match_types:
     else:
         st.write("No match types found in the database.")
     
-# 3. **Edit Series**
+# 3. *****************************EDITING FORMS*******************************************Edit Series**
 if edit_series:
     st.subheader("Edit Series")
 
