@@ -142,6 +142,27 @@ if show_series:
     for s in series:
         st.write(f"ID: {s[0]}, Title: {s[1]}")
 
+if show_fixtures:
+    st.subheader("Fixtures in Database")
+    fixtures = get_fixtures()
+    
+    # Check if there are any fixtures to display
+    if fixtures:
+        # Display each fixture's details
+        for fixture in fixtures:
+            # Assuming each fixture is a tuple or list, with specific fields (like FixtureID, MatchTypeID, Player1ID, Player2ID)
+            fixture_id, match_type_id, player1_id, player2_id = fixture  # Unpack fixture details
+            
+            # Display the fixture information
+            st.markdown(f"**Fixture ID**: {fixture_id}")
+            st.markdown(f"**Match Type ID**: {match_type_id}")
+            st.markdown(f"**Player 1 ID**: {player1_id}")
+            st.markdown(f"**Player 2 ID**: {player2_id}")
+            st.divider()  # Add a visual divider between fixtures
+    else:
+        st.write("No fixtures found in the database.")
+        
+
 # 3. **Edit Series**
 if edit_series:
     st.subheader("Edit Series")
