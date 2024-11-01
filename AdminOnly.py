@@ -143,8 +143,28 @@ if show_series:
     series = get_series()
 
     if series:
+        # Convert the series to a DataFrame to display as a table
         series_data = pd.DataFrame(series, columns=["Series ID", "Series Title"])
-        st.table(series_data)
+
+        # Display each Series ID and Title along with its associated match types
+        for _, row in series_data.iterrows():
+            series_id = row["Series ID"]
+            series_title = row["Series Title"]
+            
+            # Display the series details
+            st.markdown(f"**Series ID**: {series_id}")
+            st.markdown(f"**Series Title**: {series_title}")
+            
+            # Fetch and display match types associated with this series
+            match_types = get_series_match_types(series_id)
+            if match_types:
+                match_type_data = pd.DataFrame(match_types, columns=["MatchType ID", "Title"])
+                st.table(match_type_data)
+            else:
+                st.write("No Match Types associated with this series.")
+            
+            # Divider between series for better readability
+            st.markdown("---")
     else:
         st.write("No Series found in the database.")
         
