@@ -5,7 +5,8 @@ from database import (
     add_match_type,
     add_match_result,
     get_fixtures,
-    get_players,
+    get_players_simple,
+    get_player_full,
     get_match_types,
     get_match_results,
     get_email_checker_status,
@@ -79,7 +80,7 @@ if generate_fixtures:
 
     # Fetch available match types and players for dropdowns
     match_types = get_match_types()  # Assuming get_match_types() returns a list of tuples (MatchTypeID, MatchTypeTitle)
-    players = get_players()  # Assuming get_players() returns a list of tuples (PlayerID, Name)
+    players = get_players_simple()  # Assuming get_players_simple() returns a list of tuples (PlayerID, Name, Nickname)
 
     # Print statements to debug
     print("Match Types:", match_types)
@@ -144,7 +145,7 @@ if show_series:
         st.write(f"ID: {s[0]}, Title: {s[1]}")
 
 if show_fixtures:
-    st.subheader("Fixtures in Database")
+    st.subheader("Fixtures in Database:")
     fixtures = get_fixtures()
 
     if fixtures:
@@ -153,8 +154,18 @@ if show_fixtures:
         st.table(fixture_data)
     else:
         st.write("No fixtures found in the database.")
-        
 
+if show_players:
+    st.subheader("Players in Database:")
+    players = get_players_full()
+
+    if players:
+        # Convert list of tuples to a DataFrame for table display
+        players_data = pd.DataFrame(players, columns=["Player ID", "Player Name", "Player NickName", "Games Played", "AveragePR","CurrentLeague","DaysIdle"])
+        st.table(players_data)
+    else:
+        st.write("No players found in the database.")
+        
 # 3. **Edit Series**
 if edit_series:
     st.subheader("Edit Series")
