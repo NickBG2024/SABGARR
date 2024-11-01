@@ -143,28 +143,27 @@ if show_series:
     series = get_series()
 
     if series:
-        # Convert the series to a DataFrame to display as a table
-        series_data = pd.DataFrame(series, columns=["Series ID", "Series Title"])
-
-        # Display each Series ID and Title along with its associated match types
-        for _, row in series_data.iterrows():
-            series_id = row["Series ID"]
-            series_title = row["Series Title"]
+        # Prepare data for displaying Series along with their Match Types
+        series_data = []
+        
+        for s in series:
+            series_id = s[0]
+            series_title = s[1]
             
-            # Display the series details
-            st.markdown(f"**Series ID**: {series_id}")
-            st.markdown(f"**Series Title**: {series_title}")
-            
-            # Fetch and display match types associated with this series
+            # Fetch match types for the current series
             match_types = get_series_match_types(series_id)
-            if match_types:
-                match_type_data = pd.DataFrame(match_types, columns=["MatchType ID", "Title"])
-                st.table(match_type_data)
-            else:
-                st.write("No Match Types associated with this series.")
             
-            # Divider between series for better readability
-            st.markdown("---")
+            # Create a comma-separated string of match type titles
+            match_type_titles = ", ".join([match[1] for match in match_types]) if match_types else "No Match Types"
+            
+            # Append series information along with its match types to the list
+            series_data.append({"Series ID": series_id, "Series Title": series_title, "Match Types": match_type_titles})
+        
+        # Convert the list of dictionaries into a DataFrame
+        series_df = pd.DataFrame(series_data)
+        
+        # Display the DataFrame as a table
+        st.table(series_df)
     else:
         st.write("No Series found in the database.")
         
