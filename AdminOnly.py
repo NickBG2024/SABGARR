@@ -141,9 +141,13 @@ if show_add_series_form:
 if show_series:
     st.subheader("Series in Database")
     series = get_series()
-    for s in series:
-        st.write(f"ID: {s[0]}, Title: {s[1]}")
 
+    if series:
+        series_data = pd.DataFrame(series, columns=["Series ID", "Series Title"])
+        st.table(series_data)
+    else:
+        st.write("No Series found in the database.")
+        
 if show_fixtures:
     st.subheader("Fixtures in Database:")
     fixtures = get_fixtures()
