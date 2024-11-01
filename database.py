@@ -418,19 +418,36 @@ def get_match_types():
         st.error(f"Error retrieving match types: {e}")
         return []
 
-# Function to retrieve all matches
+# Function to retrieve all matches with specific fields as tuples
 def get_match_results():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM MatchResults")
-        matchresults = cursor.fetchall()
+        cursor.execute("""
+            SELECT 
+                MatchResultID, 
+                Date, 
+                TimeCompleted, 
+                MatchTypeID, 
+                Player1ID, 
+                Player2ID, 
+                Player1Points, 
+                Player2Points, 
+                Player1PR, 
+                Player2PR, 
+                Player1Luck, 
+                Player2Luck
+            FROM 
+                MatchResults
+        """)
+        match_results = cursor.fetchall()
         conn.close()
 
-        if not matchresults:
+        if not match_results:
             st.error("No match results found.")
-        
-        return matchresults
+
+        # Return results as tuples to make display in a table easier
+        return [(mr[0], mr[1], mr[2], mr[3], mr[4], mr[5], mr[6], mr[7], mr[8], mr[9], mr[10], mr[11]) for mr in match_results]
     except Exception as e:
         st.error(f"Error retrieving match results: {e}")
         return []
