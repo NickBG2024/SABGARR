@@ -317,13 +317,13 @@ def add_player(name, nickname, email):
     conn.close()
 
 # Insert a new match type
-def add_match_type(match_type_title):
+def add_match_type(match_type_title, active):
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO MatchType (MatchTypeTitle) 
         VALUES (%s)
-    ''', (match_type_title,))
+    ''', (match_type_title,active))
     conn.commit()
     conn.close()
 
