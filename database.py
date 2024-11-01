@@ -413,7 +413,7 @@ def get_match_types():
         if not match_types:
             st.error("No match types found.")
         
-        return [(mt[0], mt[1]) for mt in match_types]  # Ensure tuples with (ID, Title)
+        return [(mt[0], mt[1], mt[2]) for mt in match_types]  # Ensure tuples with (ID, Title, Active)
     except Exception as e:
         st.error(f"Error retrieving match types: {e}")
         return []
