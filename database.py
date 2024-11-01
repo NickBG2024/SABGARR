@@ -406,7 +406,7 @@ def get_match_types():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT MatchTypeID, MatchTypeTitle FROM MatchType WHERE active = 1")
+        cursor.execute("SELECT MatchTypeID, MatchTypeTitle, Active FROM MatchType")
         match_types = cursor.fetchall()
         conn.close()
 
