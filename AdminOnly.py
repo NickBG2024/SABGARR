@@ -189,6 +189,17 @@ if show_players:
     else:
         st.write("No players found in the database.")
 
+if show_match_results:
+    st.subheader("Match Results in Database:")
+    matchresults = get_match_results()
+
+    if matchresults:
+        # Convert list of tuples to a DataFrame for table display
+        matchresults_data = pd.DataFrame(matchresults, columns=["MatchResult ID", "Date", "Time Completed", "MatchTypeID - to convert?", "Player1ID - to convert","Player2ID - to convert","Player 1 pts","Player 2 pts","Player 1 PR", "Player 2 PR", "Player 1 Luck", "Player 2 Luck"])
+        st.table(matchresults_data)
+    else:
+        st.write("No match results found in the database.")
+        
 if show_match_types:
     st.subheader("Match Types in Database:")
     matchtypes = get_match_types()
