@@ -74,6 +74,26 @@ def get_series_match_types(series_id):
     conn.close()
     return match_types
 
+def remove_match_type_from_series(series_id, match_type_id):
+    """
+    Removes the specified match type from the series in the database.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        
+        # Remove the match type from the series
+        cursor.execute("""
+            DELETE FROM SeriesMatchTypes 
+            WHERE SeriesID = %s AND MatchTypeID = %s
+        """, (series_id, match_type_id))
+        
+        conn.commit()
+        conn.close()
+        st.success(f"Match Type ID {match_type_id} removed from Series ID {series_id} successfully.")
+    except Exception as e:
+        st.error(f"Error removing match type from series: {e}")
+
 def add_match_type_to_series(series_id, match_type_id):
     conn = create_connection()
     cursor = conn.cursor()
