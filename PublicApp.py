@@ -1,5 +1,8 @@
+import imaplib
+import email
+import re
 import streamlit as st
-from database import get_standings, get_match_results, check_tables, get_email_checker_status, check_for_new_emails
+from database import get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id 
 
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
@@ -8,7 +11,70 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
-def check_for_new_emails
+# Checking for new emails etc
+def check_for_new_emails():
+    # Streamlit title
+    st.title("Check for New Match Results via Email")
+
+    # Get email credentials from Streamlit Secrets
+    EMAIL = st.secrets["imap"]["email"]
+    PASSWORD = st.secrets["imap"]["password"]
+
+    # Try connecting to the email server
+    try:
+        mail = imaplib.IMAP4_SSL('mail.sabga.co.za', 993)
+        mail.login(EMAIL, PASSWORD)
+        mail.select('inbox')
+        st.write("Login successful")
+    except imaplib.IMAP4.error as e:
+        st.error(f"IMAP login failed: {str(e)}")
+        return
+
+    # Search for new emails with the specified subject
+    status, messages = mail.search(None, '(SUBJECT "Admin: A league match was played" SUBJECT "Fwd: Admin: A league match was played")')
+    email_ids = messages[0].split()
+
+    # Loop through the emails and extract data
+    for email_id in email_ids:
+        status, msg_data = mail.fetch(email_id, '(RFC822)')
+
+        for response_part in msg_data:
+            if isinstance(response_part, tuple):
+                msg = email.message_from_bytes(response_part[1])
+                subject = msg['subject']
+
+                # Clean up subject
+                cleaned_subject = re.sub(r"^(Fwd:|Re:)\s*", "", subject).strip()
+
+                # Extract player data
+                match = re.search(r"([^)]+)\s*and\s*[^]+([^)]+)", cleaned_subject)
+                if match:
+                    player_1_values = match.group(1).split()
+                    player_2_values = match.group(2).split()
+
+                    # Prepare the match result data
+                    player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_values
+                    player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_values
+
+                    # Check if result already exists
+                    if check_result_exists(player_1_points, player_1_length, player_2_points, player_2_length):
+                        st.write("Match result already exists, skipping...")
+                        continue
+
+                    # Match result with the associated fixture (you may need to implement get_fixture_id based on your logic)
+                    fixture_id = get_fixture_id(cleaned_subject)
+                    if fixture_id:
+                        # Write the result to the database
+                        insert_match_result(fixture_id, player_1_points, player_1_length, player_1_pr, player_1_luck,
+                                            player_2_points, player_2_length, player_2_pr, player_2_luck)
+                        st.success("Match result added to the database!")
+                    else:
+                        st.error("Fixture ID not found for the match.")
+                else:
+                    st.write(f"No match found for email {email_id}")
+
+    # Logout from the email server
+    mail.logout()
 
 
 
