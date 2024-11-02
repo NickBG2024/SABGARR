@@ -123,7 +123,8 @@ def generate_fixture_entries(match_type_id, player_ids):
     conn.commit()
     conn.close()
     
-# 1. ************************************ADDING FORMS********************************************
+# *****************************************************ADDING FORMS********************************************
+# Add Player Form
 if show_add_player_form:
     st.subheader("Add a New Player")
 
@@ -139,6 +140,7 @@ if show_add_player_form:
             st.success(f"Player '{player_name}' added successfully!")
             st.experimental_rerun()
 
+#Add Match Result
 if show_add_match_result_form:
     st.subheader("Add a New Match Result")
 
@@ -164,20 +166,27 @@ if show_add_match_result_form:
             st.success("Match Result added successfully!")
             st.experimental_rerun()
 
+# Add Match Type
 if show_add_match_type_form:
     st.subheader("Add a New Match Type")
 
     with st.form(key="add_match_type_form"):
-        match_type_title = st.text_input("Match Type Title")
-        active = st.checkbox("Active", value=True)
+        match_type_title = st.text_input("Match Type Title", key="match_type_title_key")
+        active = st.checkbox("Active", value=True, key="active_checkbox_key")
 
         # Submit to add the Match Type to the database
         submitted = st.form_submit_button("Add Match Type")
         if submitted and match_type_title:
             add_match_type(match_type_title, active)
             st.success(f"Match Type '{match_type_title}' added successfully!")
+
+            # Clear the form fields by resetting the session state keys
+            st.session_state["match_type_title_key"] = ""
+            st.session_state["active_checkbox_key"] = True  # Default value
+
             st.experimental_rerun()
 
+# Add Fixure 
 if show_add_fixture_form:
     st.subheader("Add a New Fixture")
 
@@ -195,6 +204,7 @@ if show_add_fixture_form:
         elif submitted and player1_id == player2_id:
             st.error("Player 1 and Player 2 cannot be the same.")
 
+# Add Series
 if show_add_series_form:
     st.subheader("Add a New Series")
 
