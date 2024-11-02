@@ -8,6 +8,14 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
+def check_for_new_emails
+
+
+
+
+
+
+
 # Check if the email checker is enabled
 if get_email_checker_status():
     #check_for_new_emails()  # Function that checks for new emails and parses them
