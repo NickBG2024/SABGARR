@@ -301,9 +301,10 @@ if show_match_types:
 if edit_series:
     st.subheader("Edit Series")
 
-    # Fetch all series and map series titles to their IDs for selection
+    # Fetch all series
     series = get_series()
     if series:
+        # Map series titles to their IDs for selection
         series_dict = {f"{s[1]} (ID: {s[0]})": s for s in series}
         selected_series = st.selectbox("Select Series to Edit", list(series_dict.keys()))
 
@@ -315,39 +316,41 @@ if edit_series:
             with st.form(key='edit_series_form'):
                 series_title = st.text_input("Series Title", value=series_data[1])
 
-                # Form submission to update series title
-                submitted = st.form_submit_button("Update Series Name")
+                # Form submission
+                submitted = st.form_submit_button("Update Series")
                 if submitted:
                     update_series_title(series_id, series_title)
-                    st.success("Series name updated successfully!")
+                    st.success("Series updated successfully!")
                     st.experimental_rerun()
 
-            # Show Match Types in the series with checkboxes
-            st.write("Select Match Types for this Series:")
-            
-            # Fetch all match types and those already in the series
+            # Show match types with checkboxes
+            st.write("Match Types in this Series:")
+            match_types_in_series = [match[0] for match in get_series_match_types(series_id)]
             all_match_types = get_match_types()
-            current_match_types_in_series = set(mt[0] for mt in get_series_match_types(series_id))
 
-            # Create a dictionary to store checkbox states
-            selected_match_types = {}
-
-            # Display each match type with a checkbox, pre-selecting those in the current series
-            for match_type_id, match_type_title in all_match_types:
-                selected_match_types[match_type_id] = st.checkbox(
+            # Display each match type with a checkbox
+            updated_match_types = []
+            for match_type in all_match_types:
+                match_type_id, match_type_title, _ = match_type  # Unpack and ignore the Active field
+                is_checked = st.checkbox(
                     f"{match_type_title} (ID: {match_type_id})",
-                    value=match_type_id in current_match_types_in_series
+                    value=(match_type_id in match_types_in_series)
                 )
+                if is_checked:
+                    updated_match_types.append(match_type_id)
 
-            # Update series match types based on checkbox selections
-            if st.button("Save Match Type Selection"):
-                for match_type_id, is_selected in selected_match_types.items():
-                    if is_selected and match_type_id not in current_match_types_in_series:
-                        add_match_type_to_series(series_id, match_type_id)  # Add if newly selected
-                    elif not is_selected and match_type_id in current_match_types_in_series:
-                        remove_match_type_from_series(series_id, match_type_id)  # Remove if newly unselected
+            # Submit changes to match types in the series
+            if st.button("Update Match Types in Series"):
+                # Add new match types and remove unchecked ones
+                for match_type_id in updated_match_types:
+                    if match_type_id not in match_types_in_series:
+                        add_match_type_to_series(series_id, match_type_id)
 
-                st.success("Series match types updated successfully!")
+                for match_type_id in match_types_in_series:
+                    if match_type_id not in updated_match_types:
+                        remove_match_type_from_series(series_id, match_type_id)
+
+                st.success("Match Types updated in series!")
                 st.experimental_rerun()
                     
 # Editing Players
