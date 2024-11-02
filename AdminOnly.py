@@ -170,9 +170,13 @@ if show_add_match_result_form:
 if show_add_match_type_form:
     st.subheader("Add a New Match Type")
 
-    with st.form(key="add_match_type_form"):
-        match_type_title = st.text_input("Match Type Title", key="match_type_title_key")
-        active = st.checkbox("Active", value=True, key="active_checkbox_key")
+    # Temporary container for form to allow resetting
+    form_placeholder = st.empty()
+
+    # Create the form within the placeholder
+    with form_placeholder.form(key="add_match_type_form"):
+        match_type_title = st.text_input("Match Type Title")
+        active = st.checkbox("Active", value=True)
 
         # Submit to add the Match Type to the database
         submitted = st.form_submit_button("Add Match Type")
@@ -218,7 +222,7 @@ if show_add_series_form:
             st.success(f"Series '{series_title}' added successfully!")
             st.experimental_rerun()
 
-# 2. ********** SHOW TABLE CONTENTS ******************************************************
+# 2. ******************************************* SHOW TABLE CONTENTS ******************************************************
 if show_series:
     st.subheader("Series in Database")
     series = get_series()
