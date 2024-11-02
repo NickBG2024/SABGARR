@@ -76,12 +76,6 @@ def check_for_new_emails():
     # Logout from the email server
     mail.logout()
 
-
-
-
-
-
-
 # Check if the email checker is enabled
 if get_email_checker_status():
     #check_for_new_emails()  # Function that checks for new emails and parses them
