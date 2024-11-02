@@ -297,11 +297,11 @@ if show_match_types:
     else:
         st.write("No match types found in the database.")
     
-# 3. *****************************EDITING FORMS*******************************************Edit Series**
+# 3. *****************************EDITING FORMS************************************************
 if edit_series:
     st.subheader("Edit Series")
 
-    # Fetch all series and create a mapping of titles to IDs
+    # Fetch all series and map series titles to their IDs for selection
     series = get_series()
     if series:
         series_dict = {f"{s[1]} (ID: {s[0]})": s for s in series}
@@ -309,47 +309,46 @@ if edit_series:
 
         if selected_series:
             series_data = series_dict[selected_series]
-            series_id, current_title = series_data[0], series_data[1]
+            series_id = series_data[0]
 
-            # Form to edit series title
-            with st.form(key="edit_series_form"):
-                new_series_title = st.text_input("Series Title", value=current_title)
-                submitted = st.form_submit_button("Update Series")
+            # Prepopulate the form with selected series data
+            with st.form(key='edit_series_form'):
+                series_title = st.text_input("Series Title", value=series_data[1])
+
+                # Form submission to update series title
+                submitted = st.form_submit_button("Update Series Name")
                 if submitted:
-                    update_series_title(series_id, new_series_title)
-                    st.success(f"Series '{new_series_title}' updated successfully!")
+                    update_series_title(series_id, series_title)
+                    st.success("Series name updated successfully!")
                     st.experimental_rerun()
 
-            # Show match types currently in the series
-            st.write("### Match Types in this Series:")
-            match_types_in_series = get_series_match_types(series_id)
-            if match_types_in_series:
-                for match in match_types_in_series:
-                    st.write(f"- MatchType ID: {match[0]}, Title: {match[1]}")
-            else:
-                st.write("No Match Types in this series yet.")
-
-            # Display all available match types with checkboxes for selection
-            st.write("### Add Match Types to Series")
+            # Show Match Types in the series with checkboxes
+            st.write("Select Match Types for this Series:")
+            
+            # Fetch all match types and those already in the series
             all_match_types = get_match_types()
-            match_type_selections = {
-                f"{match_type[1]} (ID: {match_type[0]})": match_type[0]
-                for match_type in all_match_types
-            }
+            current_match_types_in_series = set(mt[0] for mt in get_series_match_types(series_id))
 
-            selected_match_types = []
-            for label, match_type_id in match_type_selections.items():
-                if st.checkbox(label, key=f"match_type_{match_type_id}"):
-                    selected_match_types.append(match_type_id)
+            # Create a dictionary to store checkbox states
+            selected_match_types = {}
 
-            # Form submission to add selected match types to the series
-            if st.button("Add Selected Match Types to Series"):
-                for match_type_id in selected_match_types:
-                    add_match_type_to_series(series_id, match_type_id)
-                st.success("Selected match types added to series!")
+            # Display each match type with a checkbox, pre-selecting those in the current series
+            for match_type_id, match_type_title in all_match_types:
+                selected_match_types[match_type_id] = st.checkbox(
+                    f"{match_type_title} (ID: {match_type_id})",
+                    value=match_type_id in current_match_types_in_series
+                )
+
+            # Update series match types based on checkbox selections
+            if st.button("Save Match Type Selection"):
+                for match_type_id, is_selected in selected_match_types.items():
+                    if is_selected and match_type_id not in current_match_types_in_series:
+                        add_match_type_to_series(series_id, match_type_id)  # Add if newly selected
+                    elif not is_selected and match_type_id in current_match_types_in_series:
+                        remove_match_type_from_series(series_id, match_type_id)  # Remove if newly unselected
+
+                st.success("Series match types updated successfully!")
                 st.experimental_rerun()
-    else:
-        st.warning("No series available to edit.")
                     
 # Editing Players
 if edit_players:
