@@ -13,6 +13,7 @@ from database import (
     set_email_checker_status,
     add_series,
     add_match_type_to_series,
+    remove_match_type_from_series,
     get_series,
     get_series_match_types,
     update_series_title,
