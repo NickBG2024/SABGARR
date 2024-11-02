@@ -128,7 +128,8 @@ def generate_fixture_entries(match_type_id, player_ids):
 if show_add_player_form:
     st.subheader("Add a New Player")
 
-    with st.form(key="add_player_form"):
+    player_form_placeholder = st.empty()
+    with player_form_placeholder.form(key="add_player_form"):
         player_name = st.text_input("Player Name")
         heroes_nickname = st.text_input("Heroes Nickname")
         email = st.text_input("Email")
@@ -138,13 +139,15 @@ if show_add_player_form:
         if submitted and player_name and heroes_nickname and email:
             add_player(player_name, heroes_nickname, email)
             st.success(f"Player '{player_name}' added successfully!")
+            player_form_placeholder.empty()  # Clear form by emptying the placeholder
             st.experimental_rerun()
 
-#Add Match Result
+# Add Match Result
 if show_add_match_result_form:
     st.subheader("Add a New Match Result")
 
-    with st.form(key="add_match_result_form"):
+    match_result_form_placeholder = st.empty()
+    with match_result_form_placeholder.form(key="add_match_result_form"):
         date = st.date_input("Date")
         time_completed = st.time_input("Time Completed")
         match_type_id = st.selectbox("Match Type", [mt[0] for mt in get_match_types()])
@@ -164,17 +167,15 @@ if show_add_match_result_form:
                              player1_points, player2_points, player1_pr, player2_pr, 
                              player1_luck, player2_luck)
             st.success("Match Result added successfully!")
+            match_result_form_placeholder.empty()  # Clear form by emptying the placeholder
             st.experimental_rerun()
 
 # Add Match Type
 if show_add_match_type_form:
     st.subheader("Add a New Match Type")
 
-    # Temporary container for form to allow resetting
-    form_placeholder = st.empty()
-
-    # Create the form within the placeholder
-    with form_placeholder.form(key="add_match_type_form"):
+    match_type_form_placeholder = st.empty()
+    with match_type_form_placeholder.form(key="add_match_type_form"):
         match_type_title = st.text_input("Match Type Title")
         active = st.checkbox("Active", value=True)
 
@@ -183,18 +184,15 @@ if show_add_match_type_form:
         if submitted and match_type_title:
             add_match_type(match_type_title, active)
             st.success(f"Match Type '{match_type_title}' added successfully!")
-
-            # Clear the form fields by resetting the session state keys
-            st.session_state["match_type_title_key"] = ""
-            st.session_state["active_checkbox_key"] = True  # Default value
-
+            match_type_form_placeholder.empty()  # Clear form by emptying the placeholder
             st.experimental_rerun()
 
-# Add Fixure 
+# Add Fixture
 if show_add_fixture_form:
     st.subheader("Add a New Fixture")
 
-    with st.form(key="add_fixture_form"):
+    fixture_form_placeholder = st.empty()
+    with fixture_form_placeholder.form(key="add_fixture_form"):
         match_type_id = st.selectbox("Match Type", [mt[0] for mt in get_match_types()])
         player1_id = st.selectbox("Player 1", [p[0] for p in get_players()])
         player2_id = st.selectbox("Player 2", [p[0] for p in get_players()])
@@ -204,6 +202,7 @@ if show_add_fixture_form:
         if submitted and player1_id != player2_id:  # Ensure players are not the same
             add_fixture(match_type_id, player1_id, player2_id)
             st.success("Fixture added successfully!")
+            fixture_form_placeholder.empty()  # Clear form by emptying the placeholder
             st.experimental_rerun()
         elif submitted and player1_id == player2_id:
             st.error("Player 1 and Player 2 cannot be the same.")
@@ -212,7 +211,8 @@ if show_add_fixture_form:
 if show_add_series_form:
     st.subheader("Add a New Series")
 
-    with st.form(key="add_series_form"):
+    series_form_placeholder = st.empty()
+    with series_form_placeholder.form(key="add_series_form"):
         series_title = st.text_input("Series Title")
 
         # Submit to add the Series to the database
@@ -220,6 +220,7 @@ if show_add_series_form:
         if submitted and series_title:
             add_series(series_title)
             st.success(f"Series '{series_title}' added successfully!")
+            series_form_placeholder.empty()  # Clear form by emptying the placeholder
             st.experimental_rerun()
 
 # 2. ******************************************* SHOW TABLE CONTENTS ******************************************************
