@@ -3,6 +3,7 @@ import email
 import re
 import streamlit as st
 from database import get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id, get_email_checker_status 
+from datetime import datetime
 
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
@@ -25,7 +26,7 @@ def check_for_new_emails():
         mail = imaplib.IMAP4_SSL('mail.sabga.co.za', 993)
         mail.login(EMAIL, PASSWORD)
         mail.select('inbox')
-        st.write("Login successful")
+        st.write("Login to Inbox successful")
     except imaplib.IMAP4.error as e:
         st.error(f"IMAP login failed: {str(e)}")
         return
@@ -78,8 +79,11 @@ def check_for_new_emails():
 
 # Check if the email checker is enabled
 if get_email_checker_status():
-    #check_for_new_emails()  # Function that checks for new emails and parses them
-    st.info("Email checker not created yet.")
+    check_for_new_emails()  # Function that checks for new emails and parses them
+    # Get the current time in hh:mm format
+    current_time = datetime.now().strftime("%H:%M")
+    # Display the message with the time
+    st.info(f"Emails checked at {current_time}")
 else:
     st.info("Email checker is currently disabled by the admin.")
     
