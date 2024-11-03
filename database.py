@@ -19,6 +19,71 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+# Function to check if a result already exists in the MatchResults table
+def check_result_exists(player_1_points, player_1_length, player_2_points, player_2_length):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Query to check for existing results
+        query = """
+            SELECT COUNT(*) FROM MatchResults
+            WHERE Player1Points = %s AND Player1MatchLength = %s
+            AND Player2Points = %s AND Player2MatchLength = %s
+        """
+        cursor.execute(query, (player_1_points, player_1_length, player_2_points, player_2_length))
+        count = cursor.fetchone()[0]
+
+        conn.close()
+        return count > 0  # Returns True if a result already exists
+    except mysql.connector.Error as e:
+        st.error(f"Database error: {e}")
+        return False
+
+# Function to get the FixtureID based on certain criteria (adapt as needed)
+def get_fixture_id(match_subject):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Sample query to retrieve FixtureID - adjust criteria as necessary
+        query = """
+            SELECT FixtureID FROM Fixtures
+            WHERE MatchSubject = %s
+        """
+        cursor.execute(query, (match_subject,))
+        result = cursor.fetchone()
+
+        conn.close()
+        return result[0] if result else None
+    except mysql.connector.Error as e:
+        st.error(f"Database error: {e}")
+        return None
+
+# Function to insert a new match result into the MatchResults table
+def insert_match_result(fixture_id, player_1_points, player_1_length, player_1_pr, player_1_luck,
+                        player_2_points, player_2_length, player_2_pr, player_2_luck):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Insert query for adding a match result
+        insert_query = """
+            INSERT INTO MatchResults (FixtureID, Player1Points, Player1MatchLength, Player1PR, Player1Luck,
+                                      Player2Points, Player2MatchLength, Player2PR, Player2Luck)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            fixture_id, player_1_points, player_1_length, player_1_pr, player_1_luck,
+            player_2_points, player_2_length, player_2_pr, player_2_luck
+        ))
+
+        conn.commit()
+        conn.close()
+        st.success("Match result successfully added to the database!")
+    except mysql.connector.Error as e:
+        st.error(f"Error inserting match result: {e}")
+        
 # In database.py
 def generate_fixture_entries(match_type_id, player_ids):
     conn = create_connection()
