@@ -437,6 +437,34 @@ def add_fixture(match_type_id, player1_id, player2_id):
     conn.commit()
     conn.close()
 
+def get_fixtures_with_names():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        
+        # Use JOINs to get player names instead of PlayerIDs
+        cursor.execute('''
+            SELECT 
+                f.FixtureID, 
+                f.MatchTypeID, 
+                p1.Name AS Player1Name, 
+                p2.Name AS Player2Name
+            FROM Fixtures f
+            JOIN Players p1 ON f.Player1ID = p1.PlayerID
+            JOIN Players p2 ON f.Player2ID = p2.PlayerID
+        ''')
+        
+        fixtures = cursor.fetchall()
+        conn.close()
+
+        if not fixtures:
+            st.error("No fixtures found.")
+        
+        return fixtures
+    except Exception as e:
+        st.error(f"Error retrieving fixtures with names: {e}")
+        return []
+
 def get_fixtures():
     try:
         conn = create_connection()
