@@ -5,6 +5,7 @@ from database import (
     add_match_type,
     add_match_result,
     get_fixtures,
+    get_fixtures_with_names,
     get_players_simple,
     get_players_full,
     get_match_types,
@@ -60,6 +61,7 @@ show_players = st.sidebar.checkbox("Show all Players")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
 show_match_results = st.sidebar.checkbox("Show all Match Results")
 show_fixtures = st.sidebar.checkbox("Show all Fixtures")
+show_fixtures_with_names = st.sidebar.checkbox("Show all Fixtures with names")
 show_series = st.sidebar.checkbox("Show all Series")
 
 # New checkboxes to updating a row
@@ -261,6 +263,17 @@ if show_fixtures:
     if fixtures:
         # Convert list of tuples to a DataFrame for table display
         fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID"])
+        st.table(fixture_data)
+    else:
+        st.write("No fixtures found in the database.")
+
+if show_fixtures_with_names:
+    st.subheader("Fixtures with Names in Database:")
+    fixtures = get_fixtures_with_names()
+
+    if fixtures:
+        # Convert list of tuples to a DataFrame for table display
+        fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1", "Player 2"])
         st.table(fixture_data)
     else:
         st.write("No fixtures found in the database.")
