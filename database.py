@@ -19,6 +19,21 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+def get_nickname_to_full_name_map():
+    """
+    Returns a dictionary mapping player nicknames to their full names.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT Nickname, FullName FROM Players")
+        name_map = {row[0]: row[1] for row in cursor.fetchall()}
+        conn.close()
+        return name_map
+    except Exception as e:
+        st.error(f"Error retrieving player names: {e}")
+        return {}
+
 # Function to check if a result already exists in the MatchResults table
 def check_result_exists(player_1_points, player_1_length, player_2_points, player_2_length):
     try:
