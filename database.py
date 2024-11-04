@@ -442,16 +442,17 @@ def get_fixtures_with_names():
         conn = create_connection()
         cursor = conn.cursor()
         
-        # Use JOINs to get player names instead of PlayerIDs
+        # Use JOINs to get player names and match type title
         cursor.execute('''
             SELECT 
                 f.FixtureID, 
-                f.MatchTypeID, 
+                m.MatchTypeTitle,
                 p1.Name AS Player1Name, 
                 p2.Name AS Player2Name
             FROM Fixtures f
             JOIN Players p1 ON f.Player1ID = p1.PlayerID
             JOIN Players p2 ON f.Player2ID = p2.PlayerID
+            JOIN MatchType m ON f.MatchTypeID = m.MatchTypeID
         ''')
         
         fixtures = cursor.fetchall()
