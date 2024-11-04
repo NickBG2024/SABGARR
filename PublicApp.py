@@ -72,7 +72,7 @@ def check_for_new_emails():
                     else:
                         st.error("Fixture ID not found for the match.")
                 else:
-                    st.write(f"No match found for email {email_id}")
+                    st.write(f"No match found for email {email_id} - Subject: {subject}")  # Display subject if no match found
 
     # Logout from the email server
     mail.logout()
