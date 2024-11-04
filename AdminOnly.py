@@ -10,6 +10,7 @@ from database import (
     get_players_full,
     get_match_types,
     get_match_results,
+    get_nickname_to_full_name_map,
     get_email_checker_status,
     set_email_checker_status,
     add_series,
