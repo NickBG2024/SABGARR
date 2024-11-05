@@ -199,8 +199,8 @@ if show_add_fixture_form:
     fixture_form_placeholder = st.empty()
     with fixture_form_placeholder.form(key="add_fixture_form"):
         match_type_id = st.selectbox("Match Type", [mt[0] for mt in get_match_types()])
-        player1_id = st.selectbox("Player 1", [p[0] for p in get_players()])
-        player2_id = st.selectbox("Player 2", [p[0] for p in get_players()])
+        player1_id = st.selectbox("Player 1", [p[0] for p in get_players_simple()])
+        player2_id = st.selectbox("Player 2", [p[0] for p in get_players_simple()])
 
         # Submit to add the Fixture to the database
         submitted = st.form_submit_button("Add Fixture")
@@ -376,7 +376,7 @@ if edit_players:
     st.subheader("Edit Player")
 
     # Fetch all players to populate the selectbox
-    players = get_players()
+    players = get_players_full()
 
     if players:
         # Create a dictionary to map player names to their IDs for selection
