@@ -258,23 +258,24 @@ if show_series:
         st.write("No Series found in the database.")
         
 if show_fixtures:
+    if show_fixtures:
     st.subheader("Fixtures in Database:")
     fixtures = get_fixtures()
 
     if fixtures:
-        # Convert list of tuples to a DataFrame for table display
-        fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID"])
+        # Convert list of tuples to a DataFrame for table display, including 'Completed' column
+        fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID", "Completed"])
         st.table(fixture_data)
     else:
         st.write("No fixtures found in the database.")
-
+        
 if show_fixtures_with_names:
     st.subheader("Fixtures with Names in Database:")
     fixtures = get_fixtures_with_names()
 
     if fixtures:
         # Convert list of tuples to a DataFrame for table display
-        fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1", "Player 2"])
+        fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1", "Player 2", "Completed"])
         st.table(fixture_data)
     else:
         st.write("No fixtures found in the database.")
@@ -301,13 +302,14 @@ if show_match_results:
     else:
         st.write("No match results found in the database.")
         
+# Update match type view to include 'Active' column
 if show_match_types:
     st.subheader("Match Types in Database:")
     matchtypes = get_match_types()
 
     if matchtypes:
-        # Convert list of tuples to a DataFrame for table display
-        matchtypes_data = pd.DataFrame(matchtypes, columns=["MatchType ID", "Match Type Name", "Active?"])
+        # Convert list of tuples to a DataFrame for table display, including 'Active' column
+        matchtypes_data = pd.DataFrame(matchtypes, columns=["MatchType ID", "Match Type Name", "Active"])
         st.table(matchtypes_data)
     else:
         st.write("No match types found in the database.")
@@ -400,31 +402,28 @@ if edit_players:
                     
 # Editing Match Types
 if edit_match_types:
-    st.subheader("Edit Match Type")
+    st.subheader("Edit Match Types")
 
     # Fetch all match types
-    match_types = get_match_types()
+    matchtypes = get_match_types()
+    if matchtypes:
+        # Map match type titles to their IDs for selection
+        matchtype_dict = {f"{mt[1]} (ID: {mt[0]})": mt for mt in matchtypes}
+        selected_matchtype = st.selectbox("Select Match Type to Edit", list(matchtype_dict.keys()))
 
-    if match_types:
-        # Create a dictionary to map match type titles to their IDs for selection
-        match_type_dict = {f"{match_type[1]} (ID: {match_type[0]})": match_type for match_type in match_types}
-        selected_match_type = st.selectbox("Select Match Type to Edit", list(match_type_dict.keys()))
+        if selected_matchtype:
+            matchtype_data = matchtype_dict[selected_matchtype]
+            matchtype_id = matchtype_data[0]
 
-        if selected_match_type:
-            match_type_data = match_type_dict[selected_match_type]
-            match_type_id = match_type_data[0]  # Extract the MatchTypeID
-
-            # Prepopulate form with the selected match type's data
-            with st.form(key='edit_match_type_form'):
-                match_type_title = st.text_input("Match Type Title", value=match_type_data[1])
-                active_status = st.checkbox("Active", value=match_type_data[2])
+            # Prepopulate the form with selected match type data
+            with st.form(key='edit_matchtype_form'):
+                active = st.checkbox("Active", value=matchtype_data[2])
 
                 # Form submission
                 submitted = st.form_submit_button("Update Match Type")
                 if submitted:
-                    # Call update function to update the match type in the database
-                    update_match_type(match_type_id, match_type_title, active_status)
-                    st.success("Match type updated successfully!")
+                    update_match_type_status(matchtype_id, active)
+                    st.success("Match Type updated successfully!")
                     st.experimental_rerun()
 
 # Add this function to update match type in database
@@ -441,7 +440,29 @@ def update_match_type(match_type_id, match_type_title, active_status):
 
 # Editing Fixtures
 if edit_fixtures:
-    st.subheader("Edit Fixture")
+    st.subheader("Edit Fixtures")
+
+    # Fetch all fixtures
+    fixtures = get_fixtures()
+    if fixtures:
+        # Map fixtures to their IDs for selection
+        fixture_dict = {f"Fixture ID {f[0]} (Match Type ID: {f[1]})": f for f in fixtures}
+        selected_fixture = st.selectbox("Select Fixture to Edit", list(fixture_dict.keys()))
+
+        if selected_fixture:
+            fixture_data = fixture_dict[selected_fixture]
+            fixture_id = fixture_data[0]
+
+            # Prepopulate the form with selected fixture data
+            with st.form(key='edit_fixture_form'):
+                completed = st.checkbox("Completed", value=fixture_data[4])
+
+                # Form submission
+                submitted = st.form_submit_button("Update Fixture")
+                if submitted:
+                    update_fixture_completion_status(fixture_id, completed)
+                    st.success("Fixture updated successfully!")
+                    st.experimental_rerun()
     
 # Editing Match Results
 if edit_match_results:
