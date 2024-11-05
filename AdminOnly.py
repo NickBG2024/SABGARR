@@ -258,7 +258,6 @@ if show_series:
         st.write("No Series found in the database.")
         
 if show_fixtures:
-    if show_fixtures:
     st.subheader("Fixtures in Database:")
     fixtures = get_fixtures()
 
