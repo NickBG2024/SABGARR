@@ -13,7 +13,6 @@ st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
 # Checking for new emails etc
-# Checking for new emails etc
 def check_for_new_emails():
     st.title("Check for New Match Results via Email")
 
@@ -71,17 +70,13 @@ def check_for_new_emails():
                             st.error("MatchTypeID not found for identifier.")
                             continue
 
-                # Extract player data from the subject line
-                match = re.search(r"between ([^ ]+) ([^)]+) and ([^ ]+) ([^)]+)", cleaned_subject)
+                # Extract player data from the subject line using a precise regex
+                match = re.search(r"between ([^\s]+) ([\d\s.-]+) and ([^\s]+) ([\d\s.-]+)", cleaned_subject)
                 if match:
                     player_1_nickname = match.group(1)
                     player_1_stats = match.group(2).split()
                     player_2_nickname = match.group(3)
                     player_2_stats = match.group(4).split()
-
-                    # Print the raw stats for debugging
-                    st.write("Raw Player 1 Stats:", player_1_stats)
-                    st.write("Raw Player 2 Stats:", player_2_stats)
 
                     # Ensure each player has exactly four pieces of information
                     if len(player_1_stats) != 4 or len(player_2_stats) != 4:
