@@ -305,7 +305,8 @@ if show_match_results:
 if show_match_types:
     st.subheader("Match Types in Database:")
     matchtypes = get_match_types()
-
+    print("Fetched match types:", match_types)
+    
     if matchtypes:
         # Convert list of tuples to a DataFrame for table display, including 'Active' column
         matchtypes_data = pd.DataFrame(matchtypes, columns=["MatchType ID", "Match Type Name", "Identifier", "Active"])
