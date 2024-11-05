@@ -308,7 +308,7 @@ if show_match_types:
 
     if matchtypes:
         # Convert list of tuples to a DataFrame for table display, including 'Active' column
-        matchtypes_data = pd.DataFrame(matchtypes, columns=["MatchType ID", "Match Type Name", "Active"])
+        matchtypes_data = pd.DataFrame(matchtypes, columns=["MatchType ID", "Match Type Name", "Identifier", "Active"])
         st.table(matchtypes_data)
     else:
         st.write("No match types found in the database.")
