@@ -626,14 +626,14 @@ def get_match_types():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT MatchTypeID, MatchTypeTitle, Active FROM MatchType")
+        cursor.execute("SELECT MatchTypeID, MatchTypeTitle, Identifier Active FROM MatchType")
         match_types = cursor.fetchall()
         conn.close()
 
         if not match_types:
             st.error("No match types found.")
         
-        return [(mt[0], mt[1], mt[2]) for mt in match_types]  # Ensure tuples with (ID, Title, Active)
+        return [(mt[0], mt[1], mt[2], mt[3]) for mt in match_types]  # Ensure tuples with (ID, Title, Identifier, Active)
     except Exception as e:
         st.error(f"Error retrieving match types: {e}")
         return []
