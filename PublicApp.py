@@ -42,7 +42,8 @@ def check_for_new_emails():
                 msg = email.message_from_bytes(response_part[1])
                 subject = msg['subject']
                 cleaned_subject = re.sub(r"^(Fwd:|Re:)\s*", "", subject).strip()
-
+                st.write(f"Cleaned Subject: {cleaned_subject}")
+                
                 # Extract the body of the email
                 body = ""
                 if msg.is_multipart():
