@@ -13,15 +13,19 @@ st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
 # Checking for new emails etc
+import imaplib
+import email
+import re
+import streamlit as st
+from database import check_result_exists, insert_match_result, get_fixture_id
+
 def check_for_new_emails():
-    # Streamlit title
     st.title("Check for New Match Results via Email")
 
     # Get email credentials from Streamlit Secrets
     EMAIL = st.secrets["imap"]["email"]
     PASSWORD = st.secrets["imap"]["password"]
 
-    # Try connecting to the email server
     try:
         mail = imaplib.IMAP4_SSL('mail.sabga.co.za', 993)
         mail.login(EMAIL, PASSWORD)
@@ -35,7 +39,6 @@ def check_for_new_emails():
     status, messages = mail.search(None, '(SUBJECT "Admin: A league match was played" SUBJECT "Fwd: Admin: A league match was played")')
     email_ids = messages[0].split()
 
-    # Loop through the emails and extract data
     for email_id in email_ids:
         status, msg_data = mail.fetch(email_id, '(RFC822)')
 
@@ -43,42 +46,54 @@ def check_for_new_emails():
             if isinstance(response_part, tuple):
                 msg = email.message_from_bytes(response_part[1])
                 subject = msg['subject']
-
-                # Isolate the original recipient email address
-                recipient = msg.get('to', 'Unknown recipient')
-                st.write(f"Original recipient email address: {recipient}")
-                
-                # Clean up subject
                 cleaned_subject = re.sub(r"^(Fwd:|Re:)\s*", "", subject).strip()
 
-                # Extract player data
-                match = re.search(r"([^)]+)\s*and\s*[^]+([^)]+)", cleaned_subject)
+                # Extract the body of the email (assuming it's multipart)
+                body = ""
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        if part.get_content_type() == "text/plain":
+                            body = part.get_payload(decode=True).decode('utf-8')
+                            break
+                else:
+                    body = msg.get_payload(decode=True).decode('utf-8')
+
+                # Extract forwarded email address from "To:" line in the body
+                forwarded_to = re.search(r"To:.*<(.+?)>", body)
+                if forwarded_to:
+                    forwarded_email = forwarded_to.group(1)
+                    st.write(f"Forwarded email address: {forwarded_email}")
+
+                    # Extract the MatchType identifier from the email address
+                    match_type_identifier = re.search(r"\+([^@]+)@", forwarded_email)
+                    if match_type_identifier:
+                        match_type_text = match_type_identifier.group(1)
+                        st.write(f"MatchType Identifier: {match_type_text}")
+
+                # Process match data in the subject line
+                match = re.search(r"\(([^)]+)\)\s*and\s*[^\(]+\(([^)]+)\)", cleaned_subject)
                 if match:
                     player_1_values = match.group(1).split()
                     player_2_values = match.group(2).split()
 
-                    # Prepare the match result data
+                    # Retrieve individual stats
                     player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_values
                     player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_values
 
-                    # Check if result already exists
                     if check_result_exists(player_1_points, player_1_length, player_2_points, player_2_length):
                         st.write("Match result already exists, skipping...")
                         continue
 
-                    # Match result with the associated fixture (you may need to implement get_fixture_id based on your logic)
                     fixture_id = get_fixture_id(cleaned_subject)
                     if fixture_id:
-                        # Write the result to the database
                         insert_match_result(fixture_id, player_1_points, player_1_length, player_1_pr, player_1_luck,
                                             player_2_points, player_2_length, player_2_pr, player_2_luck)
                         st.success("Match result added to the database!")
                     else:
                         st.error("Fixture ID not found for the match.")
                 else:
-                    st.write(f"No match found for email {email_id} - Subject: {subject}")  # Display subject if no match found
+                    st.write(f"No match found for email {email_id} - Subject: {subject}")
 
-    # Logout from the email server
     mail.logout()
 
 # Check if the email checker is enabled
