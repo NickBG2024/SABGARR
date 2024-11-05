@@ -157,7 +157,6 @@ def insert_match_result(fixture_id, player1_points, player1_length, player1_pr, 
         st.error(f"Error inserting match result or updating fixture: {e}")
         
 # Generating Fixtures in table from MatchTypeID and PlayerIDs
-# Generating Fixtures in table from MatchTypeID and PlayerIDs
 def generate_fixture_entries(match_type_id, player_ids):
     conn = create_connection()
     cursor = conn.cursor()
@@ -520,28 +519,65 @@ def add_match_type(match_type_title, active):
     except Exception as e:
         st.error(f"Error adding match type: {e}")
 
-# Insert a new match result
+# Insert a new match result with a check for duplicates
 def add_match_result(player1_id, player2_id, player1_points, player2_points, match_type_id):
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO MatchResults 
-        (Date, Player1ID, Player2ID, Player1Points, Player2Points, MatchTypeID) 
-        VALUES (NOW(), %s, %s, %s, %s, %s)
-    ''', (player1_id, player2_id, player1_points, player2_points, match_type_id))
-    conn.commit()
-    conn.close()
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        
+        # Check if a match result with the same players and match type exists (in either order)
+        cursor.execute('''
+            SELECT MatchResultID FROM MatchResults
+            WHERE MatchTypeID = %s AND 
+                  ((Player1ID = %s AND Player2ID = %s) OR (Player1ID = %s AND Player2ID = %s))
+        ''', (match_type_id, player1_id, player2_id, player2_id, player1_id))
+        
+        existing_result = cursor.fetchone()
+        
+        if existing_result:
+            st.warning("This match result already exists with these players and match type.")
+        else:
+            # Insert the new match result if no duplicate is found
+            cursor.execute('''
+                INSERT INTO MatchResults 
+                (Date, Player1ID, Player2ID, Player1Points, Player2Points, MatchTypeID) 
+                VALUES (NOW(), %s, %s, %s, %s, %s)
+            ''', (player1_id, player2_id, player1_points, player2_points, match_type_id))
+            conn.commit()
+            st.success("Match result added successfully!")
+        
+        conn.close()
+    except Exception as e:
+        st.error(f"Error adding match result: {e}")
 
 def add_fixture(match_type_id, player1_id, player2_id):
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        # Insert with completed flag set to 0
+        
+        # Check for existing fixture with same match type and players in either order
         cursor.execute(
-            "INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID, Completed) VALUES (%s, %s, %s, %s)",
-            (match_type_id, player1_id, player2_id, 0)  # Set Completed to 0 by default
+            '''
+            SELECT FixtureID FROM Fixtures
+            WHERE MatchTypeID = %s AND 
+                  ((Player1ID = %s AND Player2ID = %s) OR (Player1ID = %s AND Player2ID = %s))
+            ''',
+            (match_type_id, player1_id, player2_id, player2_id, player1_id)
         )
-        conn.commit()
+        
+        existing_fixture = cursor.fetchone()
+        
+        if existing_fixture:
+            st.warning("This fixture already exists with these players and match type.")
+        else:
+            # Insert fixture with Completed set to 0 by default
+            cursor.execute(
+                "INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID, Completed) VALUES (%s, %s, %s, %s)",
+                (match_type_id, player1_id, player2_id, 0)  # Set Completed to 0 by default
+            )
+            conn.commit()
+            st.success("Fixture added successfully!")
+        
         conn.close()
     except Exception as e:
         st.error(f"Error adding fixture: {e}")
