@@ -627,7 +627,7 @@ def get_match_types():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT MatchTypeID, MatchTypeTitle, Identifier Active FROM MatchType")
+        cursor.execute("SELECT MatchTypeID, MatchTypeTitle, Identifier, Active FROM MatchType")
         match_types = cursor.fetchall()
         conn.close()
 
