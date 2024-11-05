@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import check_result_exists, insert_match_result, get_fixture_id, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id, get_email_checker_status 
+from database import get_player_id_by_nickname, check_result_exists, insert_match_result, get_fixture_id, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id, get_email_checker_status 
 from datetime import datetime, timedelta
 
 # Add a header image at the top of the page
