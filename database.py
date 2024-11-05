@@ -19,6 +19,63 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+def get_player_id_by_nickname(nickname):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT PlayerID FROM Players WHERE HeroesNickname = %s", (nickname,))
+        result = cursor.fetchone()
+        conn.close()
+        if result:
+            return result[0]
+        else:
+            st.warning(f"No PlayerID found for nickname '{nickname}'")
+            return None
+    except Exception as e:
+        st.error(f"Error retrieving PlayerID for nickname '{nickname}': {e}")
+        return None
+
+def get_fixture_id(match_type_id, player1_id, player2_id):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT FixtureID, Completed
+            FROM Fixtures
+            WHERE MatchTypeID = %s AND Player1ID = %s AND Player2ID = %s
+        ''', (match_type_id, player1_id, player2_id))
+        fixture = cursor.fetchone()
+        conn.close()
+        if fixture:
+            fixture_id, completed = fixture
+            if completed:
+                st.warning("This fixture has already been marked as completed.")
+                return None
+            else:
+                return fixture_id
+        else:
+            st.warning("No matching fixture found.")
+            return None
+    except Exception as e:
+        st.error(f"Error retrieving fixture: {e}")
+        return None
+
+def get_match_type_id_by_identifier(identifier):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT MatchTypeID FROM MatchType WHERE Identifier = %s", (identifier,))
+        result = cursor.fetchone()
+        conn.close()
+        if result:
+            return result[0]
+        else:
+            st.warning(f"No MatchTypeID found for identifier '{identifier}'")
+            return None
+    except Exception as e:
+        st.error(f"Error retrieving MatchTypeID for identifier '{identifier}': {e}")
+        return None
+
 def get_nickname_to_full_name_map():
     """
     Returns a dictionary mapping player nicknames to their full names.
@@ -76,30 +133,30 @@ def get_fixture_id(match_subject):
         return None
 
 # Function to insert a new match result into the MatchResults table
-def insert_match_result(fixture_id, player_1_points, player_1_length, player_1_pr, player_1_luck,
-                        player_2_points, player_2_length, player_2_pr, player_2_luck):
+def insert_match_result(fixture_id, player1_points, player1_length, player1_pr, player1_luck,
+                        player2_points, player2_length, player2_pr, player2_luck):
     try:
         conn = create_connection()
         cursor = conn.cursor()
 
-        # Insert query for adding a match result
-        insert_query = """
+        # Insert match result
+        cursor.execute('''
             INSERT INTO MatchResults (FixtureID, Player1Points, Player1MatchLength, Player1PR, Player1Luck,
                                       Player2Points, Player2MatchLength, Player2PR, Player2Luck)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(insert_query, (
-            fixture_id, player_1_points, player_1_length, player_1_pr, player_1_luck,
-            player_2_points, player_2_length, player_2_pr, player_2_luck
-        ))
+        ''', (fixture_id, player1_points, player1_length, player1_pr, player1_luck,
+              player2_points, player2_length, player2_pr, player2_luck))
+        
+        # Mark fixture as completed
+        cursor.execute("UPDATE Fixtures SET Completed = 1 WHERE FixtureID = %s", (fixture_id,))
 
         conn.commit()
         conn.close()
-        st.success("Match result successfully added to the database!")
-    except mysql.connector.Error as e:
-        st.error(f"Error inserting match result: {e}")
+        st.success("Match result successfully added and fixture marked as completed.")
+    except Exception as e:
+        st.error(f"Error inserting match result or updating fixture: {e}")
         
-# In database.py
+# Generating Fixtures in table from MatchTypeID and PlayerIDs
 def generate_fixture_entries(match_type_id, player_ids):
     conn = create_connection()
     cursor = conn.cursor()
