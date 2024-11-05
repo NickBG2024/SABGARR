@@ -337,6 +337,37 @@ def alter_matchresults():
     finally:
         conn.close()
 
+def alter_matchtype():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            ALTER TABLE MatchType
+            ADD COLUMN Identifier VARCHAR(255) UNIQUE;
+        ''')
+        conn.commit()
+        print("MatchType table altered successfully.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
+def alter_fixtures():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            ALTER TABLE Fixtures
+            ADD COLUMN Completed BOOLEAN DEFAULT FALSE;
+        ''')
+        conn.commit()
+        print("Fixtures table altered successfully.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
+
 # Create Series table
 def create_series_table():
     conn = create_connection()
