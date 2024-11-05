@@ -44,6 +44,10 @@ def check_for_new_emails():
                 msg = email.message_from_bytes(response_part[1])
                 subject = msg['subject']
 
+                # Isolate the original recipient email address
+                recipient = msg.get('to', 'Unknown recipient')
+                st.write(f"Original recipient email address: {recipient}")
+                
                 # Clean up subject
                 cleaned_subject = re.sub(r"^(Fwd:|Re:)\s*", "", subject).strip()
 
