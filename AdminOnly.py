@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from database import (
+    add_fixture,
     add_player,
     add_match_type,
     add_match_result,
