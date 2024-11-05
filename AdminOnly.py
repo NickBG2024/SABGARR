@@ -414,17 +414,17 @@ if edit_match_types:
         if selected_matchtype:
             matchtype_data = matchtype_dict[selected_matchtype]
             matchtype_id = matchtype_data[0]
-            current_identifier = matchtype_data[3]  # Assuming the identifier is the fourth element
+            matchtype_identifier = matchtype_data[2]  # Get the current identifier
 
             # Prepopulate the form with selected match type data
             with st.form(key='edit_matchtype_form'):
-                active = st.checkbox("Active", value=matchtype_data[2])
-                identifier = st.text_input("Match Type Identifier", value=current_identifier)
+                active = st.checkbox("Active", value=matchtype_data[3])
+                identifier = st.text_input("Match Type Identifier", value=matchtype_identifier)  # Editable identifier
 
                 # Form submission
                 submitted = st.form_submit_button("Update Match Type")
                 if submitted:
-                    update_match_type_status(matchtype_id, active, identifier)  # Update function needs to handle identifier
+                    update_match_type_status(matchtype_id, active, identifier)  # Pass identifier
                     st.success("Match Type updated successfully!")
                     st.experimental_rerun()
 
