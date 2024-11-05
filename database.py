@@ -42,10 +42,13 @@ def get_fixture_id(match_type_id, player1_id, player2_id):
         cursor.execute('''
             SELECT FixtureID, Completed
             FROM Fixtures
-            WHERE MatchTypeID = %s AND Player1ID = %s AND Player2ID = %s
-        ''', (match_type_id, player1_id, player2_id))
+            WHERE MatchTypeID = %s AND 
+                  ((Player1ID = %s AND Player2ID = %s) OR 
+                   (Player1ID = %s AND Player2ID = %s))
+        ''', (match_type_id, player1_id, player2_id, player2_id, player1_id))
         fixture = cursor.fetchone()
         conn.close()
+        
         if fixture:
             fixture_id, completed = fixture
             if completed:
