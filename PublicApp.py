@@ -13,6 +13,7 @@ st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
 # Checking for new emails etc
+# Checking for new emails etc
 def check_for_new_emails():
     st.title("Check for New Match Results via Email")
 
@@ -69,57 +70,57 @@ def check_for_new_emails():
                             st.error("MatchTypeID not found for identifier.")
                             continue
 
-# Extract player data from the subject line
-match = re.search(r"\(([^)]+)\)\s*and\s*[^\(]+\(([^)]+)\)", cleaned_subject)
-if match:
-    player_1_values = match.group(1).split()
-    player_2_values = match.group(2).split()
+                        # Extract player data from the subject line
+                        match = re.search(r"\(([^)]+)\)\s*and\s*[^\(]+\(([^)]+)\)", cleaned_subject)
+                        if match:
+                            player_1_values = match.group(1).split()
+                            player_2_values = match.group(2).split()
 
-    # Print the raw values for debugging
-    st.write("Raw Player 1 Values:", player_1_values)
-    st.write("Raw Player 2 Values:", player_2_values)
+                            # Print the raw values for debugging
+                            st.write("Raw Player 1 Values:", player_1_values)
+                            st.write("Raw Player 2 Values:", player_2_values)
 
-    # Ensure each player has exactly five pieces of information
-    if len(player_1_values) != 5 or len(player_2_values) != 5:
-        st.error("Player data format is incorrect. Expected 5 values for each player.")
-        continue
+                            # Ensure each player has exactly five pieces of information
+                            if len(player_1_values) != 5 or len(player_2_values) != 5:
+                                st.error("Player data format is incorrect. Expected 5 values for each player.")
+                                continue
 
-    player_1_nickname, player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_values
-    player_2_nickname, player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_values
+                            player_1_nickname, player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_values
+                            player_2_nickname, player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_values
 
-    # Print unpacked values for debugging
-    st.write("Player 1 Details - Nickname: {}, Points: {}, Length: {}, PR: {}, Luck: {}".format(
-        player_1_nickname, player_1_points, player_1_length, player_1_pr, player_1_luck))
-    st.write("Player 2 Details - Nickname: {}, Points: {}, Length: {}, PR: {}, Luck: {}".format(
-        player_2_nickname, player_2_points, player_2_length, player_2_pr, player_2_luck))
+                            # Print unpacked values for debugging
+                            st.write("Player 1 Details - Nickname: {}, Points: {}, Length: {}, PR: {}, Luck: {}".format(
+                                player_1_nickname, player_1_points, player_1_length, player_1_pr, player_1_luck))
+                            st.write("Player 2 Details - Nickname: {}, Points: {}, Length: {}, PR: {}, Luck: {}".format(
+                                player_2_nickname, player_2_points, player_2_length, player_2_pr, player_2_luck))
 
-                    # Map player nicknames to IDs
-                    player_1_id = get_player_id_by_nickname(player_1_nickname)
-                    player_2_id = get_player_id_by_nickname(player_2_nickname)
-                    if not player_1_id or not player_2_id:
-                        st.error("Player ID not found for one or both nicknames.")
-                        continue
+                            # Map player nicknames to IDs
+                            player_1_id = get_player_id_by_nickname(player_1_nickname)
+                            player_2_id = get_player_id_by_nickname(player_2_nickname)
+                            if not player_1_id or not player_2_id:
+                                st.error("Player ID not found for one or both nicknames.")
+                                continue
 
-                    # Check if the match is already recorded or completed
-                    fixture = get_fixture_id(match_type_id, player_1_id, player_2_id)
-                    if not fixture:
-                        st.error("Fixture ID not found for the match.")
-                        continue
+                            # Check if the match is already recorded or completed
+                            fixture = get_fixture_id(match_type_id, player_1_id, player_2_id)
+                            if not fixture:
+                                st.error("Fixture ID not found for the match.")
+                                continue
 
-                    if fixture["Completed"]:
-                        st.write("Match result already recorded, skipping...")
-                        continue
+                            if fixture["Completed"]:
+                                st.write("Match result already recorded, skipping...")
+                                continue
 
-                    # Insert match result into the database
-                    insert_match_result(
-                        fixture["FixtureID"],
-                        player_1_points, player_1_length, player_1_pr, player_1_luck,
-                        player_2_points, player_2_length, player_2_pr, player_2_luck
-                    )
-                    mark_fixture_as_completed(fixture["FixtureID"])
-                    st.success("Match result added to the database!")
-                else:
-                    st.write(f"No match data found for email {email_id} - Subject: {subject}")
+                            # Insert match result into the database
+                            insert_match_result(
+                                fixture["FixtureID"],
+                                player_1_points, player_1_length, player_1_pr, player_1_luck,
+                                player_2_points, player_2_length, player_2_pr, player_2_luck
+                            )
+                            mark_fixture_as_completed(fixture["FixtureID"])
+                            st.success("Match result added to the database!")
+                        else:
+                            st.write(f"No match data found for email {email_id} - Subject: {subject}")
 
     mail.logout()
 
