@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id, get_email_checker_status 
+from database import check_result_exists, insert_match_result, get_fixture_id, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id, get_email_checker_status 
 from datetime import datetime, timedelta
 
 # Add a header image at the top of the page
@@ -13,12 +13,6 @@ st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
 # Checking for new emails etc
-import imaplib
-import email
-import re
-import streamlit as st
-from database import check_result_exists, insert_match_result, get_fixture_id
-
 def check_for_new_emails():
     st.title("Check for New Match Results via Email")
 
@@ -48,7 +42,7 @@ def check_for_new_emails():
                 subject = msg['subject']
                 cleaned_subject = re.sub(r"^(Fwd:|Re:)\s*", "", subject).strip()
 
-                # Extract the body of the email (assuming it's multipart)
+                # Extract the body of the email
                 body = ""
                 if msg.is_multipart():
                     for part in msg.walk():
@@ -58,41 +52,59 @@ def check_for_new_emails():
                 else:
                     body = msg.get_payload(decode=True).decode('utf-8')
 
-                # Extract forwarded email address from "To:" line in the body
+                # Extract forwarded email address and MatchType identifier
                 forwarded_to = re.search(r"To:.*<(.+?)>", body)
                 if forwarded_to:
                     forwarded_email = forwarded_to.group(1)
                     st.write(f"Forwarded email address: {forwarded_email}")
 
-                    # Extract the MatchType identifier from the email address
                     match_type_identifier = re.search(r"\+([^@]+)@", forwarded_email)
                     if match_type_identifier:
                         match_type_text = match_type_identifier.group(1)
                         st.write(f"MatchType Identifier: {match_type_text}")
 
-                # Process match data in the subject line
+                        # Get MatchTypeID using the identifier
+                        match_type_id = get_match_type_id(match_type_text)
+                        if not match_type_id:
+                            st.error("MatchTypeID not found for identifier.")
+                            continue
+
+                # Extract player data from the subject line
                 match = re.search(r"\(([^)]+)\)\s*and\s*[^\(]+\(([^)]+)\)", cleaned_subject)
                 if match:
                     player_1_values = match.group(1).split()
                     player_2_values = match.group(2).split()
 
-                    # Retrieve individual stats
-                    player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_values
-                    player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_values
+                    player_1_nickname, player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_values
+                    player_2_nickname, player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_values
 
-                    if check_result_exists(player_1_points, player_1_length, player_2_points, player_2_length):
-                        st.write("Match result already exists, skipping...")
+                    # Map player nicknames to IDs
+                    player_1_id = get_player_id_by_nickname(player_1_nickname)
+                    player_2_id = get_player_id_by_nickname(player_2_nickname)
+                    if not player_1_id or not player_2_id:
+                        st.error("Player ID not found for one or both nicknames.")
                         continue
 
-                    fixture_id = get_fixture_id(cleaned_subject)
-                    if fixture_id:
-                        insert_match_result(fixture_id, player_1_points, player_1_length, player_1_pr, player_1_luck,
-                                            player_2_points, player_2_length, player_2_pr, player_2_luck)
-                        st.success("Match result added to the database!")
-                    else:
+                    # Check if the match is already recorded or completed
+                    fixture = get_fixture_id(match_type_id, player_1_id, player_2_id)
+                    if not fixture:
                         st.error("Fixture ID not found for the match.")
+                        continue
+
+                    if fixture["Completed"]:
+                        st.write("Match result already recorded, skipping...")
+                        continue
+
+                    # Insert match result into the database
+                    insert_match_result(
+                        fixture["FixtureID"],
+                        player_1_points, player_1_length, player_1_pr, player_1_luck,
+                        player_2_points, player_2_length, player_2_pr, player_2_luck
+                    )
+                    mark_fixture_as_completed(fixture["FixtureID"])
+                    st.success("Match result added to the database!")
                 else:
-                    st.write(f"No match found for email {email_id} - Subject: {subject}")
+                    st.write(f"No match data found for email {email_id} - Subject: {subject}")
 
     mail.logout()
 
