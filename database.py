@@ -639,6 +639,20 @@ def get_match_types():
         st.error(f"Error retrieving match types: {e}")
         return []
 
+def update_match_type_status(match_type_id, active, identifier):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE MatchType 
+            SET Active = %s, Identifier = %s 
+            WHERE MatchTypeID = %s
+        ''', (active, identifier, match_type_id))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        st.error(f"Error updating match type: {e}")
+
 # Function to retrieve all matches with specific fields as tuples
 def get_match_results():
     try:
