@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import get_player_id_by_nickname, check_result_exists, insert_match_result, get_fixture_id, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id, get_email_checker_status 
+from database import get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture_id, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id, get_email_checker_status 
 from datetime import datetime, timedelta
 
 # Add a header image at the top of the page
@@ -64,7 +64,7 @@ def check_for_new_emails():
                         st.write(f"MatchType Identifier: {match_type_text}")
 
                         # Get MatchTypeID using the identifier
-                        match_type_id = get_match_type_id(match_type_text)
+                        match_type_id = get_match_type_id_by_identifier(match_type_text)
                         if not match_type_id:
                             st.error("MatchTypeID not found for identifier.")
                             continue
