@@ -157,6 +157,7 @@ def insert_match_result(fixture_id, player1_points, player1_length, player1_pr, 
         st.error(f"Error inserting match result or updating fixture: {e}")
         
 # Generating Fixtures in table from MatchTypeID and PlayerIDs
+# Generating Fixtures in table from MatchTypeID and PlayerIDs
 def generate_fixture_entries(match_type_id, player_ids):
     conn = create_connection()
     cursor = conn.cursor()
@@ -168,10 +169,10 @@ def generate_fixture_entries(match_type_id, player_ids):
             player2_id = player_ids[j]
             cursor.execute(
                 """
-                INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID)
-                VALUES (%s, %s, %s)
+                INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID, Completed)
+                VALUES (%s, %s, %s, %s)
                 """,
-                (match_type_id, player1_id, player2_id),
+                (match_type_id, player1_id, player2_id, 0),  # Set Completed to 0 by default
             )
 
     conn.commit()
@@ -427,11 +428,12 @@ def create_fixtures_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
-     CREATE TABLE IF NOT EXISTS Fixtures (
+        CREATE TABLE IF NOT EXISTS Fixtures (
             FixtureID INT AUTO_INCREMENT PRIMARY KEY,
             MatchTypeID INT,
             Player1ID INT,
             Player2ID INT,
+            Completed TINYINT DEFAULT 0,
             FOREIGN KEY (Player1ID) REFERENCES Players(PlayerID),
             FOREIGN KEY (Player2ID) REFERENCES Players(PlayerID),
             FOREIGN KEY (MatchTypeID) REFERENCES MatchType(MatchTypeID)
@@ -531,14 +533,18 @@ def add_match_result(player1_id, player2_id, player1_points, player2_points, mat
     conn.close()
 
 def add_fixture(match_type_id, player1_id, player2_id):
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID)
-        VALUES (%s, %s, %s)
-    ''', (match_type_id, player1_id, player2_id))
-    conn.commit()
-    conn.close()
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        # Insert with completed flag set to 0
+        cursor.execute(
+            "INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID, Completed) VALUES (%s, %s, %s, %s)",
+            (match_type_id, player1_id, player2_id, 0)  # Set Completed to 0 by default
+        )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        st.error(f"Error adding fixture: {e}")
 
 def get_fixtures_with_names():
     try:
