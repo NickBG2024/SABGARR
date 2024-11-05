@@ -551,7 +551,7 @@ def get_fixtures_with_names():
                 f.FixtureID, 
                 m.MatchTypeTitle,
                 p1.Name AS Player1Name, 
-                p2.Name AS Player2Name
+                p2.Name AS Player2Name,
                 f.Completed
             FROM Fixtures f
             JOIN Players p1 ON f.Player1ID = p1.PlayerID
