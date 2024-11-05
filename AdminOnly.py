@@ -18,6 +18,7 @@ from database import (
     remove_match_type_from_series,
     get_series,
     get_series_match_types,
+    update_match_type_status,
     update_series_title,
     update_match_type_in_series,
     generate_fixture_entries,
