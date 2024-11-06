@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta
 
 # Add a header image at the top of the page
@@ -11,28 +11,6 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 # Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
-
-def print_table_structure():
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-        
-        # Query to fetch column details
-        cursor.execute("PRAGMA table_info(MatchResults)")  # For SQLite
-        # Uncomment the following line and comment the one above if using MySQL
-        # cursor.execute("DESCRIBE MatchResults") 
-        
-        columns = cursor.fetchall()
-        
-        # Print column details
-        print("Structure of MatchResults table:")
-        for column in columns:
-            print(column)
-        
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        conn.close()
 
 def check_for_new_emails():
     st.title("Check for New Match Results via Email")
