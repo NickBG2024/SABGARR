@@ -484,11 +484,15 @@ def update_match_type(match_type_id, match_type_title, active_status):
     conn.close()
 
 # Editing Fixtures
+# Editing Fixtures
 if edit_fixtures:
     st.subheader("Edit Fixtures")
 
     # Fetch all fixtures
     fixtures = get_fixtures()
+    match_types = get_match_types()  # Fetch all match types to display in dropdown
+    players = get_players()  # Fetch all players to display in dropdown
+
     if fixtures:
         # Map fixtures to their IDs for selection
         fixture_dict = {f"Fixture ID {f[0]} (Match Type ID: {f[1]})": f for f in fixtures}
@@ -500,12 +504,42 @@ if edit_fixtures:
 
             # Prepopulate the form with selected fixture data
             with st.form(key='edit_fixture_form'):
+                # Dropdown for Match Type
+                match_type_id = st.selectbox(
+                    "Match Type",
+                    options=[(mt[0], mt[1]) for mt in match_types],
+                    format_func=lambda x: x[1],
+                    index=[mt[0] for mt in match_types].index(fixture_data[1])
+                )
+
+                # Dropdowns for Player 1 and Player 2
+                player1_id = st.selectbox(
+                    "Player 1",
+                    options=[(p[0], p[1]) for p in players],
+                    format_func=lambda x: x[1],
+                    index=[p[0] for p in players].index(fixture_data[2])
+                )
+                player2_id = st.selectbox(
+                    "Player 2",
+                    options=[(p[0], p[1]) for p in players],
+                    format_func=lambda x: x[1],
+                    index=[p[0] for p in players].index(fixture_data[3])
+                )
+
+                # Checkbox for completion status
                 completed = st.checkbox("Completed", value=fixture_data[4])
 
                 # Form submission
                 submitted = st.form_submit_button("Update Fixture")
                 if submitted:
-                    update_fixture_completion_status(fixture_id, completed)
+                    # Update the fixture with new details
+                    update_fixture(
+                        fixture_id=fixture_id,
+                        match_type_id=match_type_id[0],
+                        player1_id=player1_id[0],
+                        player2_id=player2_id[0],
+                        completed=completed
+                    )
                     st.success("Fixture updated successfully!")
                     st.experimental_rerun()
     
