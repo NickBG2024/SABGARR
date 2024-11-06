@@ -1,5 +1,5 @@
 import streamlit as st
-from database import reset_match_results, print_table_structure, alter_fixtures, alter_matchtype, create_players_table, create_series_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table, alter_matchresults
+from database import reset_fixtures_completed, reset_match_results, print_table_structure, alter_fixtures, alter_matchtype, create_players_table, create_series_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table, alter_matchresults
 st.title("Create Backgammon Database")
 
 if st.button("Create Players Table"):
@@ -44,6 +44,7 @@ if st.button("Show MatchResults format:"):
 
 if st.button("reset matchresults:"):
     reset_match_results()
-    st.success("Match Results emptied")
+    reset_fixtures_completed()
+    st.success("Match Results emptied, fixtures reset to Completed==0")
     
     
