@@ -307,7 +307,7 @@ if show_match_results:
     st.subheader("Match Results in Database:")
     matchresults = get_match_results()
 
-    if matchresults:
+if matchresults:
     for row in matchresults:
         st.write({col_name: type(value) for col_name, value in zip(["MatchResult ID", "Date", "Time Completed", "MatchTypeID", "Player1ID", "Player2ID", "Player 1 pts", "Player 2 pts", "Player 1 PR", "Player 2 PR", "Player 1 Luck", "Player 2 Luck"], row)})
     else:
