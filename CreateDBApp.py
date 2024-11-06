@@ -1,28 +1,5 @@
 import streamlit as st
-from database import alter_fixtures, alter_matchtype, create_players_table, create_series_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table, alter_matchresults
-
-def print_table_structure():
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-        
-        # Query to fetch column details
-        cursor.execute("PRAGMA table_info(MatchResults)")  # For SQLite
-        # Uncomment the following line and comment the one above if using MySQL
-        # cursor.execute("DESCRIBE MatchResults") 
-        
-        columns = cursor.fetchall()
-        
-        # Print column details
-        print("Structure of MatchResults table:")
-        for column in columns:
-            print(column)
-        
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        conn.close()
-
+from database import print_table_structure, alter_fixtures, alter_matchtype, create_players_table, create_series_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table, alter_matchresults
 st.title("Create Backgammon Database")
 
 if st.button("Create Players Table"):
