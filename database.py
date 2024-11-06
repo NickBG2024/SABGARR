@@ -141,8 +141,8 @@ def insert_match_result(fixture_id, player1_points, player1_pr, player1_luck,
         cursor = conn.cursor()
 
         # Get the current date and time for insertion
-        current_date = datetime.now().strftime('%Y-%m-%d')  # Format date as 'YYYY-MM-DD'
-        current_time = datetime.now().strftime('%H:%M:%S')  # Format time as 'HH:MM:SS'
+        current_date = datetime.datetime.now().strftime('%Y-%m-%d')  # Format date as 'YYYY-MM-DD'
+        current_time = datetime.datetime.now().strftime('%H:%M:%S')  # Format time as 'HH:MM:SS'
 
         # Insert match result
         cursor.execute('''
