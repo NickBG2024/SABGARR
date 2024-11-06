@@ -324,17 +324,16 @@ def alter_matchresults():
         cursor = conn.cursor()
         cursor.execute('''
             ALTER TABLE MatchResults
-            CHANGE COLUMN MatchID MatchResultID INT PRIMARY KEY,
             ADD COLUMN FixtureID INT,
             ADD CONSTRAINT FK_FixtureID FOREIGN KEY (FixtureID) REFERENCES Fixtures(FixtureID);
         ''')
         conn.commit()
-        print("MatchResults table altered successfully.")
+        st.write("FixtureID column added to MatchResults table successfully.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        st.error(f"An error occurred while altering MatchResults: {e}")
     finally:
         conn.close()
-
+        
 def alter_matchtype():
     try:
         conn = create_connection()
