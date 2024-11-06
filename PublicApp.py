@@ -34,11 +34,9 @@ def print_table_structure():
     finally:
         conn.close()
 
-# Checking for new emails etc
 def check_for_new_emails():
     st.title("Check for New Match Results via Email")
 
-    # Get email credentials from Streamlit Secrets
     EMAIL = st.secrets["imap"]["email"]
     PASSWORD = st.secrets["imap"]["password"]
 
@@ -51,7 +49,6 @@ def check_for_new_emails():
         st.error(f"IMAP login failed: {str(e)}")
         return
 
-    # Search for new emails with the specified subject
     status, messages = mail.search(None, '(SUBJECT "Admin: A league match was played" SUBJECT "Fwd: Admin: A league match was played")')
     email_ids = messages[0].split()
 
@@ -65,7 +62,6 @@ def check_for_new_emails():
                 cleaned_subject = re.sub(r"^(Fwd:|Re:)\s*", "", subject).strip()
                 st.write(f"Cleaned Subject: {cleaned_subject}")
 
-                # Extract the body of the email
                 body = ""
                 if msg.is_multipart():
                     for part in msg.walk():
@@ -75,7 +71,6 @@ def check_for_new_emails():
                 else:
                     body = msg.get_payload(decode=True).decode('utf-8')
 
-                # Extract forwarded email address and MatchType identifier
                 forwarded_to = re.search(r"To:.*<(.+?)>", body)
                 if forwarded_to:
                     forwarded_email = forwarded_to.group(1)
@@ -86,58 +81,44 @@ def check_for_new_emails():
                         match_type_text = match_type_identifier.group(1)
                         st.write(f"MatchType Identifier: {match_type_text}")
 
-                        # Get MatchTypeID using the identifier
                         match_type_id = get_match_type_id_by_identifier(match_type_text)
                         if not match_type_id:
                             st.error("MatchTypeID not found for identifier.")
                             continue
 
-                # Extract player data from the subject line using a precise regex
                 match = re.search(r"between (\w+) \(([^)]+)\) and (\w+) \(([^)]+)\)", cleaned_subject)
                 if match:
-                    player_1_nickname = match.group(1)
-                    player_1_stats = match.group(2).split()
-                    player_2_nickname = match.group(3)
-                    player_2_stats = match.group(4).split()
+                    player_1_nickname, player_2_nickname = match.group(1), match.group(3)
+                    player_1_stats, player_2_stats = match.group(2).split(), match.group(4).split()
 
-                    # Ensure each player has exactly four pieces of information
-                    if len(player_1_stats) != 4 or len(player_2_stats) != 4:
-                        st.error("Player data format is incorrect. Expected 4 values for each player.")
-                    else:
+                    if len(player_1_stats) == 4 and len(player_2_stats) == 4:
                         player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_stats
                         player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_stats
 
-                        # Print unpacked values for debugging
-                        st.write("Player 1 Details - Nickname: {}, Points: {}, Length: {}, PR: {}, Luck: {}".format(
-                            player_1_nickname, player_1_points, player_1_length, player_1_pr, player_1_luck))
-                        st.write("Player 2 Details - Nickname: {}, Points: {}, Length: {}, PR: {}, Luck: {}".format(
-                            player_2_nickname, player_2_points, player_2_length, player_2_pr, player_2_luck))
-
-                        # Map player nicknames to IDs
                         player_1_id = get_player_id_by_nickname(player_1_nickname)
                         player_2_id = get_player_id_by_nickname(player_2_nickname)
                         if not player_1_id or not player_2_id:
                             st.error("Player ID not found for one or both nicknames.")
                             continue
 
-                        # Check if the match is already recorded or completed
                         fixture = get_fixture(match_type_id, player_1_id, player_2_id)
-                        st.write(f"Fixture content: {fixture}")
-                        if fixture:
-                            if fixture["Completed"]:
-                                st.write("Match result already recorded, skipping.")
-                                continue
-                            fixture_id = fixture["FixtureID"]
+                        if fixture is None:
+                            st.error("No matching fixture found or already completed. Skipping.")
+                            continue
 
-                        print_table_structure()
-                        
-                        # Insert match result into the database
+                        fixture_id = fixture["FixtureID"]
+                        st.write(f"Fixture content: {fixture}")
+
+                        print_table_structure()  # Debugging structure
+
                         insert_match_result(
-                            fixture["FixtureID"],
+                            fixture_id,
                             player_1_points, player_1_length, player_1_pr, player_1_luck,
                             player_2_points, player_2_length, player_2_pr, player_2_luck
                         )
                         st.success("Match result added to the database!")
+                    else:
+                        st.error("Player data format is incorrect. Expected 4 values for each player.")
                 else:
                     st.write(f"No match data found for email {email_id} - Subject: {subject}")
 
