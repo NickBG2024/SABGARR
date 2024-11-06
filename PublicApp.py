@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta
 
 # Add a header image at the top of the page
@@ -187,7 +187,7 @@ elif page == "Fixtures":
 
 # Show Match History
 elif page == "Match History":
-    match_results = get_match_results()
+    match_results = get_match_results_nicely_formatted()
     st.table(match_results)
 
 # In the main section
