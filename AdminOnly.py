@@ -545,6 +545,7 @@ if edit_fixtures:
                     st.experimental_rerun()
     
 # Editing Match Results
+# Editing Match Results
 if edit_match_results:
     st.subheader("Edit Match Result")
 
@@ -563,7 +564,14 @@ if edit_match_results:
             # Prepopulate form with the selected match result's data
             with st.form(key='edit_match_result_form'):
                 date = st.date_input("Date", value=match_result_data[1])
-                time_completed = st.time_input("Time Completed", value=match_result_data[2])
+                
+                # Convert time_completed to a datetime.time object if it is a string
+                if isinstance(match_result_data[2], str):
+                    time_completed_value = datetime.datetime.strptime(match_result_data[2], '%H:%M:%S').time()
+                else:
+                    time_completed_value = match_result_data[2]  # Assume it's already a time object
+
+                time_completed = st.time_input("Time Completed", value=time_completed_value)
                 match_type_id = st.number_input("Match Type ID", min_value=1, value=match_result_data[3])
                 player1_id = st.number_input("Player 1 ID", min_value=1, value=match_result_data[4])
                 player2_id = st.number_input("Player 2 ID", min_value=1, value=match_result_data[5])
