@@ -115,26 +115,6 @@ def check_result_exists(player_1_points, player_1_length, player_2_points, playe
         st.error(f"Database error: {e}")
         return False
 
-# Function to get the FixtureID based on certain criteria (adapt as needed)
-def get_fixture_id(match_subject):
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-
-        # Sample query to retrieve FixtureID - adjust criteria as necessary
-        query = """
-            SELECT FixtureID FROM Fixtures
-            WHERE MatchSubject = %s
-        """
-        cursor.execute(query, (match_subject,))
-        result = cursor.fetchone()
-
-        conn.close()
-        return result[0] if result else None
-    except mysql.connector.Error as e:
-        st.error(f"Database error: {e}")
-        return None
-
 # Function to insert a new match result into the MatchResults table
 def insert_match_result(fixture_id, player1_points, player1_length, player1_pr, player1_luck,
                         player2_points, player2_length, player2_pr, player2_luck):
