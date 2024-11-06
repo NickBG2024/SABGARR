@@ -90,6 +90,28 @@ def get_nickname_to_full_name_map():
         st.error(f"Error retrieving player names: {e}")
         return {}
 
+def print_table_structure():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        
+        # Query to fetch column details
+        cursor.execute("PRAGMA table_info(MatchResults)")  # For SQLite
+        # Uncomment the following line and comment the one above if using MySQL
+        # cursor.execute("DESCRIBE MatchResults") 
+        
+        columns = cursor.fetchall()
+        
+        # Print column details
+        print("Structure of MatchResults table:")
+        for column in columns:
+            print(column)
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
 # Function to check if a result already exists in the MatchResults table
 def check_result_exists(player_1_points, player_1_length, player_2_points, player_2_length):
     try:
