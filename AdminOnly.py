@@ -491,7 +491,7 @@ if edit_fixtures:
     # Fetch all fixtures
     fixtures = get_fixtures()
     match_types = get_match_types()  # Fetch all match types to display in dropdown
-    players = get_players()  # Fetch all players to display in dropdown
+    players = get_players_simple()  # Fetch all players to display in dropdown
 
     if fixtures:
         # Map fixtures to their IDs for selection
