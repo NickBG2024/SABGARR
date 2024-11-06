@@ -137,7 +137,6 @@ def check_for_new_emails():
                             player_1_points, player_1_length, player_1_pr, player_1_luck,
                             player_2_points, player_2_length, player_2_pr, player_2_luck
                         )
-                        mark_fixture_as_completed(fixture["FixtureID"])
                         st.success("Match result added to the database!")
                 else:
                     st.write(f"No match data found for email {email_id} - Subject: {subject}")
