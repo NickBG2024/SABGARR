@@ -12,6 +12,28 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
+def print_table_structure():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        
+        # Query to fetch column details
+        cursor.execute("PRAGMA table_info(MatchResults)")  # For SQLite
+        # Uncomment the following line and comment the one above if using MySQL
+        # cursor.execute("DESCRIBE MatchResults") 
+        
+        columns = cursor.fetchall()
+        
+        # Print column details
+        print("Structure of MatchResults table:")
+        for column in columns:
+            print(column)
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
 # Checking for new emails etc
 def check_for_new_emails():
     st.title("Check for New Match Results via Email")
@@ -107,6 +129,8 @@ def check_for_new_emails():
                                 continue
                             fixture_id = fixture["FixtureID"]
 
+                        print_table_structure()
+                        
                         # Insert match result into the database
                         insert_match_result(
                             fixture["FixtureID"],
