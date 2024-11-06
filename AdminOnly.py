@@ -307,9 +307,19 @@ if show_match_results:
     st.subheader("Match Results in Database:")
     matchresults = get_match_results()
 
-if matchresults:
-    for row in matchresults:
-        st.write({col_name: type(value) for col_name, value in zip(["MatchResult ID", "Date", "Time Completed", "MatchTypeID", "Player1ID", "Player2ID", "Player 1 pts", "Player 2 pts", "Player 1 PR", "Player 2 PR", "Player 1 Luck", "Player 2 Luck"], row)})
+    if matchresults:
+        # Convert list of tuples to a DataFrame for table display
+        matchresults_data = pd.DataFrame(matchresults, columns=[
+            "MatchResult ID", "Date", "Time Completed", "MatchTypeID",
+            "Player1ID", "Player2ID", "Player 1 pts", "Player 2 pts",
+            "Player 1 PR", "Player 2 PR", "Player 1 Luck", "Player 2 Luck"
+        ])
+
+        # Format date and time columns, if needed
+        matchresults_data["Date"] = pd.to_datetime(matchresults_data["Date"]).dt.date
+        matchresults_data["Time Completed"] = matchresults_data["Time Completed"].astype(str)
+
+        st.table(matchresults_data)
     else:
         st.write("No match results found in the database.")
         
