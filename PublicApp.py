@@ -71,7 +71,7 @@ def check_for_new_emails():
                             continue
 
                 # Extract player data from the subject line using a precise regex
-                match = re.search(r"between ([^\s]+) ([\d\s.-]+) and ([^\s]+) ([\d\s.-]+)", cleaned_subject)
+                match = re.search(r"between (\w+) \(([^)]+)\) and (\w+) \(([^)]+)\)", cleaned_subject)
                 if match:
                     player_1_nickname = match.group(1)
                     player_1_stats = match.group(2).split()
