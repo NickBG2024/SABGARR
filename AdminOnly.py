@@ -11,6 +11,7 @@ from database import (
     get_players_full,
     get_match_types,
     get_match_results,
+    get_match_results_nicely_formatted,
     get_nickname_to_full_name_map,
     get_email_checker_status,
     set_email_checker_status,
@@ -63,6 +64,7 @@ st.sidebar.subheader("Show Databases")
 show_players = st.sidebar.checkbox("Show all Players")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
 show_match_results = st.sidebar.checkbox("Show all Match Results")
+show_match_results_nicely_formatted = st.sidebar.checkbox("Show Match Results Nicely Formatted")
 show_fixtures = st.sidebar.checkbox("Show all Fixtures")
 show_fixtures_with_names = st.sidebar.checkbox("Show all Fixtures with names")
 show_series = st.sidebar.checkbox("Show all Series")
@@ -322,7 +324,26 @@ if show_match_results:
         st.table(matchresults_data)
     else:
         st.write("No match results found in the database.")
-        
+
+if show_match_results_nicely_formatted:
+    st.subheader("Match Results Nicely Formatted:")
+    matchresults = get_match_results_nicely_formatted()
+    if matchresults:
+            # Convert list of tuples to a DataFrame for table display
+            matchresults_data = pd.DataFrame(matchresults, columns=[
+                "MatchResult ID", "Date", "Time Completed", "MatchTypeID",
+                "Player1ID", "Player2ID", "Player 1 pts", "Player 2 pts",
+                "Player 1 PR", "Player 2 PR", "Player 1 Luck", "Player 2 Luck"
+            ])
+    
+            # Format date and time columns, if needed
+            matchresults_data["Date"] = pd.to_datetime(matchresults_data["Date"]).dt.date
+            matchresults_data["Time Completed"] = matchresults_data["Time Completed"].astype(str)
+    
+            st.table(matchresults_data)
+    else:
+            st.write("No match results found in the database.")
+
 # Update match type view to include 'Active' column
 if show_match_types:
     st.subheader("Match Types in Database:")
