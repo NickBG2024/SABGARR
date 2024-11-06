@@ -14,7 +14,7 @@ def create_connection():
             database="sabga_test"
         )
         if conn.is_connected():
-            st.success("Connected to the database!")
+            #st.success("Connected to the database!")
         return conn
     except mysql.connector.Error as e:
         st.error(f"Error connecting to the database: {e}")
