@@ -23,7 +23,7 @@ def get_player_id_by_nickname(nickname):
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT PlayerID FROM Players WHERE HeroesNickname = %s", (nickname,))
+        cursor.execute("SELECT PlayerID FROM Players WHERE Nickname = %s", (nickname,))
         result = cursor.fetchone()
         conn.close()
         if result:
