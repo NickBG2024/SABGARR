@@ -777,6 +777,34 @@ def get_match_types():
         st.error(f"Error retrieving match types: {e}")
         return []
 
+def update_fixture(fixture_id, match_type_id, player1_id, player2_id, completed):
+    """
+    Update fixture details in the database.
+
+    Args:
+        fixture_id (int): ID of the fixture to update.
+        match_type_id (int): New match type ID.
+        player1_id (int): New Player 1 ID.
+        player2_id (int): New Player 2 ID.
+        completed (bool): Completion status of the fixture.
+    """
+    try:
+        conn = create_connection()  # Establish database connection
+        cursor = conn.cursor()
+        
+        # Update the fixture details
+        cursor.execute('''
+            UPDATE Fixtures 
+            SET MatchTypeID = %s, Player1ID = %s, Player2ID = %s, Completed = %s 
+            WHERE FixtureID = %s
+        ''', (match_type_id, player1_id, player2_id, int(completed), fixture_id))
+        
+        conn.commit()
+        conn.close()
+        
+    except Exception as e:
+        st.error(f"Error updating fixture: {e}")
+
 def update_match_type_status(match_type_id, active, identifier):
     try:
         conn = create_connection()
