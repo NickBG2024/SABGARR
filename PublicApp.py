@@ -70,8 +70,8 @@ def check_for_new_emails():
                     player_1_stats, player_2_stats = match.group(2).split(), match.group(4).split()
 
                     if len(player_1_stats) == 4 and len(player_2_stats) == 4:
-                        player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_stats
-                        player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_stats
+                        player_1_points, player_1_length, player_1_pr, player_1_luck = map(int, player_1_stats)
+                        player_2_points, player_2_length, player_2_pr, player_2_luck = map(int, player_2_stats)
 
                         player_1_id = get_player_id_by_nickname(player_1_nickname)
                         player_2_id = get_player_id_by_nickname(player_2_nickname)
@@ -87,12 +87,16 @@ def check_for_new_emails():
                         fixture_id = fixture["FixtureID"]
                         st.write(f"Fixture content: {fixture}")
 
-                        print_table_structure()  # Debugging structure
+                        # Calculate the lower value for each player's points
+                        player_1_points = min(player_1_points, player_1_length)
+                        player_2_points = min(player_2_points, player_2_length)
 
+                        # Now call the insert function with the correct data
                         insert_match_result(
                             fixture_id,
-                            player_1_points, player_1_length, player_1_pr, player_1_luck,
-                            player_2_points, player_2_length, player_2_pr, player_2_luck
+                            player_1_points, player_1_pr, player_1_luck,
+                            player_2_points, player_2_pr, player_2_luck,
+                            match_type_id, player_1_id, player_2_id
                         )
                         st.success("Match result added to the database!")
                     else:
