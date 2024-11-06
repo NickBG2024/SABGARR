@@ -36,6 +36,17 @@ def get_player_id_by_nickname(nickname):
         st.error(f"Error retrieving PlayerID for nickname '{nickname}': {e}")
         return None
 
+def reset_match_results():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM MatchResults")  # Delete all records in MatchResults
+        conn.commit()
+        conn.close()
+        st.success("MatchResults table has been reset to empty.")
+    except Exception as e:
+        st.error(f"Error resetting MatchResults table: {e}")
+
 def get_fixture(match_type_id, player1_id, player2_id):
     try:
         conn = create_connection()
