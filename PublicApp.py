@@ -70,8 +70,19 @@ def check_for_new_emails():
                     player_1_stats, player_2_stats = match.group(2).split(), match.group(4).split()
 
                     if len(player_1_stats) == 4 and len(player_2_stats) == 4:
-                        player_1_points, player_1_length, player_1_pr, player_1_luck = map(int, player_1_stats)
-                        player_2_points, player_2_length, player_2_pr, player_2_luck = map(int, player_2_stats)
+                        player_1_points, player_1_length, player_1_pr, player_1_luck = player_1_stats
+                        player_2_points, player_2_length, player_2_pr, player_2_luck = player_2_stats
+
+                        # Ensure the stats are in the right format
+                        player_1_points = float(player_1_points) if '.' in player_1_points else int(player_1_points)
+                        player_1_length = float(player_1_length) if '.' in player_1_length else int(player_1_length)
+                        player_1_pr = float(player_1_pr)
+                        player_1_luck = float(player_1_luck)
+
+                        player_2_points = float(player_2_points) if '.' in player_2_points else int(player_2_points)
+                        player_2_length = float(player_2_length) if '.' in player_2_length else int(player_2_length)
+                        player_2_pr = float(player_2_pr)
+                        player_2_luck = float(player_2_luck)
 
                         player_1_id = get_player_id_by_nickname(player_1_nickname)
                         player_2_id = get_player_id_by_nickname(player_2_nickname)
