@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture_id, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_fixture_id, get_email_checker_status 
+from database import get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta
 
 # Add a header image at the top of the page
@@ -99,15 +99,13 @@ def check_for_new_emails():
                             continue
 
                         # Check if the match is already recorded or completed
-                        fixture = get_fixture_id(match_type_id, player_1_id, player_2_id)
+                        fixture = get_fixture(match_type_id, player_1_id, player_2_id)
                         st.write(f"Fixture content: {fixture}")
-                        if not fixture:
-                            st.error("Fixture ID not found for the match.")
-                            continue
-
-                        if fixture["Completed"]:
-                            st.write("Match result already recorded, skipping...")
-                            continue
+                        if fixture:
+                            if fixture["Completed"]:
+                                st.write("Match result already recorded, skipping.")
+                                continue
+                            fixture_id = fixture["FixtureID"]
 
                         # Insert match result into the database
                         insert_match_result(
