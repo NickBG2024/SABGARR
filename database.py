@@ -131,20 +131,37 @@ def check_result_exists(player_1_points, player_1_length, player_2_points, playe
         return False
 
 # Function to insert a new match result into the MatchResults table
-def insert_match_result(fixture_id, player1_points, player1_length, player1_pr, player1_luck,
-                        player2_points, player2_length, player2_pr, player2_luck):
+# Function to insert a new match result into the MatchResults table
+def insert_match_result(fixture_id, player1_points, player1_pr, player1_luck,
+                        player2_points, player2_pr, player2_luck, match_type_id,
+                        player1_id, player2_id):
     try:
         conn = create_connection()
         cursor = conn.cursor()
 
+        # Get the current date and time for insertion
+        current_date = datetime.now().strftime('%Y-%m-%d')  # Format date as 'YYYY-MM-DD'
+        current_time = datetime.now().strftime('%H:%M:%S')  # Format time as 'HH:MM:SS'
+
         # Insert match result
         cursor.execute('''
-            INSERT INTO MatchResults (FixtureID, Player1Points, Player1MatchLength, Player1PR, Player1Luck,
-                                      Player2Points, Player2MatchLength, Player2PR, Player2Luck)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''', (fixture_id, player1_points, player1_length, player1_pr, player1_luck,
-              player2_points, player2_length, player2_pr, player2_luck))
-        
+            INSERT INTO MatchResults (Date, TimeCompleted, MatchTypeID, Player1ID, Player2ID,
+                                      Player1Points, Player2Points, Player1PR, Player2PR, 
+                                      Player1Luck, Player2Luck, FixtureID)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (current_date,
+              current_time,
+              match_type_id,
+              player1_id,
+              player2_id,
+              player1_points,  # Player1Points
+              player2_points,  # Player2Points
+              player1_pr,
+              player2_pr,
+              player1_luck,
+              player2_luck,
+              fixture_id))
+
         # Mark fixture as completed
         cursor.execute("UPDATE Fixtures SET Completed = 1 WHERE FixtureID = %s", (fixture_id,))
 
