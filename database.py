@@ -36,6 +36,17 @@ def get_player_id_by_nickname(nickname):
         st.error(f"Error retrieving PlayerID for nickname '{nickname}': {e}")
         return None
 
+def reset_fixtures_completed():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE Fixtures SET Completed = 0")  # Reset all 'Completed' columns to 0
+        conn.commit()
+        conn.close()
+        st.success("All 'Completed' columns in Fixtures table have been reset to 0.")
+    except Exception as e:
+        st.error(f"Error resetting 'Completed' columns in Fixtures table: {e}")
+        
 def reset_match_results():
     try:
         conn = create_connection()
