@@ -90,9 +90,11 @@ def check_for_new_emails():
                             st.error("Player ID not found for one or both nicknames.")
                             continue
 
+                        # Call get_fixture to retrieve fixture and completion status
                         fixture = get_fixture(match_type_id, player_1_id, player_2_id)
-                        if fixture is None:
-                            st.error("No matching fixture found or already completed. Skipping.")
+                        if fixture is None or fixture.get("Completed") == 1:
+                            # Check if fixture was not found or is already marked as completed
+                            st.error("No matching fixture found or fixture is already completed. Skipping.")
                             continue
 
                         fixture_id = fixture["FixtureID"]
