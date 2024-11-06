@@ -734,15 +734,11 @@ def get_match_results():
         """)
         match_results = cursor.fetchall()
         conn.close()
-
-        if not match_results:
-            st.error("No match results found.")
-
-        # Return results as tuples to make display in a table easier
-        return [(mr[0], mr[1], mr[2], mr[3], mr[4], mr[5], mr[6], mr[7], mr[8], mr[9], mr[10], mr[11]) for mr in match_results]
+        
+        return match_results if match_results else []  # Ensures an empty list is returned if no results
     except Exception as e:
         st.error(f"Error retrieving match results: {e}")
-        return []
+        return []  # Return an empty list in case of error
         
 # Retrieve standings
 def get_standings():
