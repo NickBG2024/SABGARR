@@ -35,7 +35,7 @@ def get_player_id_by_nickname(nickname):
         st.error(f"Error retrieving PlayerID for nickname '{nickname}': {e}")
         return None
 
-def get_fixture_id(match_type_id, player1_id, player2_id):
+def get_fixture(match_type_id, player1_id, player2_id):
     try:
         conn = create_connection()
         cursor = conn.cursor()
@@ -51,11 +51,7 @@ def get_fixture_id(match_type_id, player1_id, player2_id):
         
         if fixture:
             fixture_id, completed = fixture
-            if completed:
-                st.warning("This fixture has already been marked as completed.")
-                return None
-            else:
-                return fixture_id
+            return {"FixtureID": fixture_id, "Completed": completed}
         else:
             st.warning("No matching fixture found.")
             return None
