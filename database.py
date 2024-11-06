@@ -619,6 +619,65 @@ def add_fixture(match_type_id, player1_id, player2_id):
     except Exception as e:
         st.error(f"Error adding fixture: {e}")
 
+def get_match_results_nicely_formatted():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        
+        # SQL query with JOINs to replace IDs with names
+        query = """
+            SELECT 
+                mr.MatchResultID, 
+                mr.Date, 
+                mr.TimeCompleted, 
+                mt.MatchTypeTitle, 
+                p1.Name AS Player1Name, 
+                p2.Name AS Player2Name, 
+                mr.Player1Points, 
+                mr.Player2Points, 
+                mr.Player1PR, 
+                mr.Player2PR, 
+                mr.Player1Luck, 
+                mr.Player2Luck
+            FROM 
+                MatchResults mr
+            JOIN 
+                MatchType mt ON mr.MatchTypeID = mt.MatchTypeID
+            JOIN 
+                Players p1 ON mr.Player1ID = p1.PlayerID
+            JOIN 
+                Players p2 ON mr.Player2ID = p2.PlayerID
+        """
+        
+        cursor.execute(query)
+        match_results = cursor.fetchall()
+        conn.close()
+
+        if not match_results:
+            st.error("No match results found.")
+
+        # Format results
+        formatted_results = []
+        for mr in match_results:
+            match_result = list(mr)
+            time_completed = match_result[2]  # Assuming 'TimeCompleted' is the third column
+            
+            # Format TimeCompleted as HH:MM:SS
+            if isinstance(time_completed, datetime.timedelta):
+                total_seconds = time_completed.total_seconds()
+                hours = int(total_seconds // 3600)
+                minutes = int((total_seconds % 3600) // 60)
+                seconds = int(total_seconds % 60)
+                time_str = f"{hours:02}:{minutes:02}:{seconds:02}"
+                match_result[2] = time_str  # Update TimeCompleted
+
+            formatted_results.append(tuple(match_result))
+
+        return formatted_results  # Return formatted results as a list of tuples
+    except Exception as e:
+        st.error(f"Error retrieving match results: {e}")
+        return []
+
 def get_fixtures_with_names():
     try:
         conn = create_connection()
