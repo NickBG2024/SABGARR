@@ -94,19 +94,16 @@ def print_table_structure():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        
-        # Query to fetch column details
-        cursor.execute("PRAGMA table_info(MatchResults)")  # For SQLite
-        # Uncomment the following line and comment the one above if using MySQL
-        # cursor.execute("DESCRIBE MatchResults") 
-        
+
+        # Fetch table structure for MySQL
+        cursor.execute("DESCRIBE MatchResults")
         columns = cursor.fetchall()
-        
+
         # Print column details
         print("Structure of MatchResults table:")
         for column in columns:
             print(column)
-        
+
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
