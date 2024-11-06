@@ -23,6 +23,7 @@ from database import (
     update_match_type_status,
     update_series_title,
     update_match_type_in_series,
+    update_fixture,
     generate_fixture_entries,
 )
 
