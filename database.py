@@ -99,13 +99,13 @@ def print_table_structure():
         cursor.execute("DESCRIBE MatchResults")
         columns = cursor.fetchall()
 
-        # Print column details
-        print("Structure of MatchResults table:")
+        # Display column details in Streamlit
+        st.write("Structure of MatchResults table:")
         for column in columns:
-            print(column)
+            st.write(column)
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        st.error(f"An error occurred: {e}")
     finally:
         conn.close()
 
