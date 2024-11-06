@@ -100,6 +100,7 @@ def check_for_new_emails():
 
                         # Check if the match is already recorded or completed
                         fixture = get_fixture_id(match_type_id, player_1_id, player_2_id)
+                        st.write(f"Fixture content: {fixture}")
                         if not fixture:
                             st.error("Fixture ID not found for the match.")
                             continue
