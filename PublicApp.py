@@ -10,7 +10,8 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 
 # Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
-st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
+st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings, fixtures and results of the SABGA National Round Robin.")
+st.write("There will be a slightly delay as Match results are processed to load the site.")
 
 def check_for_new_emails():
     #st.title("Check for New Match Results via Email")
@@ -124,7 +125,7 @@ def check_for_new_emails():
 if get_email_checker_status():
     check_for_new_emails()  # Function that checks for new emails and parses them
     # Get the current time in hh:mm format
-    current_time = (datetime.utcnow() + timedelta(hours=2)).strftime("%H:%M")
+    current_time = (datetime.now(timezone.utc) + timedelta(hours=2)).strftime("%H:%M")
     # Display the message with the time
     st.info(f"Emails checked at {current_time}")
 else:
@@ -139,9 +140,8 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
-
 st.sidebar.title("Display selection: ")
-page = st.sidebar.selectbox("View", ["Standings", "Fixtures", "Match History"])
+page = st.sidebar.selectbox("View", ["League Standings", "League Fixtures", "Result History"])
 
 # Show Standings
 if page == "Standings":
