@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import get_fixtures_with_names_byMatchType, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
@@ -184,15 +184,23 @@ if page == "Standings":
 
 # Show Fixtures
 elif page == "Fixtures":
-    st.write("We are currently between seasons, stay tuned for upcoming fixtures.")
+    
+    fixtures = get_fixtures_with_names_byMatchType()
+    if fixtures:
+        # Convert list of tuples to a DataFrame for table display
+        fixture_data = pd.DataFrame(fixtures, columns=[ "Match Type", "Player 1", "Player 2", "Completed"])
+        st.table(fixture_data)
+    else:
+        st.write("No fixtures found in the database.")
+        st.write("We are currently between seasons, stay tuned for upcoming fixtures.")
 
 # Show Match History
-elif page == "Match History":
+elif page == "Match Results":
     match_results = get_match_results_nicely_formatted()
     st.table(match_results)
 
 # In the main section
-st.sidebar.metric(label="Players", value="34", delta="5")
+#st.sidebar.metric(label="Players", value="34", delta="5")
 
 # In the sidebar
-st.sidebar.metric(label="Matches played", value="70%", delta="-3%")
+#st.sidebar.metric(label="Matches played", value="70%", delta="-3%")
