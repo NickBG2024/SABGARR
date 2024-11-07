@@ -8,18 +8,17 @@ import datetime
 def create_connection():
     try:
         conn = mysql.connector.connect(
-            host="sql58.jnb2.host-h.net",
-            user="sabga_admin",
-            password="6f5f73102v7Y1A",
-            database="sabga_test"
+            host=st.secrets["database"]["host"],
+            user=st.secrets["database"]["user"],
+            password=st.secrets["database"]["password"],
+            database=st.secrets["database"]["database"]
         )
         if conn.is_connected():
-            #st.success("Connected to the database!")
-        return conn
+            return conn
     except mysql.connector.Error as e:
         st.error(f"Error connecting to the database: {e}")
         return None
-
+        
 def get_player_id_by_nickname(nickname):
     try:
         conn = create_connection()
