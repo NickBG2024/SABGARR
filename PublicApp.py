@@ -115,7 +115,7 @@ def check_for_new_emails():
                     else:
                         st.error("Player data format is incorrect. Expected 4 values for each player.")
                 else:
-                    #st.write(f"No match data found for email {email_id} - Subject: {subject}")
+                    st.write(f"No match data found for email {email_id} - Subject: {subject}")
 
     # Ensure this line is properly indented to run after the loop is complete
     mail.logout()
