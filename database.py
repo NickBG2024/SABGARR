@@ -57,6 +57,22 @@ def reset_match_results():
     except Exception as e:
         st.error(f"Error resetting MatchResults table: {e}")
 
+def empty_all_tables():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM MatchResults")  # Delete all records in MatchResults
+        cursor.execute("DELETE FROM Fixtures")  # Delete all records in MatchResults
+        cursor.execute("DELETE FROM Players")  # Delete all records in MatchResults
+        cursor.execute("DELETE FROM MatchType")  # Delete all records in MatchResults
+        cursor.execute("DELETE FROM Series")  # Delete all records in MatchResults
+        cursor.execute("DELETE FROM SeriesMatchTypes")  # Delete all records in MatchResults
+        conn.commit()
+        conn.close()
+        st.success("All tables have been reset to empty.")
+    except Exception as e:
+        st.error(f"Error resetting tables: {e}")
+
 def get_fixture(match_type_id, player1_id, player2_id):
     try:
         conn = create_connection()
@@ -152,7 +168,6 @@ def check_result_exists(player_1_points, player_1_length, player_2_points, playe
         st.error(f"Database error: {e}")
         return False
 
-# Function to insert a new match result into the MatchResults table
 # Function to insert a new match result into the MatchResults table
 def insert_match_result(fixture_id, player1_points, player1_pr, player1_luck,
                         player2_points, player2_pr, player2_luck, match_type_id,
@@ -356,53 +371,6 @@ def set_email_checker_status(status):
     cursor.execute("UPDATE AppSettings SET EmailCheckerEnabled = %s", (status,))
     conn.commit()
     conn.close()
-
-def alter_matchresults():
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            ALTER TABLE MatchResults
-            ADD COLUMN FixtureID INT,
-            ADD CONSTRAINT FK_FixtureID FOREIGN KEY (FixtureID) REFERENCES Fixtures(FixtureID);
-        ''')
-        conn.commit()
-        st.write("FixtureID column added to MatchResults table successfully.")
-    except Exception as e:
-        st.error(f"An error occurred while altering MatchResults: {e}")
-    finally:
-        conn.close()
-        
-def alter_matchtype():
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            ALTER TABLE MatchType
-            ADD COLUMN Identifier VARCHAR(255) UNIQUE;
-        ''')
-        conn.commit()
-        print("MatchType table altered successfully.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        conn.close()
-
-def alter_fixtures():
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            ALTER TABLE Fixtures
-            ADD COLUMN Completed BOOLEAN DEFAULT FALSE;
-        ''')
-        conn.commit()
-        print("Fixtures table altered successfully.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        conn.close()
-
 
 # Create Series table
 def create_series_table():
