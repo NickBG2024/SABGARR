@@ -163,8 +163,8 @@ def insert_match_result(fixture_id, player1_points, player1_pr, player1_luck,
 
         # Get the current date and time for insertion
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')  # Format date as 'YYYY-MM-DD'
-        current_time = (datetime.datetime.now() + datetime.timedelta(hours=2)).strftime('%H:%M:%S')  # Format time as 'HH:MM:SS'
-
+        current_time = (datetime.now(timezone.utc) + timedelta(hours=2)).strftime("%H:%M")
+        
         # Insert match result
         cursor.execute('''
             INSERT INTO MatchResults (Date, TimeCompleted, MatchTypeID, Player1ID, Player2ID,
