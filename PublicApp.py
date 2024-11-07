@@ -117,6 +117,7 @@ def check_for_new_emails():
                 else:
                     #st.write(f"No match data found for email {email_id} - Subject: {subject}")
 
+    # Ensure this line is properly indented to run after the loop is complete
     mail.logout()
 
 # Check if the email checker is enabled
