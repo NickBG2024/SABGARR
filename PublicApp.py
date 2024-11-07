@@ -13,7 +13,7 @@ st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings of the SABGA National Round Robin.")
 
 def check_for_new_emails():
-    st.title("Check for New Match Results via Email")
+    #st.title("Check for New Match Results via Email")
 
     EMAIL = st.secrets["imap"]["email"]
     PASSWORD = st.secrets["imap"]["password"]
@@ -22,7 +22,7 @@ def check_for_new_emails():
         mail = imaplib.IMAP4_SSL('mail.sabga.co.za', 993)
         mail.login(EMAIL, PASSWORD)
         mail.select('inbox')
-        st.write("Login to Inbox successful")
+        #st.write("Login to Inbox successful")
     except imaplib.IMAP4.error as e:
         st.error(f"IMAP login failed: {str(e)}")
         return
@@ -38,7 +38,7 @@ def check_for_new_emails():
                 msg = email.message_from_bytes(response_part[1])
                 subject = msg['subject']
                 cleaned_subject = re.sub(r"^(Fwd:|Re:)\s*", "", subject).strip()
-                st.write(f"Cleaned Subject: {cleaned_subject}")
+                #st.write(f"Cleaned Subject: {cleaned_subject}")
 
                 body = ""
                 if msg.is_multipart():
@@ -52,12 +52,12 @@ def check_for_new_emails():
                 forwarded_to = re.search(r"To:.*<(.+?)>", body)
                 if forwarded_to:
                     forwarded_email = forwarded_to.group(1)
-                    st.write(f"Forwarded email address: {forwarded_email}")
+                    #st.write(f"Forwarded email address: {forwarded_email}")
 
                     match_type_identifier = re.search(r"\+([^@]+)@", forwarded_email)
                     if match_type_identifier:
                         match_type_text = match_type_identifier.group(1)
-                        st.write(f"MatchType Identifier: {match_type_text}")
+                        #st.write(f"MatchType Identifier: {match_type_text}")
 
                         match_type_id = get_match_type_id_by_identifier(match_type_text)
                         if not match_type_id:
