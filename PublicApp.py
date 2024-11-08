@@ -10,8 +10,9 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 
 # Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
-st.write("Welcome to the homepage of the South African Backgammon Round Robin! This page will automatically update to show the latest standings, fixtures and results of the SABGA National Round Robin.")
-st.write("There will be a slightly delay as Match results are processed to load the site.")
+st.write("Welcome to the homepage of the South African Backgammon Round Robin!")
+st.write("This page will automatically update to show the latest standings, fixtures and results of the SABGA National Round Robin.")
+st.write("Please be patient as League data is fetched from the database...")
 
 def check_for_new_emails():
     #st.title("Check for New Match Results via Email")
