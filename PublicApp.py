@@ -184,15 +184,31 @@ if page == "Standings":
 
 # Show Fixtures
 elif page == "Fixtures":
+
+    # Fetch all match types
+match_types = get_match_types()
+
+# Create a dropdown of active match types
+active_match_types = [mt for mt in match_types if mt[3] == 1]  # Filter only active types
+match_type_titles = [mt[1] for mt in active_match_types]  # Extract MatchTypeTitle for dropdown
+
+# Display the dropdown and get selected match type
+selected_match_type = st.selectbox("Select Match Type", match_type_titles)
+
+    if match_types:
+        selected_match_type = st.selectbox("Select Match Type", match_types)
     
-    fixtures = get_fixtures_with_names_byMatchType()
-    if fixtures:
-        # Convert list of tuples to a DataFrame for table display
-        fixture_data = pd.DataFrame(fixtures, columns=[ "Match Type", "Player 1", "Player 2", "Completed"])
-        st.table(fixture_data)
-    else:
-        st.write("No fixtures found in the database.")
-        st.write("We are currently between seasons, stay tuned for upcoming fixtures.")
+        # Call the function to get fixtures with player names for the selected match type
+        if selected_match_type:
+            fixtures = get_fixtures_with_names_by_match_type(selected_match_type)
+
+            if fixtures:
+                # Convert list of tuples to a DataFrame for table display
+                fixture_data = pd.DataFrame(fixtures, columns=[ "Match Type", "Player 1", "Player 2", "Completed"])
+                st.table(fixture_data)
+            else:
+                st.write("No fixtures found in the database.")
+                st.write("We are currently between seasons, stay tuned for upcoming fixtures.")
 
 # Show Match History
 elif page == "Match Results":
