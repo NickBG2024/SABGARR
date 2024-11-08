@@ -645,6 +645,36 @@ def get_match_results_nicely_formatted():
         st.error(f"Error retrieving match results: {e}")
         return []
 
+def get_fixtures_with_names_by_match_type(match_type):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Use JOINs to get player names and match type title
+        cursor.execute('''
+            SELECT  
+                m.MatchTypeTitle,
+                p1.Name AS Player1Name, 
+                p2.Name AS Player2Name,
+                f.Completed
+            FROM Fixtures f
+            JOIN Players p1 ON f.Player1ID = p1.PlayerID
+            JOIN Players p2 ON f.Player2ID = p2.PlayerID
+            JOIN MatchType m ON f.MatchTypeID = m.MatchTypeID
+            WHERE m.MatchTypeTitle = %s
+        ''', (match_type,))  # Use a parameterized query here
+        
+        fixtures = cursor.fetchall()
+        conn.close()
+
+        if not fixtures:
+            st.error("No fixtures found.")
+        
+        return fixtures
+    except Exception as e:
+        st.error(f"Error retrieving fixtures with names by match type: {e}")
+        return []
+        
 def get_fixtures_with_names():
     try:
         conn = create_connection()
