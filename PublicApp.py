@@ -141,11 +141,22 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
-st.sidebar.title("Display selection: ")
-page = st.sidebar.selectbox("View", ["League Standings", "League Fixtures", "Result History"])
+# Sidebar with buttons instead of dropdown
+st.sidebar.title("Display selection:")
 
-# Show Standings
-if page == "Standings":
+# Initialize the default page as "League Standings"
+page = "League Standings"
+
+# Create buttons for each page option
+if st.sidebar.button("League Standings"):
+    page = "League Standings"
+elif st.sidebar.button("League Fixtures"):
+    page = "League Fixtures"
+elif st.sidebar.button("Result History"):
+    page = "Result History"
+
+# Show League Standings
+if page == "League Standings":
     standings = get_standings()
     st.write("SABGA Round Robin: 2025")
     # Create tabs in a section
@@ -156,65 +167,75 @@ if page == "Standings":
         st.header("Current Season")
         st.write("SABGA Round Robin Season 1 (Jan 2024 - March 2024)")
         st.table(standings)
-    
+
     with tab2:
         st.header("Past Seasons")
         st.write("Use the tabs below to browse previous season standings.")
-    
+
     with tab3:
         st.header("Round Robin Stats")
         st.write("Display the RR stats here.")
-        # Create tabs in a section
+        # Create tabs for additional stats
         tab4, tab5, tab6, tab7 = st.tabs(["Stats by Player", "Stats by Season", "Stats by Year", "Historical Stats"])
-        # Content for each tab
         with tab4:
             st.header("Stats by Player")
             st.write("Select a player from the dropdown to view their stats")
-        
         with tab5:
             st.header("Stats by Season")
             st.write("Select the season from the dropdown to view season's stats")
-        
         with tab6:
             st.header("Stats by Year")
             st.write("Select the year from the dropdown to view year's stats")
-    
         with tab7:
             st.header("Historical Stats")
             st.write("Overall stats, from all time:")
 
-# Show Fixtures
-elif page == "Fixtures":
-
+# Show League Fixtures
+elif page == "League Fixtures":
     # Fetch all match types
     match_types = get_match_types()
-    
-    # Create a dropdown of active match types
+
+    # Filter active match types and create a list of titles
     active_match_types = [mt for mt in match_types if mt[3] == 1]  # Filter only active types
-    match_type_titles = [mt[1] for mt in active_match_types]  # Extract MatchTypeTitle for dropdown
-    
-    # Display the dropdown and get selected match type
-    selected_match_type = st.selectbox("Select Match Type", match_type_titles)
-    
-    if match_types:
-        selected_match_type = st.selectbox("Select Match Type", match_types)
-    
-        # Call the function to get fixtures with player names for the selected match type
-        if selected_match_type:
-            fixtures = get_fixtures_with_names_by_match_type(selected_match_type)
+    match_type_titles = [mt[1] for mt in active_match_types]  # Extract MatchTypeTitle for button labels
 
-            if fixtures:
-                # Convert list of tuples to a DataFrame for table display
-                fixture_data = pd.DataFrame(fixtures, columns=[ "Match Type", "Player 1", "Player 2", "Completed"])
-                st.table(fixture_data)
-            else:
-                st.write("No fixtures found in the database.")
-                st.write("We are currently between seasons, stay tuned for upcoming fixtures.")
+    # Display buttons for each match type
+    for title in match_type_titles:
+        if st.button(title):
+            selected_match_type = title
+            break
+    else:
+        selected_match_type = None
 
-# Show Match History
-elif page == "Match Results":
-    match_results = get_match_results_nicely_formatted()
-    st.table(match_results)
+    # Show fixtures if a match type is selected
+    if selected_match_type:
+        fixtures = get_fixtures_with_names_by_match_type(selected_match_type)
+        if fixtures:
+            fixture_data = pd.DataFrame(fixtures, columns=["Match Type", "Player 1", "Player 2", "Completed"])
+            st.table(fixture_data)
+        else:
+            st.write("No fixtures found in the database.")
+            st.write("We are currently between seasons, stay tuned for upcoming fixtures.")
+
+# Show Result History
+elif page == "Result History":
+    st.subheader("Match Results Nicely Formatted:")
+    matchresults = get_match_results_nicely_formatted()
+    if matchresults:
+            # Convert list of tuples to a DataFrame for table display
+            matchresults_data = pd.DataFrame(matchresults, columns=[
+                "MatchResult ID", "Date", "Time Completed", "MatchTypeID",
+                "Player1ID", "Player2ID", "Player 1 pts", "Player 2 pts",
+                "Player 1 PR", "Player 2 PR", "Player 1 Luck", "Player 2 Luck"
+            ])
+    
+            # Format date and time columns, if needed
+            matchresults_data["Date"] = pd.to_datetime(matchresults_data["Date"]).dt.date
+            matchresults_data["Time Completed"] = matchresults_data["Time Completed"].astype(str)
+    
+            st.table(matchresults_data)
+    else:
+            st.write("No match results found in the database.")
 
 # In the main section
 #st.sidebar.metric(label="Players", value="34", delta="5")
