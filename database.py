@@ -485,6 +485,20 @@ def create_match_type_table():
     conn.commit()
     conn.close()
 
+# Add table for Crontest
+def create_crontest():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+         CREATE TABLE IF NOT EXISTS Crontest (
+            CronID INT AUTO_INCREMENT PRIMARY KEY,
+            Date DATE NOT NULL,
+            TimeCompleted TIME
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    
 # Add table for AppSettings
 def create_appsettings_table():
     conn = create_connection()
