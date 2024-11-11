@@ -42,4 +42,15 @@ if st.button("Empty all Tables"):
 if st.button("Create crontest table"):
     crontest_table()
     st.success("crontest table made")
+
+if st.button("Show crontable contents"):
+    st.subheader("Crons in Database:")
+    crons = get_crontest()
+
+    if crons:
+        # Convert list of tuples to a DataFrame for table display
+        crons_data = pd.DataFrame(crons, columns=["Cron ID", "Date", "Time Completed"])
+        st.table(crons_data)
+    else:
+        st.write("No players found in the database.")
     
