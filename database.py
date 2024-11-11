@@ -485,6 +485,17 @@ def create_match_type_table():
     conn.commit()
     conn.close()
 
+def get_crontest():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT CronID, Date, TimeCompleted
+        FROM Crontest
+    ''')
+    cron = cursor.fetchall()
+    conn.close()
+    return cron
+    
 # Add table for Crontest
 def crontest_table():
     conn = create_connection()
