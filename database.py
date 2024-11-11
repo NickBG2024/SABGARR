@@ -486,7 +486,7 @@ def create_match_type_table():
     conn.close()
 
 # Add table for Crontest
-def create_crontest():
+def crontest_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
