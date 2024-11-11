@@ -1,5 +1,5 @@
 import streamlit as st
-from database import empty_all_tables, reset_fixtures_completed, reset_match_results, print_table_structure, create_players_table, create_series_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table
+from database import crontest_table, empty_all_tables, reset_fixtures_completed, reset_match_results, print_table_structure, create_players_table, create_series_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table
 st.title("Create Backgammon Database")
 
 if st.button("Create Players Table"):
@@ -38,4 +38,8 @@ if st.button("reset matchresults:"):
 if st.button("Empty all Tables"):
     empty_all_tables()
     st.sucess("All tables emptied")
+
+if st.button("Create crontest table"):
+    crontest_table()
+    st.success("crontest table made")
     
