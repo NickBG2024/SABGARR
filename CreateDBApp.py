@@ -52,5 +52,5 @@ if st.button("Show crontable contents"):
         crons_data = pd.DataFrame(crons, columns=["Cron ID", "Date", "Time Completed"])
         st.table(crons_data)
     else:
-        st.write("No players found in the database.")
+        st.write("No crons found in the database.")
     
