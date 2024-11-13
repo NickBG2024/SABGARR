@@ -51,6 +51,4 @@ if st.button("Show crontable 2 contents"):
         st.dataframe(crons)
 else:
     st.write("No data found or unable to connect to database.")
-    else:
-        st.write("No crons found in the database.")
     
