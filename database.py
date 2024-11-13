@@ -489,22 +489,21 @@ def get_crontest():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT CronID, Date, TimeCompleted
-        FROM Crontest
+        SELECT CronID, DateTimeCompleted
+        FROM Crontest2
     ''')
     cron = cursor.fetchall()
     conn.close()
     return cron
     
 # Add table for Crontest
-def crontest_table():
+def crontest2_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
-         CREATE TABLE IF NOT EXISTS Crontest (
+        CREATE TABLE IF NOT EXISTS Crontest2 (
             CronID INT AUTO_INCREMENT PRIMARY KEY,
-            Date DATE NOT NULL,
-            TimeCompleted TIME
+            DateTimeCompleted DATETIME
         )
     ''')
     conn.commit()
