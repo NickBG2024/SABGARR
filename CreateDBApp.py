@@ -47,11 +47,10 @@ if st.button("Create crontest table"):
 if st.button("Show crontable 2 contents"):
     st.subheader("Crons in Database:")
     crons = get_crontest2()
-
-    if crons:
-        # Convert list of tuples to a DataFrame for table display
-        crons_data = pd.DataFrame(crons, columns=["Cron ID", "DateTime Completed"])
-        st.table(crons_data)
+        if not crons.empty:
+            st.dataframe(crons)
+else:
+    st.write("No data found or unable to connect to database.")
     else:
         st.write("No crons found in the database.")
     
