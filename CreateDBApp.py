@@ -1,5 +1,5 @@
 import streamlit as st
-import panda as pd
+import pandas as pd
 from database import get_crontest, crontest_table, empty_all_tables, reset_fixtures_completed, reset_match_results, print_table_structure, create_players_table, create_series_table, create_match_results_table, create_match_type_table, create_appsettings_table, create_fixtures_table
 st.title("Create Backgammon Database")
 
