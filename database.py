@@ -485,16 +485,21 @@ def create_match_type_table():
     conn.commit()
     conn.close()
 
-def get_crontest():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT CronID, DateTimeCompleted
-        FROM Crontest2
-    ''')
-    cron = cursor.fetchall()
-    conn.close()
-    return cron
+def get_crontest2():
+    try:
+        conn = create_connection()
+        query = "SELECT CronID, Date, TimeCompleted FROM Crontest"
+        data = pd.read_sql(query, conn)
+        
+        # Combine Date and TimeCompleted into a single datetime column for display
+        data['DateTimeCompleted'] = pd.to_datetime(data['Date'].astype(str) + ' ' + data['TimeCompleted'].astype(str))
+        data.drop(columns=['Date', 'TimeCompleted'], inplace=True)
+        
+        conn.close()
+        return data
+    except mysql.connector.Error as e:
+        st.write(f"Database connection error: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame if there's an error
     
 # Add table for Crontest
 def crontest2_table():
