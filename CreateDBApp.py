@@ -47,8 +47,8 @@ if st.button("Create crontest table"):
 if st.button("Show crontable 2 contents"):
     st.subheader("Crons in Database:")
     crons = get_crontest2()
-        if not crons.empty:
-            st.dataframe(crons)
+    if not crons.empty:
+        st.dataframe(crons)
 else:
     st.write("No data found or unable to connect to database.")
     else:
