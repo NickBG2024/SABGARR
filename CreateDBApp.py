@@ -41,16 +41,16 @@ if st.button("Empty all Tables"):
     st.sucess("All tables emptied")
 
 if st.button("Create crontest table"):
-    crontest_table()
+    crontest2_table()
     st.success("crontest table made")
 
-if st.button("Show crontable contents"):
+if st.button("Show crontable 2 contents"):
     st.subheader("Crons in Database:")
-    crons = get_crontest()
+    crons = get_crontest2()
 
     if crons:
         # Convert list of tuples to a DataFrame for table display
-        crons_data = pd.DataFrame(crons, columns=["Cron ID", "Date", "Time Completed"])
+        crons_data = pd.DataFrame(crons, columns=["Cron ID", "DateTime Completed"])
         st.table(crons_data)
     else:
         st.write("No crons found in the database.")
