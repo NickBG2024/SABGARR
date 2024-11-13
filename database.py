@@ -3,6 +3,7 @@ import email
 import imaplib
 import streamlit as st
 import datetime
+import pandas as pd
 
 # Create a connection to the database
 def create_connection():
