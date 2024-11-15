@@ -548,6 +548,7 @@ if edit_fixtures:
     
 
 # Editing Match Results
+# Editing Match Results
 if edit_match_results:
     st.subheader("Edit Match Result")
 
@@ -566,16 +567,23 @@ if edit_match_results:
             # Prepopulate form with the selected match result's data
             with st.form(key='edit_match_result_form'):
                 date = st.date_input("Date", value=match_result_data[1])
-            
+
                 # Process time_completed directly from the database
                 try:
-                    time_completed_value = match_result_data[2]  # This should already be a valid TIME object
-                    if time_completed_value is None:
-                        raise ValueError("TimeCompleted is NULL in the database")
+                    if isinstance(match_result_data[2], str):
+                        # Parse the string to a datetime.time object
+                        time_completed_value = datetime.datetime.strptime(match_result_data[2], '%H:%M:%S').time()
+                    elif isinstance(match_result_data[2], datetime.time):
+                        # Use the value directly if it's already a time object
+                        time_completed_value = match_result_data[2]
+                    else:
+                        # Default to 00:00 if the value is invalid or None
+                        time_completed_value = datetime.time(0, 0)
                 except Exception as e:
-                    st.error(f"Error processing TimeCompleted: {e}")
-                    time_completed_value = datetime.time(0, 0)  # Default to midnight if NULL or invalid
-            
+                    st.error(f"Error processing time_completed: {e}")
+                    time_completed_value = datetime.time(0, 0)
+                
+                # Pass the validated value to the time_input widget
                 time_completed = st.time_input("Time Completed", value=time_completed_value)
 
                 match_type_id = st.number_input("Match Type ID", min_value=1, value=match_result_data[3])
@@ -585,16 +593,20 @@ if edit_match_results:
                 player2_points = st.number_input("Player 2 Points", min_value=0, value=match_result_data[7])
                 player1_pr = st.number_input("Player 1 PR", min_value=0.0, value=match_result_data[8])
                 player2_pr = st.number_input("Player 2 PR", min_value=0.0, value=match_result_data[9])
-                player1_luck = st.number_input("Player 1 Luck", value=match_result_data[10], step=0.01)
-                player2_luck = st.number_input("Player 2 Luck", value=match_result_data[11], step=0.01)
+                
+                # Allow negative values for luck scores
+                player1_luck = st.number_input("Player 1 Luck", value=match_result_data[10], step=0.01, format="%.2f")
+                player2_luck = st.number_input("Player 2 Luck", value=match_result_data[11], step=0.01, format="%.2f")
 
                 # Submit button
                 submitted = st.form_submit_button("Update Match Result")
 
                 if submitted:
                     # Call update function to update the match result in the database
-                    update_match_result(match_result_id, date, time_completed, match_type_id, player1_id, player2_id,
-                                        player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck)
+                    update_match_result(
+                        match_result_id, date, time_completed, match_type_id, player1_id, player2_id,
+                        player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck
+                    )
                     st.success("Match result updated successfully!")
                     st.experimental_rerun()
     else:
