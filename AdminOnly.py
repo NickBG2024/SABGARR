@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import datetime
+
 from database import (
     add_fixture,
     add_player,
@@ -484,7 +486,7 @@ def update_match_type(match_type_id, match_type_title, active_status):
     conn.commit()
     conn.close()
 
-# Editing Fixtures
+
 # Editing Fixtures
 if edit_fixtures:
     st.subheader("Edit Fixtures")
@@ -544,7 +546,7 @@ if edit_fixtures:
                     st.success("Fixture updated successfully!")
                     st.experimental_rerun()
     
-# Editing Match Results
+
 # Editing Match Results
 if edit_match_results:
     st.subheader("Edit Match Result")
@@ -565,9 +567,8 @@ if edit_match_results:
             with st.form(key='edit_match_result_form'):
                 date = st.date_input("Date", value=match_result_data[1])
 
-                # Debugging time input issues
+                # Convert time_completed to a datetime.time object
                 try:
-                    # Convert time_completed to a datetime.time object if it is a string
                     if isinstance(match_result_data[2], str):
                         time_completed_value = datetime.datetime.strptime(match_result_data[2], '%H:%M:%S').time()
                     elif isinstance(match_result_data[2], datetime.time):
@@ -601,7 +602,7 @@ if edit_match_results:
                     st.experimental_rerun()
     else:
         st.warning("No match results available to edit.")
-
+        
 # Add this function to update match result in database
 def update_match_result(match_result_id, date, time_completed, match_type_id, player1_id, player2_id,
                         player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck):
