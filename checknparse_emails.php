@@ -84,9 +84,9 @@ function insert_match_result($conn, $fixture_id, $player1_points, $player1_pr, $
                                   Player1ID, Player2ID, Date, TimeCompleted)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     ");
-    $stmt->bind_param("iiiiiiiiii", $fixture_id, $player1_points, $player1_pr, $player1_luck, 
-                                       $player2_points, $player2_pr, $player2_luck, $match_type_id, 
-                                       $player1_id, $player2_id);
+    $stmt->bind_param("iiiiiddddi", $fixture_id, $player1_points, $player1_pr, $player1_luck, 
+                                        $player2_points, $player2_pr, $player2_luck, $match_type_id, 
+                                        $player1_id, $player2_id);
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {
