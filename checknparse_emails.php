@@ -109,21 +109,33 @@ try {
    // while (true) {
         // Search for UNSEEN emails with the specified subject
         $emails = imap_search($inbox, 'UNSEEN SUBJECT "Admin: A league match was played"');
-        echo "checking emails...\n";
+        echo "Checking for unseen emails with subject: 'Admin: A league match was played'...\n";
+        
         if ($emails) {
+            echo "Found " . count($emails) . " unseen email(s) matching the subject.\n";
+        
             foreach ($emails as $email_id) {
+                // Fetch the body of the email
                 $msg = imap_fetchbody($inbox, $email_id, 1);
+        
+                // Get the subject of the email
                 $subject = imap_headerinfo($inbox, $email_id)->subject;
+                echo "Original email subject: $subject\n";
+        
+                // Clean the subject by removing "Fwd:" or "Re:" prefixes
                 $cleaned_subject = preg_replace('/^(Fwd:|Re:)\s*/', '', $subject);
-                echo "cleaning a subject...\n";
-
+                echo "Cleaned email subject: $cleaned_subject\n";
+        
+                // Look for the forwarded-to email address in the body
                 preg_match('/To:.*<(.+?)>/', $msg, $forwarded_to);
                 if ($forwarded_to) {
                     $forwarded_email = $forwarded_to[1];
-                    echo "processing forwarded mail...\n";
+                    echo "Forwarded email address found: $forwarded_email\n";
+        
+                    // Extract the match type identifier from the forwarded email
                     preg_match('/\+([^@]+)@/', $forwarded_email, $match_type_identifier);
-
                     if ($match_type_identifier) {
+                        echo "Match type identifier extracted: " . $match_type_identifier[1] . "\n";
                         $match_type_id = get_match_type_id_by_identifier($conn, $match_type_identifier[1]);
                         if (!$match_type_id) continue;
                     }
