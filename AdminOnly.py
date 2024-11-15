@@ -564,14 +564,22 @@ if edit_match_results:
             # Prepopulate form with the selected match result's data
             with st.form(key='edit_match_result_form'):
                 date = st.date_input("Date", value=match_result_data[1])
-                
-                # Convert time_completed to a datetime.time object if it is a string
-                if isinstance(match_result_data[2], str):
-                    time_completed_value = datetime.datetime.strptime(match_result_data[2], '%H:%M:%S').time()
-                else:
-                    time_completed_value = match_result_data[2]  # Assume it's already a time object
+
+                # Debugging time input issues
+                try:
+                    # Convert time_completed to a datetime.time object if it is a string
+                    if isinstance(match_result_data[2], str):
+                        time_completed_value = datetime.datetime.strptime(match_result_data[2], '%H:%M:%S').time()
+                    elif isinstance(match_result_data[2], datetime.time):
+                        time_completed_value = match_result_data[2]
+                    else:
+                        raise ValueError("Invalid format for time_completed")
+                except Exception as e:
+                    st.error(f"Error processing time_completed: {e}")
+                    time_completed_value = datetime.time(0, 0)  # Default to midnight
 
                 time_completed = st.time_input("Time Completed", value=time_completed_value)
+
                 match_type_id = st.number_input("Match Type ID", min_value=1, value=match_result_data[3])
                 player1_id = st.number_input("Player 1 ID", min_value=1, value=match_result_data[4])
                 player2_id = st.number_input("Player 2 ID", min_value=1, value=match_result_data[5])
@@ -582,14 +590,17 @@ if edit_match_results:
                 player1_luck = st.number_input("Player 1 Luck", min_value=0.0, value=match_result_data[10])
                 player2_luck = st.number_input("Player 2 Luck", min_value=0.0, value=match_result_data[11])
 
-                # Form submission
+                # Submit button
                 submitted = st.form_submit_button("Update Match Result")
+
                 if submitted:
                     # Call update function to update the match result in the database
                     update_match_result(match_result_id, date, time_completed, match_type_id, player1_id, player2_id,
                                         player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck)
                     st.success("Match result updated successfully!")
                     st.experimental_rerun()
+    else:
+        st.warning("No match results available to edit.")
 
 # Add this function to update match result in database
 def update_match_result(match_result_id, date, time_completed, match_type_id, player1_id, player2_id,
