@@ -81,8 +81,8 @@ function insert_match_result($conn, $fixture_id, $player1_points, $player1_pr, $
     $stmt = $conn->prepare("
         INSERT INTO MatchResults (FixtureID, Player1Points, Player1PR, Player1Luck, 
                                   Player2Points, Player2PR, Player2Luck, MatchTypeID, 
-                                  Player1ID, Player2ID)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                  Player1ID, Player2ID, Date, TimeCompleted)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     ");
     $stmt->bind_param("iiiiiiiiii", $fixture_id, $player1_points, $player1_pr, $player1_luck, 
                                        $player2_points, $player2_pr, $player2_luck, $match_type_id, 
@@ -148,6 +148,12 @@ try {
 
                     list($p1_points, $p1_length, $p1_pr, $p1_luck) = explode(' ', $match[2]);
                     list($p2_points, $p2_length, $p2_pr, $p2_luck) = explode(' ', $match[4]);
+
+                    // Ensure PR and Luck are floats
+                    $p1_pr = (float)$p1_pr;
+                    $p1_luck = (float)$p1_luck;
+                    $p2_pr = (float)$p2_pr;
+                    $p2_luck = (float)$p2_luck;
 
                     $fixture = get_fixture($conn, $match_type_id, $player1_id, $player2_id);
                     if ($fixture && $fixture['Completed'] == 0) {
