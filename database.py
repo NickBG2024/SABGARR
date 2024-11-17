@@ -538,7 +538,7 @@ def add_player(name, nickname, email):
 
 # Insert a new match type
 def add_match_type(match_type_title, match_type_identifier, active):
-    conn = connect_to_db()
+    conn = create_connection()
     cursor = conn.cursor()
     
     cursor.execute('''
