@@ -25,7 +25,7 @@ st.sidebar.markdown(
 # Sidebar with buttons instead of dropdown
 st.sidebar.title("Display selection:")
 
-# Initialize the default page as "Player Standings"
+# Initialize the default page as "Player "
 page = "Player Standings"
 
 # Create buttons for each page option
@@ -41,35 +41,35 @@ if page == "Player Standings":
     standings = get_sorting_standings()
     st.write("SABGA Round Robin: 2025")
     # Create tabs in a section
-    tab1, tab2, tab3 = st.tabs(["Current Season", "Past Seasons", "Round Robin Stats"])
+    tab1, tab2 = st.tabs(["Player Standings", "Sorting Groups"])
 
     # Content for each tab
     with tab1:
         st.header("")
-        st.write("SABGA Round Robin Season 1 (Jan 2024 - March 2024)")
+        st.write("Player Standings - ordered by PR")
         st.table(standings)
 
     with tab2:
-        st.header("Past Seasons")
-        st.write("Use the tabs below to browse previous season standings.")
-
-    with tab3:
-        st.header("Round Robin Stats")
-        st.write("Display the RR stats here.")
+        st.header("Sorting Group details")
+        st.write("Select a group below")
         # Create tabs for additional stats
-        tab4, tab5, tab6, tab7 = st.tabs(["Stats by Player", "Stats by Season", "Stats by Year", "Historical Stats"])
+        tab3, tab4, tab5, tab6 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4"])
+        with tab3:
+            st.header("Sorting Group 1")
+            st.write("Sorting Group 1:")
+            st.write("To add: table, outstanding fixtures, match-grid")
+            st.write("Maybe a metric of completion?")
         with tab4:
-            st.header("Stats by Player")
-            st.write("Select a player from the dropdown to view their stats")
+            st.header("Sorting Group 2")
+            st.write("Sorting Group 2:")
+            st.write("To add: table, outstanding fixtures, match-grid")
+            st.write("Maybe a metric of completion?")
         with tab5:
-            st.header("Stats by Season")
+            st.header("Sorting Group 3")
             st.write("Select the season from the dropdown to view season's stats")
         with tab6:
-            st.header("Stats by Year")
+            st.header("Sorting Group 4")
             st.write("Select the year from the dropdown to view year's stats")
-        with tab7:
-            st.header("Historical Stats")
-            st.write("Overall stats, from all time:")
 
 # Show League Fixtures
 elif page == "League Fixtures":
@@ -117,10 +117,4 @@ elif page == "Result History":
             st.table(matchresults_data)
     else:
             st.write("No match results found in the database.")
-
-# In the main section
-#st.sidebar.metric(label="Players", value="34", delta="5")
-
-# In the sidebar
-#st.sidebar.metric(label="Matches played", value="70%", delta="-3%")
  
