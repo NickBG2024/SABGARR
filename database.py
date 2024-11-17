@@ -537,18 +537,18 @@ def add_player(name, nickname, email):
     conn.close()
 
 # Insert a new match type
-def add_match_type(match_type_title, active):
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO MatchType (MatchTypeTitle, Active)
-            VALUES (%s, %s)
-        ''', (match_type_title, active))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        st.error(f"Error adding match type: {e}")
+def add_match_type(match_type_title, match_type_identifier, active):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        INSERT INTO MatchType (MatchTypeTitle, Identifier, Active)
+        VALUES (%s, %s, %s)
+    ''', (match_type_title, match_type_identifier, active))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 # Insert a new match result with a check for duplicates
 def add_match_result(player1_id, player2_id, player1_points, player2_points, match_type_id):
