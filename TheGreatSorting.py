@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
@@ -12,16 +12,6 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 st.title("SABGA Backgammon: The Great Sorting 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin sorting process, aka The Great Sorting!")
 st.write("This page will automatically update to show the latest standings, fixtures and results of the SABGA National Round Robin.")
-
-# Check if the email checker is enabled
-if get_email_checker_status():
-    check_for_new_emails()  # Function that checks for new emails and parses them
-    # Get the current time in hh:mm format
-    current_time = (datetime.now(timezone.utc) + timedelta(hours=2)).strftime("%H:%M")
-    # Display the message with the time
-    st.info(f"Emails checked at {current_time}")
-else:
-    st.info("Email checker is currently disabled by the admin.")
     
 # Add an icon image to sidebar
 st.sidebar.markdown(
@@ -35,27 +25,27 @@ st.sidebar.markdown(
 # Sidebar with buttons instead of dropdown
 st.sidebar.title("Display selection:")
 
-# Initialize the default page as "League Standings"
-page = "League Standings"
+# Initialize the default page as "Player Standings"
+page = "Player Standings"
 
 # Create buttons for each page option
-if st.sidebar.button("League Standings"):
-    page = "League Standings"
+if st.sidebar.button("Player Standings"):
+    page = "Player Standings"
 elif st.sidebar.button("League Fixtures"):
     page = "League Fixtures"
 elif st.sidebar.button("Result History"):
     page = "Result History"
 
-# Show League Standings
-if page == "League Standings":
-    standings = get_standings()
+# Show Player Standings
+if page == "Player Standings":
+    standings = get_sorting_standings()
     st.write("SABGA Round Robin: 2025")
     # Create tabs in a section
     tab1, tab2, tab3 = st.tabs(["Current Season", "Past Seasons", "Round Robin Stats"])
 
     # Content for each tab
     with tab1:
-        st.header("Current Season")
+        st.header("")
         st.write("SABGA Round Robin Season 1 (Jan 2024 - March 2024)")
         st.table(standings)
 
