@@ -181,22 +181,35 @@ if show_add_match_result_form:
             match_result_form_placeholder.empty()  # Clear form by emptying the placeholder
             st.experimental_rerun()
 
-# Add Match Type
+# Add Match Type# Add Match Type
 if show_add_match_type_form:
     st.subheader("Add a New Match Type")
 
     match_type_form_placeholder = st.empty()
     with match_type_form_placeholder.form(key="add_match_type_form"):
-        match_type_title = st.text_input("Match Type Title")
+        match_type_title = st.text_input("Match Type Title", help="Enter a descriptive title for the match type.")
+        match_type_identifier = st.text_input(
+            "Match Type Identifier",
+            help="Enter a unique identifier for the match type. Example: 'league', 'friendly'."
+        )
         active = st.checkbox("Active", value=True)
 
-        # Submit to add the Match Type to the database
+        # Validation and submission
         submitted = st.form_submit_button("Add Match Type")
-        if submitted and match_type_title:
-            add_match_type(match_type_title, active)
-            st.success(f"Match Type '{match_type_title}' added successfully!")
-            match_type_form_placeholder.empty()  # Clear form by emptying the placeholder
-            st.experimental_rerun()
+        if submitted:
+            if not match_type_title:
+                st.error("Match Type Title is required.")
+            elif not match_type_identifier:
+                st.error("Match Type Identifier is required.")
+            elif " " in match_type_identifier:
+                st.error("Match Type Identifier should not contain spaces.")
+            else:
+                # Add to database
+                add_match_type(match_type_title, match_type_identifier, active)
+                st.success(f"Match Type '{match_type_title}' with identifier '{match_type_identifier}' added successfully!")
+                match_type_form_placeholder.empty()  # Clear form
+                st.experimental_rerun()
+
 
 # Add Fixture
 if show_add_fixture_form:
