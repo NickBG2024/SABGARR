@@ -872,7 +872,30 @@ def get_match_results():
     except Exception as e:
         st.error(f"Error retrieving match results: {e}")
         return []  # Return an empty list in case of error
+
+
+# Retrieving Sorting Standings
+def get_sorting_standings():
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT Name, GamesPlayed, TotalWins, WinPercentage, AveragePR
+            FROM Players
+            ORDER BY AveragePR DESC;
+        ''')
+        sortingstandings = cursor.fetchall()
+        conn.close()
+
+        if not sortingstandings:
+            st.error("Sorting standings is empty or not found.")
         
+        return sortingstandings
+    except Exception as e:
+        st.error(f"Error retrieving sorting standings: {e}")
+        return []
+
+    
 # Retrieve standings
 def get_standings():
     try:
