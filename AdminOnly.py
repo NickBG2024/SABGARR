@@ -407,7 +407,7 @@ if edit_series:
             # Display each match type with a checkbox
             updated_match_types = []
             for match_type in all_match_types:
-                match_type_id, match_type_title, _ = match_type  # Unpack and ignore the Active field
+                match_type_id, match_type_title, identifier, active = match_type
                 is_checked = st.checkbox(
                     f"{match_type_title} (ID: {match_type_id})",
                     value=(match_type_id in match_types_in_series)
