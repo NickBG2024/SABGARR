@@ -26,6 +26,7 @@ from database import (
     update_series_title,
     update_match_type_in_series,
     update_fixture,
+    update_player,
     generate_fixture_entries,
 )
 
