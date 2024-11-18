@@ -294,6 +294,17 @@ def add_match_type_to_series(series_id, match_type_id):
     conn.commit()
     conn.close()
 
+def update_player(player_id, name, nickname, email):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE Players
+        SET Name = %s, Nickname = %s, Email = %s
+        WHERE PlayerID = %s
+    ''', (name, nickname, email, player_id))
+    conn.commit()
+    conn.close()
+
 def update_match_type_in_series(series_id, match_type_id):
     conn = create_connection()
     cursor = conn.cursor()
