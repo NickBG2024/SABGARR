@@ -762,6 +762,40 @@ def get_fixtures():
         st.error(f"Error retrieving fixtures: {e}")
         return []
 
+def get_players_by_match_type(match_type_title):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        query = '''
+        SELECT 
+            p.Name,
+            p.Nickname,
+            p.TotalWins,
+            p.TotalLosses,
+            p.WinPercentage,
+            p.AveragePR,
+            p.AverageLuck
+        FROM 
+            Players p
+        JOIN 
+            MatchResults mr ON p.PlayerID IN (mr.Player1ID, mr.Player2ID)
+        JOIN
+            MatchType mt ON mr.MatchTypeID = mt.MatchTypeID
+        WHERE 
+            mt.MatchTypeTitle = %s
+        ORDER BY 
+            p.AveragePR ASC;
+        '''
+        cursor.execute(query, (match_type_title,))
+        players = cursor.fetchall()
+        conn.close()
+
+        return players
+    except Exception as e:
+        st.error(f"Error retrieving players by match type: {e}")
+        return []
+
 def get_players_full():
     try:
         conn = create_connection()
