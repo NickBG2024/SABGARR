@@ -180,7 +180,6 @@ if page == "League Standings":
     if selected_match_type:
         match_type_id = match_type_dict[selected_match_type]
         player_stats = get_player_stats_with_fixtures(match_type_id)
-        
         if player_stats:
             formatted_stats = []
             for stat in player_stats:
@@ -188,32 +187,23 @@ if page == "League Standings":
                 wins = stat[3] or 0
                 losses = stat[4] or 0
                 played = wins + losses
-                win_percentage = round((wins / played) * 100, 2) if played > 0 else 0
-                avg_pr = round(stat[6], 2) if stat[6] is not None else None
-                avg_luck = round(stat[7], 2) if stat[7] is not None else None
+                win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
+                avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+                avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
                 formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])
         
+            # Create the DataFrame with preformatted values
             df = pd.DataFrame(
                 formatted_stats,
                 columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
             )
         
-            # Ensure numeric columns have correct types
-            df["Win%"] = pd.to_numeric(df["Win%"], errors="coerce")
-            df["Average PR"] = pd.to_numeric(df["Average PR"], errors="coerce")
-            df["Average Luck"] = pd.to_numeric(df["Average Luck"], errors="coerce")
-        
+            # Apply styles directly
             styled_df = df.style.set_table_styles(
                 [
                     {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold"), ("color", "black")]},
                     {"selector": "tbody td", "props": [("padding", "10px"), ("border", "1px solid black")]},
                 ]
-            ).format(
-                {
-                    "Win%": lambda x: f"{x:.2f}%" if pd.notnull(x) else "-",
-                    "Average PR": lambda x: f"{x:.2f}" if pd.notnull(x) else "-",
-                    "Average Luck": lambda x: f"{x:.2f}" if pd.notnull(x) else "-",
-                }
             )
         
             st.write(styled_df.hide(axis="index"))
