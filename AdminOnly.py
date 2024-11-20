@@ -436,6 +436,7 @@ if edit_players:
 
     # Fetch all players to populate the selectbox
     players = get_players_full()
+    st.write(players)
 
     if players:
         # Create a dictionary to map player names to their IDs for selection
