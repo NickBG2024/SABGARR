@@ -57,6 +57,34 @@ if page == "Player Standings":
         with tab3:
             st.header("Sorting Group 1")
             st.write("Sorting Group 1:")
+
+            player_stats = get_player_stats_by_matchtype(4)
+            if player_stats:
+                # Format data for display
+                formatted_stats = []
+                for stat in player_stats:
+                    name_with_nickname = f"{stat[0]} ({stat[1]})"  # Combine Name and Nickname
+                    wins = stat[2]
+                    losses = stat[3]
+                    games_played = stat[4]
+                    win_percentage = round((wins / games_played) * 100, 2) if games_played > 0 else 0
+                    avg_pr = round(stat[5], 2) if stat[5] is not None else "N/A"
+                    avg_luck = round(stat[6], 2) if stat[6] is not None else "N/A"
+                    formatted_stats.append(
+                        [name_with_nickname, wins, losses, win_percentage, avg_pr, avg_luck]
+                    )
+        
+                # Convert to DataFrame for display
+                df = pd.DataFrame(
+                    formatted_stats, 
+                    columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+                )
+                
+                # Sort by Average PR (ascending)
+                df = df.sort_values(by="Average PR", ascending=True)
+        
+                # Display the table
+                st.dataframe(df)
             st.write("To add: table, outstanding fixtures, match-grid")
             st.write("Maybe a metric of completion?")
         with tab4:
