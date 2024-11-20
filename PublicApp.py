@@ -184,20 +184,25 @@ if page == "League Standings":
         if player_stats:
             formatted_stats = []
             for stat in player_stats:
-                name_with_nickname = f"{stat[1]} ({stat[2]})"  # Combine Name and Nickname
+                name_with_nickname = f"{stat[1]} ({stat[2]})"
                 wins = stat[3] or 0
                 losses = stat[4] or 0
                 played = wins + losses
                 win_percentage = round((wins / played) * 100, 2) if played > 0 else 0
-                avg_pr = f"{round(stat[6], 2):.2f}" if stat[6] is not None else "-"
-                avg_luck = f"{round(stat[7], 2):.2f}" if stat[7] is not None else "-"
+                avg_pr = round(stat[6], 2) if stat[6] is not None else None
+                avg_luck = round(stat[7], 2) if stat[7] is not None else None
                 formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])
         
             df = pd.DataFrame(
                 formatted_stats,
                 columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
-            ).reset_index(drop=True)
-
+            )
+        
+            # Ensure numeric columns have correct types
+            df["Win%"] = pd.to_numeric(df["Win%"], errors="coerce")
+            df["Average PR"] = pd.to_numeric(df["Average PR"], errors="coerce")
+            df["Average Luck"] = pd.to_numeric(df["Average Luck"], errors="coerce")
+        
             styled_df = df.style.set_table_styles(
                 [
                     {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold"), ("color", "black")]},
@@ -205,13 +210,13 @@ if page == "League Standings":
                 ]
             ).format(
                 {
-                    "Win%": "{:.2f}%",
-                    "Average PR": "{:.2f}",
-                    "Average Luck": "{:.2f}"
+                    "Win%": lambda x: f"{x:.2f}%" if pd.notnull(x) else "-",
+                    "Average PR": lambda x: f"{x:.2f}" if pd.notnull(x) else "-",
+                    "Average Luck": lambda x: f"{x:.2f}" if pd.notnull(x) else "-",
                 }
             )
         
-            st.write(styled_df)  # Display styled DataFrame
+            st.write(styled_df.hide(axis="index"))
         else:
             st.write("No data found for the selected match type.")
 
