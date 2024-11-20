@@ -123,14 +123,14 @@ def check_for_new_emails():
     mail.logout()
 
 # Check if the email checker is enabled
-if get_email_checker_status():
-    check_for_new_emails()  # Function that checks for new emails and parses them
+#if get_email_checker_status():
+#    check_for_new_emails()  # Function that checks for new emails and parses them
     # Get the current time in hh:mm format
-    current_time = (datetime.now(timezone.utc) + timedelta(hours=2)).strftime("%H:%M")
+#    current_time = (datetime.now(timezone.utc) + timedelta(hours=2)).strftime("%H:%M")
     # Display the message with the time
-    st.info(f"Emails checked at {current_time}")
-else:
-    st.info("Email checker is currently disabled by the admin.")
+#    st.info(f"Emails checked at {current_time}")
+#else:
+#    st.info("Email checker is currently disabled by the admin.")
     
 # Add an icon image to sidebar
 st.sidebar.markdown(
