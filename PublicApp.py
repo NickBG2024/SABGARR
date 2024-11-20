@@ -196,10 +196,19 @@ if page == "League Standings":
             df = pd.DataFrame(
                 formatted_stats,
                 columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
-            )
-        
+            ).reset_index(drop=True)
+
             styled_df = df.style.set_table_styles(
-                [{"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]}]
+                [
+                    {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold"), ("color", "black")]},
+                    {"selector": "tbody td", "props": [("padding", "10px"), ("border", "1px solid black")]},
+                ]
+            ).format(
+                {
+                    "Win%": "{:.2f}%",
+                    "Average PR": "{:.2f}",
+                    "Average Luck": "{:.2f}"
+                }
             )
         
             st.write(styled_df)  # Display styled DataFrame
