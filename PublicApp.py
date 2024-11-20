@@ -2,7 +2,7 @@ import imaplib
 import email
 import re
 import streamlit as st
-from database import get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import get_players_by_match_type, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
@@ -166,7 +166,35 @@ if page == "League Standings":
     with tab1:
         st.header("Current Season")
         st.write("SABGA Round Robin Season 1 (Jan 2024 - March 2024)")
-        st.table(standings)
+
+        # Select Match Type
+        match_types = get_match_types()  # Assuming this returns (MatchTypeID, MatchTypeTitle, ...)
+        match_type_titles = [mt[1] for mt in match_types]
+        selected_match_type = st.selectbox("Select Match Type", match_type_titles)
+        
+        # Display Players Table
+        if selected_match_type:
+            players = get_players_by_match_type(selected_match_type)
+            
+            if players:
+                # Format data for display
+                data = [
+                    {
+                        "Name (Nickname)": f"{p[0]} ({p[1]})",
+                        "Wins": p[2],
+                        "Losses": p[3],
+                        "Win%": round(p[4], 2),
+                        "Average PR": round(p[5], 2),
+                        "Average Luck": round(p[6], 2)
+                    }
+                    for p in players
+                ]
+                
+                st.dataframe(data)
+            else:
+                st.warning("No players found for this match type.")
+
+        #st.table(standings)
 
     with tab2:
         st.header("Past Seasons")
