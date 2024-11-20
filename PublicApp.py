@@ -176,39 +176,30 @@ if page == "League Standings":
         
         selected_match_type = st.selectbox("Select Match Type", list(match_type_dict.keys()))
         # Format and Display Player Stats
-if selected_match_type:
-    match_type_id = match_type_dict[selected_match_type]
-    player_stats = get_player_stats_by_matchtype(match_type_id)
-    
-    if player_stats:
-        # Format data for display
-        formatted_stats = []
-        for stat in player_stats:
-            name_with_nickname = f"{stat[0]} ({stat[1]})"  # Combine Name and Nickname
-            wins = stat[2]
-            losses = stat[3]
-            games_played = stat[4]
-            win_percentage = round((wins / games_played), 2) if games_played > 0 else 0
-            avg_pr = round(stat[5], 2) if stat[5] is not None else "N/A"
-            avg_luck = round(stat[6], 2) if stat[6] is not None else "N/A"
-            formatted_stats.append(
-                [name_with_nickname, wins, losses, win_percentage, avg_pr, avg_luck]
-            )
-
-        # Convert to DataFrame for display
-        df = pd.DataFrame(
-            formatted_stats, 
-            columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
-        )
+    # Format and Display Player Stats
+    if selected_match_type:
+        match_type_id = match_type_dict[selected_match_type]
+        player_stats = get_player_stats_with_fixtures(match_type_id)
         
-        # Sort by Average PR (ascending)
-        df = df.sort_values(by="Average PR", ascending=True)
-
-        # Display the table
-        st.dataframe(df)
-    else:
-        st.write("No data found for the selected match type.")
-
+        if player_stats:
+            formatted_stats = []
+            for stat in player_stats:
+                name_with_nickname = f"{stat[1]} ({stat[2]})"  # Combine Name and Nickname
+                wins = stat[3] or 0
+                losses = stat[4] or 0
+                win_percentage = round((wins / (wins + losses)) * 100, 2) if (wins + losses) > 0 else 0
+                avg_pr = f"{round(stat[6], 2):.2f}" if stat[6] is not None else "-"
+                avg_luck = f"{round(stat[7], 2):.2f}" if stat[7] is not None else "-"
+                formatted_stats.append([name_with_nickname, wins, losses, win_percentage, avg_pr, avg_luck])
+    
+            df = pd.DataFrame(
+                formatted_stats, 
+                columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+            )
+    
+            st.dataframe(df)
+        else:
+            st.write("No data found for the selected match type.")
 
     with tab2:
         st.header("Past Seasons")
