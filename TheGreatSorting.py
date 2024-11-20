@@ -86,6 +86,9 @@ if page == "Player Standings":
         
                 # Display the table
                 st.dataframe(df)
+            else
+                st.write("No data to display")
+                
             st.write("To add: table, outstanding fixtures, match-grid")
             st.write("Maybe a metric of completion?")
         with tab4:
