@@ -175,15 +175,40 @@ if page == "League Standings":
         match_type_dict = {mt[1]: mt[0] for mt in match_types}  # Map titles to IDs
         
         selected_match_type = st.selectbox("Select Match Type", list(match_type_dict.keys()))
-        if selected_match_type:
-            match_type_id = match_type_dict[selected_match_type]
-            player_stats = get_player_stats_by_matchtype(match_type_id)
-            
-            if player_stats:
-                df = pd.DataFrame(player_stats, columns=["Name (Nickname)", "Wins", "Losses", "Games Played", "Win %", "Average PR", "Average Luck"])
-                st.dataframe(df)
-            else:
-                st.write("No data found for the selected match type.")
+        # Format and Display Player Stats
+if selected_match_type:
+    match_type_id = match_type_dict[selected_match_type]
+    player_stats = get_player_stats_by_matchtype(match_type_id)
+    
+    if player_stats:
+        # Format data for display
+        formatted_stats = []
+        for stat in player_stats:
+            name_with_nickname = f"{stat[0]} ({stat[1]})"  # Combine Name and Nickname
+            wins = stat[2]
+            losses = stat[3]
+            games_played = stat[4]
+            win_percentage = round((wins / games_played) * 100, 2) if games_played > 0 else 0
+            avg_pr = round(stat[5], 2) if stat[5] is not None else "N/A"
+            avg_luck = round(stat[6], 2) if stat[6] is not None else "N/A"
+            formatted_stats.append(
+                [name_with_nickname, wins, losses, win_percentage, avg_pr, avg_luck]
+            )
+
+        # Convert to DataFrame for display
+        df = pd.DataFrame(
+            formatted_stats, 
+            columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+        )
+        
+        # Sort by Average PR (ascending)
+        df = df.sort_values(by="Average PR", ascending=True)
+
+        # Display the table
+        st.dataframe(df)
+    else:
+        st.write("No data found for the selected match type.")
+
 
     with tab2:
         st.header("Past Seasons")
