@@ -188,7 +188,7 @@ if selected_match_type:
             wins = stat[2]
             losses = stat[3]
             games_played = stat[4]
-            win_percentage = round((wins / games_played) * 100, 2) if games_played > 0 else 0
+            win_percentage = round((wins / games_played), 2) if games_played > 0 else 0
             avg_pr = round(stat[5], 2) if stat[5] is not None else "N/A"
             avg_luck = round(stat[6], 2) if stat[6] is not None else "N/A"
             formatted_stats.append(
