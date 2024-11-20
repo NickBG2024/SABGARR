@@ -27,31 +27,37 @@ def get_player_stats_with_fixtures(match_type_id):
         
         query = """
         SELECT
-            p.PlayerID,
-            p.Name,
-            p.Nickname,
-            COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
-                       WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1 END) AS Wins,
-            COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
-                       WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1 END) AS Losses,
-            COUNT(mr.MatchResultID) AS GamesPlayed,
-            AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
-                     WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) AS AveragePR,
-            AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
-                     WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck END) AS AverageLuck
-        FROM
-            Players p
-        LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
-        LEFT JOIN MatchResults mr ON (mr.MatchTypeID = f.MatchTypeID AND 
-                                       (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID))
-        WHERE
-            f.MatchTypeID = %s
-        GROUP BY
-            p.PlayerID, p.Name, p.Nickname
-        ORDER BY
-            AveragePR ASC NULLS LAST;
+    p.PlayerID,
+    p.Name,
+    p.Nickname,
+    COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+               WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1 END) AS Wins,
+    COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+               WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1 END) AS Losses,
+    COUNT(mr.MatchResultID) AS GamesPlayed,
+    AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+             WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) AS AveragePR,
+    AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
+             WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck END) AS AverageLuck
+FROM
+    Players p
+LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+LEFT JOIN MatchResults mr ON (mr.MatchTypeID = f.MatchTypeID AND 
+                               (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID))
+WHERE
+    f.MatchTypeID = %s
+GROUP BY
+    p.PlayerID, p.Name, p.Nickname
+ORDER BY
+    CASE 
+        WHEN AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                      WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) IS NULL THEN 1
+        ELSE 0 
+    END ASC,
+    AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+             WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) ASC;
+
         """
-        
         cursor.execute(query, (match_type_id,))
         player_stats = cursor.fetchall()
         conn.close()
