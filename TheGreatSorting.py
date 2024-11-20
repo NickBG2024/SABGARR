@@ -10,11 +10,8 @@ from datetime import datetime, timedelta, timezone
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
 
 # Public-facing app for all users
-st.write("SABGA Backgammon:")
-st.title("The Great Sorting 2025")
-    
+st.title("SABGA Backgammon presents... The Great Sorting 2025")
 standings = get_sorting_standings()
-st.write("SABGA Round Robin: 2025")
 # Create tabs in a section
 tab1, tab2 = st.tabs(["Player Standings", "Sorting Groups"])
 
