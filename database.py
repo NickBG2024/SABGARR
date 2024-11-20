@@ -766,17 +766,20 @@ def get_players_full():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT PlayerID, Name, Nickname, GamesPlayed,AveragePR,CurrentLeague,DaysIdle FROM Players")
+        # Include the Email column in the query
+        cursor.execute("SELECT PlayerID, Name, Nickname, Email, GamesPlayed, AveragePR, CurrentLeague, DaysIdle FROM Players")
         players = cursor.fetchall()
         conn.close()
 
         if not players:
             st.error("No players found.")
         
-        return [(p[0], p[1], p[2], p[3], p[4], p[5],p[6]) for p in players]  # Ensure tuples with (ID, Name, Nickname, GamesPlayed,AvePR,CurrentLeague,DaysIdle)
+        # Adjust the tuple structure to include Email
+        return [(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]) for p in players]
     except Exception as e:
         st.error(f"Error retrieving players: {e}")
         return []
+
     
 # Function to retrieve all players' ID, Name, Nickname
 def get_players_simple():
