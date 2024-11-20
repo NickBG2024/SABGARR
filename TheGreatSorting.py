@@ -59,7 +59,7 @@ if page == "Player Standings":
             st.header("Sorting Group 1")
             st.write("Sorting Group 1:")
 
-            player_stats = get_player_stats_by_matchtype(4)
+            player_stats = get_player_stats_by_matchtype(1)
             if player_stats:
                 # Format data for display
                 formatted_stats = []
