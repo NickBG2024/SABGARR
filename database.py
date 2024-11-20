@@ -832,6 +832,46 @@ def get_players_simple():
         st.error(f"Error retrieving players: {e}")
         return []
 
+def get_player_stats_by_matchtype(match_type_id):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        query = '''
+            SELECT 
+                p.Name, 
+                p.Nickname, 
+                SUM(CASE 
+                    WHEN (m.Player1ID = p.PlayerID AND m.Player1Points > m.Player2Points) OR 
+                         (m.Player2ID = p.PlayerID AND m.Player2Points > m.Player1Points) 
+                    THEN 1 ELSE 0 END) AS Wins,
+                SUM(CASE 
+                    WHEN (m.Player1ID = p.PlayerID AND m.Player1Points < m.Player2Points) OR 
+                         (m.Player2ID = p.PlayerID AND m.Player2Points < m.Player1Points) 
+                    THEN 1 ELSE 0 END) AS Losses,
+                COUNT(*) AS GamesPlayed,
+                AVG(CASE 
+                    WHEN m.Player1ID = p.PlayerID THEN m.Player1PR 
+                    WHEN m.Player2ID = p.PlayerID THEN m.Player2PR 
+                END) AS AveragePR,
+                AVG(CASE 
+                    WHEN m.Player1ID = p.PlayerID THEN m.Player1Luck 
+                    WHEN m.Player2ID = p.PlayerID THEN m.Player2Luck 
+                END) AS AverageLuck
+            FROM Players p
+            INNER JOIN MatchResults m 
+                ON p.PlayerID = m.Player1ID OR p.PlayerID = m.Player2ID
+            WHERE m.MatchTypeID = %s
+            GROUP BY p.PlayerID
+            ORDER BY AveragePR ASC;
+        '''
+        cursor.execute(query, (match_type_id,))
+        results = cursor.fetchall()
+        conn.close()
+        return results
+    except Exception as e:
+        st.error(f"Error fetching player stats: {e}")
+        return []
+
 # Function to retrieve all match types
 def get_match_types():
     try:
