@@ -317,7 +317,7 @@ if show_players:
 
     if players:
         # Convert list of tuples to a DataFrame for table display
-        players_data = pd.DataFrame(players, columns=["Player ID", "Player Name", "Player NickName", "Games Played", "AveragePR","CurrentLeague","DaysIdle"])
+        players_data = pd.DataFrame(players, columns=["Player ID", "Player Name", "Player NickName", "Email", "Games Played", "AveragePR","CurrentLeague","DaysIdle"])
         st.table(players_data)
     else:
         st.write("No players found in the database.")
@@ -436,22 +436,28 @@ if edit_players:
 
     # Fetch all players to populate the selectbox
     players = get_players_full()
-    st.write(players)
+    st.write("Players fetched:", players)  # Debugging: Display the raw player data
 
     if players:
         # Create a dictionary to map player names to their IDs for selection
-        player_dict = {f"{player[1]} (ID: {player[0]})": player for player in players}
-        selected_player = st.selectbox("Select Player to Edit", list(player_dict.keys()))
+        try:
+            player_dict = {f"{player[1]} (ID: {player[0]})": player for player in players}
+            selected_player = st.selectbox("Select Player to Edit", list(player_dict.keys()))
+        except Exception as e:
+            st.error(f"Error mapping players: {e}")
 
         if selected_player:
             player_data = player_dict[selected_player]
             player_id = player_data[0]  # Extract the PlayerID
 
+            # Ensure data is in the correct format
+            st.write("Selected player data:", player_data)  # Debugging: Output the selected player data
+
             # Prepopulate form with the selected player's data
             with st.form(key='edit_player_form'):
-                name = st.text_input("Name", value=player_data[1])
-                nickname = st.text_input("Nickname", value=player_data[2])
-                email = st.text_input("Email", value=player_data[3])
+                name = st.text_input("Name", value=player_data[1] or "")
+                nickname = st.text_input("Nickname", value=player_data[2] or "")
+                email = st.text_input("Email", value=player_data[3] or "")
 
                 # Form submission
                 submitted = st.form_submit_button("Update Player")
