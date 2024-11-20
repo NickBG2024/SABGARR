@@ -193,24 +193,16 @@ if page == "League Standings":
                 avg_luck = f"{round(stat[7], 2):.2f}" if stat[7] is not None else "-"
                 formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])
         
-            # Create DataFrame with proper columns
             df = pd.DataFrame(
-                formatted_stats, 
+                formatted_stats,
                 columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
             )
         
-            # Style the DataFrame for better visuals
-            def highlight_header():
-                return [
-                    "background-color: lightblue; font-weight: bold;" for _ in df.columns
-                ]
-        
-            # Apply custom styles
             styled_df = df.style.set_table_styles(
                 [{"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]}]
             )
         
-            st.dataframe(styled_df, use_container_width=True)
+            st.write(styled_df)  # Display styled DataFrame
         else:
             st.write("No data found for the selected match type.")
 
