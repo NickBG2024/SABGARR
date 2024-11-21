@@ -304,19 +304,19 @@ if fixtures:
     # Convert list of tuples to a DataFrame
     fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID", "Completed"])
     
-            st.table(fixture_data)
-        
-        # Apply basic styling
-        styled_fixture_data = fixture_data.style.applymap(
-            lambda val: "background-color: lightgreen" if val == "Completed" else "background-color: lightcoral", 
-            subset=["Completed"]
-        ).set_table_styles([
-            {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]},
-            {"selector": "tbody td", "props": [("border", "1px solid black")]},
-        ])
-        
-        # Render styled DataFrame
-        st.write(styled_fixture_data)
+    st.table(fixture_data)
+    
+    # Apply basic styling
+    styled_fixture_data = fixture_data.style.applymap(
+        lambda val: "background-color: lightgreen" if val == "Completed" else "background-color: lightcoral", 
+        subset=["Completed"]
+    ).set_table_styles([
+        {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]},
+        {"selector": "tbody td", "props": [("border", "1px solid black")]},
+    ])
+    
+    # Render styled DataFrame
+    st.write(styled_fixture_data)
 else:
     st.write("No fixtures found in the database.")
         
