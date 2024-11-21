@@ -294,22 +294,31 @@ if show_fixtures:
     st.subheader("Fixtures in Database:")
     fixtures = get_fixtures()
 
-    if fixtures:
-        # Convert list of tuples to a DataFrame for table display
-        fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID", "Completed"])
-        
-        # Configure Ag-Grid options
-        gb = GridOptionsBuilder.from_dataframe(fixture_data)
-        gb.configure_column("Completed", cellStyle=lambda params: {
-            "backgroundColor": "lightgreen" if params.value == 1 else "lightcoral",
-        })
-        gb.configure_default_column(editable=False, groupable=True)  # Optional: Configure column properties
-        grid_options = gb.build()
+from st_aggrid import AgGrid
+
+# Assuming fixtures is a list of tuples from the database
+fixtures = get_fixtures()
+
+if fixtures:
+    import pandas as pd
+
+    # Convert list of tuples to a DataFrame
+    fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID", "Completed"])
     
-        # Render Ag-Grid
-        AgGrid(fixture_data, gridOptions=grid_options, theme="streamlit", height=300)
-    else:
-        st.write("No fixtures found in the database.")
+    # Ensure all data is string
+    fixture_data = fixture_data.astype(str)
+
+    # Define grid options
+    grid_options = {
+        "pagination": True,
+        "resizableColumns": True,
+        "filter": True,
+    }
+
+    # Display with AgGrid
+    AgGrid(fixture_data, gridOptions=grid_options, theme="streamlit", height=300)
+else:
+    st.write("No fixtures found in the database.")
         
 if show_fixtures_with_names:
     st.subheader("Fixtures with Names in Database:")
