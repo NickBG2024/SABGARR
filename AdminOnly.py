@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime
+import AgGrid, GridOptionsBuilder
 
 from database import (
     add_fixture,
@@ -294,22 +295,19 @@ if show_fixtures:
     fixtures = get_fixtures()
 
     if fixtures:
-
-        # Convert list of tuples to a DataFrame for table display, including 'Completed' column
+        # Convert list of tuples to a DataFrame for table display
         fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID", "Completed"])
         
-        # Apply basic styling
-        styled_fixture_data = fixture_data.style.applymap(
-            lambda val: "background-color: lightgreen" if val == "Completed" else "background-color: lightcoral", 
-            subset=["Completed"]
-        ).set_table_styles([
-            {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]},
-            {"selector": "tbody td", "props": [("border", "1px solid black")]},
-        ])
-        
-        # Render styled DataFrame
-        st.write(styled_fixture_data)
-
+        # Configure Ag-Grid options
+        gb = GridOptionsBuilder.from_dataframe(fixture_data)
+        gb.configure_column("Completed", cellStyle=lambda params: {
+            "backgroundColor": "lightgreen" if params.value == 1 else "lightcoral",
+        })
+        gb.configure_default_column(editable=False, groupable=True)  # Optional: Configure column properties
+        grid_options = gb.build()
+    
+        # Render Ag-Grid
+        AgGrid(fixture_data, gridOptions=grid_options, theme="streamlit", height=300)
     else:
         st.write("No fixtures found in the database.")
         
