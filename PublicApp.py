@@ -195,7 +195,7 @@ if page == "League Standings":
             # Create the DataFrame with preformatted values
             df = pd.DataFrame(
                 formatted_stats,
-                columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+                columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Averaged PR", "Average Luck"]
             )
         
             # Apply styles directly
