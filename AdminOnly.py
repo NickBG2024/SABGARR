@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime
-import AgGrid, GridOptionsBuilder
+from st_aggrid import AgGrid, GridOptionsBuilder
 
 from database import (
     add_fixture,
