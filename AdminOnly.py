@@ -294,31 +294,26 @@ if show_fixtures:
     st.subheader("Fixtures in Database:")
     fixtures = get_fixtures()
 
-from st_aggrid import AgGrid
-
-# Assuming fixtures is a list of tuples from the database
-fixtures = get_fixtures()
-
-if fixtures:
-
-    # Convert list of tuples to a DataFrame
-    fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID", "Completed"])
+    if fixtures:
     
-    st.table(fixture_data)
-    
-    # Apply basic styling
-    styled_fixture_data = fixture_data.style.applymap(
-        lambda val: "background-color: lightgreen" if val == "Completed" else "background-color: lightcoral", 
-        subset=["Completed"]
-    ).set_table_styles([
-        {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]},
-        {"selector": "tbody td", "props": [("border", "1px solid black")]},
-    ])
-    
-    # Render styled DataFrame
-    st.write(styled_fixture_data)
-else:
-    st.write("No fixtures found in the database.")
+        # Convert list of tuples to a DataFrame
+        fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID", "Completed"])
+        
+        st.table(fixture_data)
+        
+        # Apply basic styling
+        styled_fixture_data = fixture_data.style.applymap(
+            lambda val: "background-color: lightgreen" if val == "Completed" else "background-color: lightcoral", 
+            subset=["Completed"]
+        ).set_table_styles([
+            {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]},
+            {"selector": "tbody td", "props": [("border", "1px solid black")]},
+        ])
+        
+        # Render styled DataFrame
+        st.write(styled_fixture_data)
+    else:
+        st.write("No fixtures found in the database.")
         
 if show_fixtures_with_names:
     st.subheader("Fixtures with Names in Database:")
