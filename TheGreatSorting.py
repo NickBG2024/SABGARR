@@ -10,27 +10,24 @@ from datetime import datetime, timedelta, timezone
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
 
 # Public-facing app for all users
-st.title("SABGA Backgammon presents... The Great Sorting 2025")
+st.title("SABGA Backgammon presents...") 
+st.header("The Great Sorting 2025!")
 standings = get_sorting_standings()
 # Create tabs in a section
 tab1, tab2 = st.tabs(["Player Standings", "Sorting Groups"])
 
 # Content for each tab
 with tab1:
-    st.header("")
-    st.write("Player Standings - ordered by PR")
+    st.header("Player Standings - ordered by PR")
+    st.write("These standings will be used to help sort players in their appropriate league groups, for the start of the SABGA Round Robin 2025.")
     st.table(standings)
 
 with tab2:
     # Create tabs for additional stats
     tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11",])
     with tab3:
-        st.header("Sorting Group 1")
         st.subheader("Latest standings:")
-        st.write("Latest standings:")
-
-        player_stats = get_player_stats_with_fixtures(1)
-    
+        player_stats = get_player_stats_with_fixtures(1)  
         if player_stats:
             formatted_stats = []
             for stat in player_stats:
@@ -41,8 +38,7 @@ with tab2:
                 win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
                 avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
                 avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
-                formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])
-    
+                formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])  
                 df = pd.DataFrame(
                 formatted_stats, 
                 columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
@@ -52,7 +48,7 @@ with tab2:
             df.reset_index(drop=True)
             
             # Display DataFrame without the index column
-            st.dataframe(df)
+            st.dataframe(df,hide_index=True)
 
         else:
             st.write("No data found for the selected match type.")
@@ -94,10 +90,12 @@ with tab2:
         score_df = score_df.fillna("–")
         
         # Display the table in Streamlit
-        st.write("Match Results Grid:")
-        st.markdown("## This is a Markdown Header")
-        st.markdown("**Bold Text** and *Italic Text*")
+        st.subheader("Match Results Grid:")
+        #st.markdown("## This is a Markdown Header")
+        #st.markdown("**Bold Text** and *Italic Text*")
         st.table(score_df)
+
+        
 
 
         st.write("Maybe a metric of completion?")
