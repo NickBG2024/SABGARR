@@ -27,7 +27,9 @@ with tab2:
     tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11",])
     with tab3:
         st.subheader("Latest standings:")
-        player_stats = get_player_stats_with_fixtures(1)  
+        # Example match type id
+        match_type_id = 1
+        player_stats = get_player_stats_with_fixtures(match_type_id)  
         if player_stats:
             formatted_stats = []
             for stat in player_stats:
@@ -52,9 +54,6 @@ with tab2:
 
         else:
             st.write("No data found for the selected match type.")
-    
-        # Example match type id
-        match_type_id = 1
         
         # Fetch match results for the specified match type
         match_results = get_match_results_for_grid(match_type_id)
@@ -96,7 +95,7 @@ with tab2:
         st.table(score_df)
 
         st.subheader("Remaining Fixtures:")
-        remaining_fixtures = get_remaining_fixtures(some_match_type_id)
+        remaining_fixtures = get_remaining_fixtures(match_type_id)
         if remaining_fixtures:
             df_remaining_fixtures = pd.DataFrame(
                 remaining_fixtures, 
