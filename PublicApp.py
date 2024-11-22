@@ -210,7 +210,34 @@ if page == "League Standings":
         else:
             st.write("No data found for the selected match type.")
 
-
+# Example data (this should be fetched from your database based on match_type)
+        # Here we assume fixtures with Player IDs, scores, and a "Completed" flag.
+        fixtures = [
+            {"player1": 1, "player2": 2, "score1": 10, "score2": 8, "completed": True},
+            {"player1": 1, "player2": 3, "score1": 12, "score2": 10, "completed": True},
+            {"player1": 2, "player2": 3, "score1": None, "score2": None, "completed": False},
+            {"player1": 4, "player2": 1, "score1": 15, "score2": 12, "completed": True},
+        ]
+        
+        # Assume these are the players in this match type
+        players = [1, 2, 3, 4]
+        
+        # Create a DataFrame to store the scores
+        score_data = {player: {other_player: "-" for other_player in players} for player in players}
+        
+        # Fill in the scores from the fixtures data
+        for fixture in fixtures:
+            if fixture['completed']:
+                score_data[fixture['player1']][fixture['player2']] = f"{fixture['score1']} - {fixture['score2']}"
+                score_data[fixture['player2']][fixture['player1']] = f"{fixture['score2']} - {fixture['score1']}"
+        
+        # Convert the score_data dictionary into a pandas DataFrame
+        score_df = pd.DataFrame(score_data, index=players)
+        
+        # Display the table with players as both rows and columns
+        st.write("Match Results for Match Type X:")
+        st.table(score_df)
+    
     with tab2:
         st.header("Past Seasons")
         st.write("Use the tabs below to browse previous season standings.")
