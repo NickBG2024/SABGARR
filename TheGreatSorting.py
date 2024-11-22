@@ -28,7 +28,7 @@ with tab2:
         st.header("Sorting Group 1")
         st.write("Sorting Group 1:")
 
-        player_stats = get_player_stats_with_fixtures(4)
+        player_stats = get_player_stats_with_fixtures(1)
     
     if player_stats:
         formatted_stats = []
@@ -49,36 +49,43 @@ with tab2:
         st.dataframe(df)
     else:
         st.write("No data found for the selected match type.")
-
-   
-
-        # Example data (this should be fetched from your database based on match_type)
-        # Here we assume fixtures with Player IDs, scores, and a "Completed" flag.
-        fixtures = [
-            {"player1": 1, "player2": 2, "score1": 10, "score2": 8, "completed": True},
-            {"player1": 1, "player2": 3, "score1": 12, "score2": 10, "completed": True},
-            {"player1": 2, "player2": 3, "score1": None, "score2": None, "completed": False},
-            {"player1": 4, "player2": 1, "score1": 15, "score2": 12, "completed": True},
-        ]
+    
+    # Example match type id
+    match_type_id = 1
+    
+    # Fetch match results for the specified match type
+    match_results = get_match_results_for_grid(match_type_id)
+    
+    # Create an empty dictionary to store the scores
+    score_data = {}
+    
+    # Loop through the results and populate the score data dictionary
+    for result in match_results:
+        player1_name = result[1]
+        player2_name = result[3]
+        player1_points = result[4]
+        player2_points = result[5]
         
-        # Assume these are the players in this match type
-        players = [1, 2, 3, 4]
-        
-        # Create a DataFrame to store the scores
-        score_data = {player: {other_player: "-" for other_player in players} for player in players}
-        
-        # Fill in the scores from the fixtures data
-        for fixture in fixtures:
-            if fixture['completed']:
-                score_data[fixture['player1']][fixture['player2']] = f"{fixture['score1']} - {fixture['score2']}"
-                score_data[fixture['player2']][fixture['player1']] = f"{fixture['score2']} - {fixture['score1']}"
-        
-        # Convert the score_data dictionary into a pandas DataFrame
-        score_df = pd.DataFrame(score_data, index=players)
-        
-        # Display the table with players as both rows and columns
-        st.write("Match Results for Match Type X:")
-        st.table(score_df)
+        # Initialize player columns and rows if they don't exist
+        if player1_name not in score_data:
+            score_data[player1_name] = {}
+        if player2_name not in score_data:
+            score_data[player2_name] = {}
+    
+        # Fill the score matrix with the match results or a dash if no score
+        if player1_points is not None and player2_points is not None:
+            score_data[player1_name][player2_name] = f"{player1_points} - {player2_points}"
+            score_data[player2_name][player1_name] = f"{player2_points} - {player1_points}"
+        else:
+            score_data[player1_name][player2_name] = "–"
+            score_data[player2_name][player1_name] = "–"
+    
+    # Create a DataFrame from the score data dictionary
+    score_df = pd.DataFrame(score_data)
+    
+    # Display the table in Streamlit
+    st.write("Match Results Grid:")
+    st.table(score_df)
 
         st.write("To add: table, outstanding fixtures, match-grid")
         st.write("Maybe a metric of completion?")
