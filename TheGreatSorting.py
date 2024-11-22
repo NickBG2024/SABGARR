@@ -105,7 +105,6 @@ with tab2:
         else:
             st.write("No remaining fixtures for this match type.")
 
-
         st.write("Maybe a metric of completion?")
     with tab4:
         st.header("Sorting Group 2")
