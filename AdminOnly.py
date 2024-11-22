@@ -312,7 +312,8 @@ if show_fixtures:
     ])
         
         # Render styled DataFrame
-        st.write(styled_fixture_data)
+        with st.container():
+            st.write(styled_fixture_data)
     else:
         st.write("No fixtures found in the database.")
         
