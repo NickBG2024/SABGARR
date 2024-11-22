@@ -96,7 +96,7 @@ with tab2:
 
         st.subheader("Remaining Fixtures:")
         # Fetch remaining fixtures for the selected match type
-        remaining_fixtures = get_remaining_fixtures(some_match_type_id)
+        remaining_fixtures = get_remaining_fixtures(match_type_id)
         
         if remaining_fixtures:
             st.write("### Remaining Fixtures")
