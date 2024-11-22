@@ -30,16 +30,17 @@ with tab2:
 
         player_stats = get_player_stats_with_fixtures(1)
     
-        if player_stats:
+     if player_stats:
             formatted_stats = []
             for stat in player_stats:
-                name_with_nickname = f"{stat[1]} ({stat[2]})"  # Combine Name and Nickname
+                name_with_nickname = f"{stat[1]} ({stat[2]})"
                 wins = stat[3] or 0
                 losses = stat[4] or 0
-                win_percentage = round((wins / (wins + losses)), 2) if (wins + losses) > 0 else 0
-                avg_pr = f"{round(stat[6], 2):.2f}" if stat[6] is not None else "-"
-                avg_luck = f"{round(stat[7], 2):.2f}" if stat[7] is not None else "-"
-                formatted_stats.append([name_with_nickname, wins, losses, win_percentage, avg_pr, avg_luck])
+                played = wins + losses
+                win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
+                avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+                avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
+                formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])
     
                 df = pd.DataFrame(
                 formatted_stats, 
