@@ -26,29 +26,29 @@ with tab2:
     tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11",])
     with tab3:
         st.header("Sorting Group 1")
-        st.write("Sorting Group 1:")
+        st.write("Latest standings:")
 
         player_stats = get_player_stats_with_fixtures(1)
     
-    if player_stats:
-        formatted_stats = []
-        for stat in player_stats:
-            name_with_nickname = f"{stat[1]} ({stat[2]})"  # Combine Name and Nickname
-            wins = stat[3] or 0
-            losses = stat[4] or 0
-            win_percentage = round((wins / (wins + losses)), 2) if (wins + losses) > 0 else 0
-            avg_pr = f"{round(stat[6], 2):.2f}" if stat[6] is not None else "-"
-            avg_luck = f"{round(stat[7], 2):.2f}" if stat[7] is not None else "-"
-            formatted_stats.append([name_with_nickname, wins, losses, win_percentage, avg_pr, avg_luck])
-
-        df = pd.DataFrame(
-            formatted_stats, 
-            columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
-        )
-
-        st.dataframe(df)
-    else:
-        st.write("No data found for the selected match type.")
+        if player_stats:
+            formatted_stats = []
+            for stat in player_stats:
+                name_with_nickname = f"{stat[1]} ({stat[2]})"  # Combine Name and Nickname
+                wins = stat[3] or 0
+                losses = stat[4] or 0
+                win_percentage = round((wins / (wins + losses)), 2) if (wins + losses) > 0 else 0
+                avg_pr = f"{round(stat[6], 2):.2f}" if stat[6] is not None else "-"
+                avg_luck = f"{round(stat[7], 2):.2f}" if stat[7] is not None else "-"
+                formatted_stats.append([name_with_nickname, wins, losses, win_percentage, avg_pr, avg_luck])
+    
+            df = pd.DataFrame(
+                formatted_stats, 
+                columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+            )
+    
+            st.dataframe(df)
+        else:
+            st.write("No data found for the selected match type.")
     
         # Example match type id
         match_type_id = 1
