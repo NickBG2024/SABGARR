@@ -30,7 +30,7 @@ with tab2:
 
         player_stats = get_player_stats_with_fixtures(1)
     
-     if player_stats:
+         if player_stats:
             formatted_stats = []
             for stat in player_stats:
                 name_with_nickname = f"{stat[1]} ({stat[2]})"
@@ -48,7 +48,7 @@ with tab2:
             )
             
             # Set the index to None to remove the index column
-            df.reset_index(drop=True, inplace=True)
+            df.reset_index(drop=True)
             
             # Display DataFrame without the index column
             st.dataframe(df)
