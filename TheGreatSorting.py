@@ -101,7 +101,7 @@ with tab2:
                 remaining_fixtures, 
                 columns=["Fixture ID", "Match Type ID", "Player 1", "Player 2", "Completed"]
             )
-            st.dataframe(df_remaining_fixtures, hide_index=True)
+            st.dataframe(df_remaining_fixtures)
         else:
             st.write("No remaining fixtures for this match type.")
 
