@@ -44,7 +44,7 @@ with tab2:
     
                 df = pd.DataFrame(
                 formatted_stats, 
-                columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+                columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
             )
             
             # Set the index to None to remove the index column
