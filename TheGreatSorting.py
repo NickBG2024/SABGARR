@@ -3,7 +3,7 @@ import email
 import re
 import streamlit as st
 import pandas as pd
-from database import get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
@@ -48,7 +48,7 @@ with tab2:
             df.reset_index(drop=True)
             
             # Display DataFrame without the index column
-            st.dataframe(df,hide_index=True)
+            st.dataframe(df)
 
         else:
             st.write("No data found for the selected match type.")
@@ -95,7 +95,16 @@ with tab2:
         #st.markdown("**Bold Text** and *Italic Text*")
         st.table(score_df)
 
-        
+        st.subheader("Remaining Fixtures:")
+        remaining_fixtures = get_remaining_fixtures(some_match_type_id)
+        if remaining_fixtures:
+            df_remaining_fixtures = pd.DataFrame(
+                remaining_fixtures, 
+                columns=["Fixture ID", "Match Type ID", "Player 1", "Player 2", "Completed"]
+            )
+            st.dataframe(df_remaining_fixtures, hide_index=True)
+        else:
+            st.write("No remaining fixtures for this match type.")
 
 
         st.write("Maybe a metric of completion?")
