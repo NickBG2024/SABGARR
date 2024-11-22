@@ -95,15 +95,17 @@ with tab2:
         st.table(score_df)
 
         st.subheader("Remaining Fixtures:")
-        remaining_fixtures = get_remaining_fixtures(match_type_id)
+        # Fetch remaining fixtures for the selected match type
+        remaining_fixtures = get_remaining_fixtures(some_match_type_id)
+        
         if remaining_fixtures:
-            df_remaining_fixtures = pd.DataFrame(
-                remaining_fixtures, 
-                columns=["Fixture ID", "Match Type ID", "Player 1", "Player 2", "Completed"]
-            )
-            st.dataframe(df_remaining_fixtures)
+            st.write("### Remaining Fixtures")
+            for fixture in remaining_fixtures:
+                player1, player2 = fixture
+                st.write(f"- **{player1}** vs **{player2}**")
         else:
             st.write("No remaining fixtures for this match type.")
+
 
         st.write("Maybe a metric of completion?")
     with tab4:
