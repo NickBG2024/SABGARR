@@ -41,13 +41,17 @@ with tab2:
                 avg_luck = f"{round(stat[7], 2):.2f}" if stat[7] is not None else "-"
                 formatted_stats.append([name_with_nickname, wins, losses, win_percentage, avg_pr, avg_luck])
     
-            df = pd.DataFrame(
+                df = pd.DataFrame(
                 formatted_stats, 
                 columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
             )
             
+            # Set the index to None to remove the index column
+            df.reset_index(drop=True, inplace=True)
+            
             # Display DataFrame without the index column
-            st.dataframe(df, hide_index=True)
+            st.dataframe(df)
+
         else:
             st.write("No data found for the selected match type.")
     
