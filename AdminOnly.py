@@ -303,12 +303,13 @@ if show_fixtures:
         
         # Apply basic styling
         styled_fixture_data = fixture_data.style.applymap(
-            lambda val: "background-color: lightgreen" if val == "Completed" else "background-color: lightcoral", 
-            subset=["Completed"]
-        ).set_table_styles([
-            {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]},
-            {"selector": "tbody td", "props": [("border", "1px solid black")]},
-        ])
+        lambda val: "background-color: lightgreen" if val == "Completed" else "background-color: lightcoral", 
+        subset=["Completed"]
+    ).set_table_styles([
+        {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]},
+        {"selector": "tbody td", "props": [("border", "1px solid black")]},
+        {"selector": "table", "props": [("width", "100%")]}  # Adjust table width
+    ])
         
         # Render styled DataFrame
         st.write(styled_fixture_data)
