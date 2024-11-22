@@ -299,7 +299,7 @@ if show_fixtures:
         # Convert list of tuples to a DataFrame
         fixture_data = pd.DataFrame(fixtures, columns=["Fixture ID", "Match Type ID", "Player 1 ID", "Player 2 ID", "Completed"])
         
-        st.table(fixture_data)
+        #st.table(fixture_data)
         
         # Apply basic styling
         styled_fixture_data = fixture_data.style.applymap(
@@ -307,8 +307,8 @@ if show_fixtures:
         subset=["Completed"]
     ).set_table_styles([
         {"selector": "thead th", "props": [("background-color", "lightblue"), ("font-weight", "bold")]},
-        {"selector": "tbody td", "props": [("border", "1px solid black")]},
-        {"selector": "table", "props": [("width", "100%")]}  # Adjust table width
+        {"selector": "tbody td", "props": [("border", "1px solid black"), ("text-align", "center")]},
+        {"selector": "tr:hover", "props": [("background-color", "lightyellow")]}
     ])
         
         # Render styled DataFrame
