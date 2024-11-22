@@ -45,8 +45,9 @@ with tab2:
                 formatted_stats, 
                 columns=["Name (Nickname)", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
             )
-    
-            st.dataframe(df)
+            
+            # Display DataFrame without the index column
+            st.dataframe(df, hide_index=True)
         else:
             st.write("No data found for the selected match type.")
     
