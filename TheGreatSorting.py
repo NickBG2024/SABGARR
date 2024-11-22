@@ -72,7 +72,7 @@ with tab2:
             if player2_name not in score_data:
                 score_data[player2_name] = {}
         
-            # Fill the score matrix with the match results or a dash if no score
+            # Handle None values for points and replace with dash ("–")
             if player1_points is not None and player2_points is not None:
                 score_data[player1_name][player2_name] = f"{player1_points} - {player2_points}"
                 score_data[player2_name][player1_name] = f"{player2_points} - {player1_points}"
@@ -83,11 +83,14 @@ with tab2:
         # Create a DataFrame from the score data dictionary
         score_df = pd.DataFrame(score_data)
         
+        # Replace NaN values with a dash ("–")
+        score_df = score_df.fillna("–")
+        
         # Display the table in Streamlit
         st.write("Match Results Grid:")
         st.table(score_df)
 
-        st.write("To add: table, outstanding fixtures, match-grid")
+
         st.write("Maybe a metric of completion?")
     with tab4:
         st.header("Sorting Group 2")
