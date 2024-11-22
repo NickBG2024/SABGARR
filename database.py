@@ -24,14 +24,11 @@ def get_remaining_fixtures(match_type_id):
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        
+
         query = """
         SELECT
-            f.FixtureID,
-            f.MatchTypeID,
             p1.Name AS Player1,
-            p2.Name AS Player2,
-            f.Completed
+            p2.Name AS Player2
         FROM
             Fixtures f
         LEFT JOIN Players p1 ON f.Player1ID = p1.PlayerID
@@ -39,11 +36,11 @@ def get_remaining_fixtures(match_type_id):
         WHERE
             f.MatchTypeID = %s AND f.Completed = 0
         """
-        
+
         cursor.execute(query, (match_type_id,))
         remaining_fixtures = cursor.fetchall()
         conn.close()
-        
+
         return remaining_fixtures
     except Exception as e:
         st.error(f"Error retrieving remaining fixtures: {e}")
