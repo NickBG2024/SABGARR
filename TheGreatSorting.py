@@ -47,10 +47,10 @@ with tab2:
             )
             
             # Set the index to None to remove the index column
-            df.reset_index(drop=True)
+            df = df.reset_index(drop=True)
             
             # Display DataFrame without the index column
-            st.dataframe(df, hide_index=True)  # Streamlit
+            st.dataframe(df)  # Streamlit
 
         else:
             st.subheader("No matches scheduled yet.")
