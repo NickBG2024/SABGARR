@@ -50,7 +50,7 @@ with tab2:
             df.reset_index(drop=True)
             
             # Display DataFrame without the index column
-            st.dataframe(df)
+            st.dataframe(df, hide_index=True)  # Streamlit
 
         else:
             st.subheader("No matches scheduled yet.")
