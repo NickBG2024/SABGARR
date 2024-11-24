@@ -106,14 +106,16 @@ def display_group_table(match_type_id):
         formatted_stats = []
         for stat in player_stats:
             name_with_nickname = f"{stat[1]} ({stat[2]})"
-            wins = stat[3] or 0
-            losses = stat[4] or 0
+            wins = int(stat[3] or 0)  # Ensure it's an integer
+            losses = int(stat[4] or 0)  # Ensure it's an integer
             played = wins + losses
             win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
             avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
             avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
             formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])  
-            df = pd.DataFrame(
+        
+        # Create a DataFrame
+        df = pd.DataFrame(
             formatted_stats, 
             columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
         )
