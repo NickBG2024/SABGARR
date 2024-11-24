@@ -46,6 +46,59 @@ def get_remaining_fixtures(match_type_id):
         st.error(f"Error retrieving remaining fixtures: {e}")
         return []
 
+def display_match_grid(match_type_id):
+    # Fetch match results for the specified match type
+    match_results = get_match_results_for_grid(match_type_id)
+    if match_results:
+        # Create an empty dictionary to store the scores
+        score_data = {}
+        
+        # Loop through the results and populate the score data dictionary
+        for result in match_results:
+            player1_name = result[1]
+            player2_name = result[3]
+            player1_points = result[4]
+            player2_points = result[5]
+            
+            # Initialize player columns and rows if they don't exist
+            if player1_name not in score_data:
+                score_data[player1_name] = {}
+            if player2_name not in score_data:
+                score_data[player2_name] = {}
+        
+            # Handle None values for points and replace with dash ("–")
+            if player1_points is not None and player2_points is not None:
+                score_data[player1_name][player2_name] = f"{player1_points} - {player2_points}"
+                score_data[player2_name][player1_name] = f"{player2_points} - {player1_points}"
+            else:
+                score_data[player1_name][player2_name] = "–"
+                score_data[player2_name][player1_name] = "–"
+        
+        # Create a DataFrame from the score data dictionary
+        score_df = pd.DataFrame(score_data)
+        
+        # Replace NaN values with a dash ("–")
+        score_df = score_df.fillna("–")
+        
+        # Display the table in Streamlit
+        st.subheader("Match Results Grid:")
+        #st.markdown("## This is a Markdown Header")
+        #st.markdown("**Bold Text** and *Italic Text*")
+        st.table(score_df)
+    else:
+        st.write("")
+
+def list_remaining_fixtures(match_type_id):
+    # Fetch remaining fixtures for the selected match type
+    remaining_fixtures = get_remaining_fixtures(match_type_id)
+    if remaining_fixtures:
+        st.subheader("Remaining Fixtures:")
+        for fixture in remaining_fixtures:
+            player1, player2 = fixture
+            st.write(f"- **{player1}** vs **{player2}**")
+    else:
+        st.write("No remaining fixtures for this match type.")
+
 def display_group_table(match_type_id):
     player_stats = get_player_stats_with_fixtures(match_type_id)  
     if player_stats:
