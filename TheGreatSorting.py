@@ -3,7 +3,7 @@ import email
 import re
 import streamlit as st
 import pandas as pd
-from database import get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
@@ -28,32 +28,9 @@ with tab2:
     with tab3:
         # Example match type id
         match_type_id = 1
-        player_stats = get_player_stats_with_fixtures(match_type_id)  
-        if player_stats:
-            st.subheader("Latest standings:")
-            formatted_stats = []
-            for stat in player_stats:
-                name_with_nickname = f"{stat[1]} ({stat[2]})"
-                wins = stat[3] or 0
-                losses = stat[4] or 0
-                played = wins + losses
-                win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
-                avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
-                avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
-                formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])  
-                df = pd.DataFrame(
-                formatted_stats, 
-                columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
-            )
-            
-            # Set the index to None to remove the index column
-            df = df.reset_index(drop=True)
-            
-            # Display DataFrame without the index column
-            st.dataframe(df)  # Streamlit
-
-        else:
-            st.subheader("No matches scheduled yet.")
+        
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
         
         # Fetch match results for the specified match type
         match_results = get_match_results_for_grid(match_type_id)
