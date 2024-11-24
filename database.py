@@ -46,6 +46,34 @@ def get_remaining_fixtures(match_type_id):
         st.error(f"Error retrieving remaining fixtures: {e}")
         return []
 
+def display_group_table(match_type_id):
+    player_stats = get_player_stats_with_fixtures(match_type_id)  
+    if player_stats:
+        st.subheader("Latest standings:")
+        formatted_stats = []
+        for stat in player_stats:
+            name_with_nickname = f"{stat[1]} ({stat[2]})"
+            wins = stat[3] or 0
+            losses = stat[4] or 0
+            played = wins + losses
+            win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
+            avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+            avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
+            formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])  
+            df = pd.DataFrame(
+            formatted_stats, 
+            columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+        )
+        
+        # Set the index to None to remove the index column
+        df = df.reset_index(drop=True)
+        
+        # Display DataFrame without the index column
+        st.dataframe(df)  # Streamlit
+
+    else:
+        st.subheader("No matches scheduled yet.")
+
 def get_match_results_for_grid(match_type_id):
     try:
         conn = create_connection()
