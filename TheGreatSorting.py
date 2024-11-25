@@ -20,10 +20,17 @@ tab1, tab2 = st.tabs(["Player Standings", "Sorting Groups"])
 with tab1:
     st.header("Player Standings - ordered by PR")
     st.write("These standings will be used to help sort players in their appropriate league groups, for the start of the SABGA Round Robin 2025.")
-    # Assuming standings is a DataFrame
-    standings = standings.reset_index(drop=True)
-    st.table(standings)
+    # Define column headers
+    columns = ["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
 
+    # Convert to DataFrame
+    standings_df = pd.DataFrame(standings, columns=columns)
+
+    # Remove the index
+    standings_df = standings_df.reset_index(drop=True)
+
+    # Render the table
+    st.table(standings_df)
 with tab2:
     # Create tabs for additional stats
     tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11",])
