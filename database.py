@@ -87,7 +87,6 @@ def display_match_grid(match_type_id):
 
         # Apply the styling function
         styled_df = score_df.style.apply(highlight_diagonal, axis=None)
-        )
 
         # Display the styled DataFrame
         st.subheader("Match Results Grid:")
