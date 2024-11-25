@@ -66,7 +66,35 @@ with tab2:
         list_remaining_fixtures(match_type_id)
         st.write("Maybe a metric of completion ?")
     with tab8:       
-       match_type_id = 6     
+        match_type_id = 6     
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
+    with tab9:
+        match_type_id = 7      
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
+    with tab10:       
+        match_type_id = 8     
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
+    with tab11:
+        match_type_id = 9      
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
+    with tab12:       
+        match_type_id = 10     
         #Call function to show group table with match_type_id
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
