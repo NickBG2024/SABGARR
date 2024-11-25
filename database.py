@@ -85,8 +85,8 @@ def display_match_grid(match_type_id):
                 style.iloc[i, i] = "background-color: #505050; color: #505050;"  # Dark gray with invisible text
                 
                 # Style player names in the first row (headers) and first column (row labels)
-            style.iloc[0, :] = "color: #A9A9A9;"  # Light gray text for column headers
-            style.iloc[:, 0] = "color: #A9A9A9;"  # Light gray text for row headers
+            style.iloc[0, :] = "background-color: #A9A9A9;"  # Light gray text for column headers
+            style.iloc[:, 0] = "background-color: #A9A9A9;"  # Light gray text for row headers
 
             return style
 
