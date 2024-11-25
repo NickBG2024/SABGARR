@@ -99,6 +99,36 @@ def list_remaining_fixtures(match_type_id):
     else:
         st.write("No remaining fixtures for this match type.")
 
+def display_series_table(series_id):
+    player_stats = get_player_stats_by_series(series_id)  
+    if player_stats:
+        st.subheader("Latest Series Standings:")
+        formatted_stats = []
+        for stat in player_stats:
+            name_with_nickname = f"{stat[1]} ({stat[2]})"
+            wins = int(stat[3] or 0)  # Ensure it's an integer
+            losses = int(stat[4] or 0)  # Ensure it's an integer
+            played = wins + losses
+            win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
+            avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+            avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
+            formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])  
+        
+        # Create a DataFrame
+        df = pd.DataFrame(
+            formatted_stats, 
+            columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Averaged PR", "Average Luck"]
+        )
+        
+        # Set the index to None to remove the index column
+        df = df.reset_index(drop=True)
+        
+        # Display DataFrame without the index column
+        st.dataframe(df)  # Streamlit
+
+    else:
+        st.subheader("No series matches scheduled yet.")
+        
 def display_group_table(match_type_id):
     player_stats = get_player_stats_with_fixtures(match_type_id)  
     if player_stats:
