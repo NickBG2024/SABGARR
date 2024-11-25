@@ -77,9 +77,24 @@ def display_match_grid(match_type_id):
                 score_df.at[player1_name, player2_name] = f"{player1_points} - {player2_points}"
                 score_df.at[player2_name, player1_name] = f"{player2_points} - {player1_points}"
 
-        # Display the table in Streamlit
+        # Styling function to highlight diagonal
+        def highlight_diagonal(val, row, col):
+            if row == col:  # Same player
+                return "background-color: black; color: white;"
+            return ""
+
+        # Apply the style
+        styled_df = score_df.style.apply(
+            lambda x: [
+                highlight_diagonal(x.index[i], x.index[i], x.index[j])
+                for i in range(len(x))
+                for j in range(len(x))
+            ]
+        )
+
+        # Display the styled DataFrame
         st.subheader("Match Results Grid:")
-        st.table(score_df)
+        st.dataframe(styled_df)  # Use st.dataframe for styling support
     else:
         st.write("No match results available for this match type.")
 
