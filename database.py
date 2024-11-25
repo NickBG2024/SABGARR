@@ -78,17 +78,17 @@ def display_match_grid(match_type_id):
                 score_df.at[player2_name, player1_name] = f"{player2_points} - {player1_points}"
 
             def highlight_diagonal(df):
-            # Create a style DataFrame matching the input DataFrame
-            style = pd.DataFrame("", index=df.index, columns=df.columns)
-            
-            # Style the diagonal cells with dark gray background and invisible text
-            for i in range(min(len(df), len(df.columns))):
-                style.iloc[i, i] = "background-color: #505050; color: #505050;"
-            
-            # Apply light gray background to header row (columns) and first column (row names)
-            style.loc[:, :] = ""  # Reset styles
-            style.iloc[0, :] = "background-color: #D3D3D3; color: black;"  # Top row (column headers)
-            style.iloc[:, 0] = "background-color: #D3D3D3; color: black;"  # First column (row headers)
+                # Create a style DataFrame matching the input DataFrame
+                style = pd.DataFrame("", index=df.index, columns=df.columns)
+                
+                # Style the diagonal cells with dark gray background and invisible text
+                for i in range(min(len(df), len(df.columns))):
+                    style.iloc[i, i] = "background-color: #505050; color: #505050;"
+                
+                # Apply light gray background to header row (columns) and first column (row names)
+                style.loc[:, :] = ""  # Reset styles
+                style.iloc[0, :] = "background-color: #D3D3D3; color: black;"  # Top row (column headers)
+                style.iloc[:, 0] = "background-color: #D3D3D3; color: black;"  # First column (row headers)
             
             return style
 
