@@ -47,6 +47,7 @@ def get_remaining_fixtures(match_type_id):
         return []
 
 def display_match_grid(match_type_id):
+
     # Fetch match results for the specified match type
     match_results = get_match_results_for_grid(match_type_id)
     if match_results:
@@ -77,28 +78,43 @@ def display_match_grid(match_type_id):
                 score_df.at[player1_name, player2_name] = f"{player1_points} - {player2_points}"
                 score_df.at[player2_name, player1_name] = f"{player2_points} - {player1_points}"
 
-        # Define the styling function outside of the loop
-        def highlight_diagonal(df):
-            # Create a style DataFrame matching the input DataFrame
-            style = pd.DataFrame("", index=df.index, columns=df.columns)
-            
-            # Style the diagonal cells with dark gray background and invisible text
-            for i in range(min(len(df), len(df.columns))):
-                style.iloc[i, i] = "background-color: #505050; color: #505050;"
-            
-            # Apply light gray background to header row (columns) and first column (row names)
-            style.loc[:, :] = ""  # Reset styles
-            style.iloc[0, :] = "background-color: #D3D3D3; color: black;"  # Top row (column headers)
-            style.iloc[:, 0] = "background-color: #D3D3D3; color: black;"  # First column (row headers)
-            
-            return style
+        # Define the style functions
+        def style_data(df):
+            styles = pd.DataFrame("", index=df.index, columns=df.columns)
 
-        # Apply the styling function
-        styled_df = score_df.style.apply(highlight_diagonal, axis=None)
+            # Style the diagonal cells (match-up of player with themselves)
+            for i in range(min(len(df), len(df.columns))):
+                styles.iloc[i, i] = "background-color: #505050; color: #505050;"  # Dark gray with invisible text
+
+            return styles
+
+        def style_headers(df):
+            # Apply a style to headers (column and row names)
+            return pd.DataFrame(
+                "background-color: #D3D3D3; color: black;",
+                index=df.index,
+                columns=df.columns
+            )
+
+        # Apply the styles to the DataFrame
+        styled_df = score_df.style.apply(style_data, axis=None).set_table_styles([
+            {
+                "selector": "thead th",
+                "props": [("background-color", "#D3D3D3"), ("color", "black")]
+            },
+            {
+                "selector": "thead tr",
+                "props": [("background-color", "#D3D3D3")]
+            },
+            {
+                "selector": "index",
+                "props": [("background-color", "#D3D3D3"), ("color", "black")]
+            }
+        ])
 
         # Display the styled DataFrame
         st.subheader("Match Results Grid:")
-        st.dataframe(styled_df)  # Use st.dataframe for styling support
+        st.dataframe(styled_df, use_container_width=True)  # `use_container_width` ensures the grid fits nicely
     else:
         st.write("No match results available for this match type.")
 
