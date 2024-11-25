@@ -77,6 +77,7 @@ def display_match_grid(match_type_id):
                 score_df.at[player1_name, player2_name] = f"{player1_points} - {player2_points}"
                 score_df.at[player2_name, player1_name] = f"{player2_points} - {player1_points}"
 
+        # Define the styling function outside of the loop
         def highlight_diagonal(df):
             # Create a style DataFrame matching the input DataFrame
             style = pd.DataFrame("", index=df.index, columns=df.columns)
@@ -89,8 +90,8 @@ def display_match_grid(match_type_id):
             style.loc[:, :] = ""  # Reset styles
             style.iloc[0, :] = "background-color: #D3D3D3; color: black;"  # Top row (column headers)
             style.iloc[:, 0] = "background-color: #D3D3D3; color: black;"  # First column (row headers)
-        
-        return style
+            
+            return style
 
         # Apply the styling function
         styled_df = score_df.style.apply(highlight_diagonal, axis=None)
