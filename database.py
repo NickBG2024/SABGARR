@@ -82,7 +82,7 @@ def display_match_grid(match_type_id):
             style = pd.DataFrame("", index=df.index, columns=df.columns)
             # Loop through the diagonal and apply the style
             for i in range(min(len(df), len(df.columns))):  # Handle rectangular DataFrames gracefully
-                style.iloc[i, i] = "background-color: black; color: white;"
+                style.iloc[i, i] = "background-color: #505050; color: #505050;"  # Dark gray with invisible text
             return style
 
         # Apply the styling function
