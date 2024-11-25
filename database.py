@@ -1037,6 +1037,62 @@ def get_players_simple():
         st.error(f"Error retrieving players: {e}")
         return []
 
+def get_player_stats_by_series(series_id):
+    try:
+        # Step 1: Fetch match types associated with the series
+        match_types = get_series_match_types(series_id)
+        if not match_types:
+            return []  # No match types found for the series
+
+        # Step 2: Extract match type IDs from the result
+        match_type_ids = [mt[0] for mt in match_types]
+
+        # Step 3: Prepare the query to fetch player stats
+        conn = create_connection()
+        cursor = conn.cursor()
+        query = f'''
+            SELECT
+                p.PlayerID,
+                p.Name,
+                p.Nickname,
+                COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+                           WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1 END) AS Wins,
+                COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+                           WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1 END) AS Losses,
+                COUNT(mr.MatchResultID) AS GamesPlayed,
+                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) AS AveragePR,
+                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
+                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck END) AS AverageLuck
+            FROM
+                Players p
+            LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+            LEFT JOIN MatchResults mr ON (mr.MatchTypeID = f.MatchTypeID AND 
+                                           (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID))
+            WHERE
+                f.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))})
+            GROUP BY
+                p.PlayerID, p.Name, p.Nickname
+            ORDER BY
+                CASE WHEN AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                                   WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) IS NULL THEN 1 ELSE 0 END,
+                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) ASC;
+        '''
+        
+        # Step 4: Execute the query with match type IDs
+        cursor.execute(query, tuple(match_type_ids))
+        results = cursor.fetchall()
+
+        # Close the connection
+        conn.close()
+
+        return results
+
+    except Exception as e:
+        st.error(f"Error fetching player stats by series: {e}")
+        return []
+
 def get_player_stats_by_matchtype(match_type_id):
     try:
         conn = create_connection()
