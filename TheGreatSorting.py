@@ -100,3 +100,10 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         st.write("Maybe a metric of completion ?")
+    with tab13:       
+        match_type_id = 11     
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
