@@ -1,6 +1,7 @@
 import imaplib
 import email
 import re
+import random
 import streamlit as st
 import pandas as pd
 from database import display_series_table, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
@@ -64,4 +65,29 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         st.write("Maybe a metric of completion ?")
+    with  tab8:       
+        df = pd.DataFrame(
+            {
+                "name": ["Roadmap", "Extras", "Issues"],
+                "url": ["https://roadmap.streamlit.app", "https://extras.streamlit.app", "https://issues.streamlit.app"],
+                "stars": [random.randint(0, 1000) for _ in range(3)],
+                "views_history": [[random.randint(0, 5000) for _ in range(30)] for _ in range(3)],
+            }
+        )
+        st.dataframe(
+            df,
+            column_config={
+                "name": "App name",
+                "stars": st.column_config.NumberColumn(
+                    "Github Stars",
+                    help="Number of stars on GitHub",
+                    format="%d ⭐",
+                ),
+                "url": st.column_config.LinkColumn("App URL"),
+                "views_history": st.column_config.LineChartColumn(
+                    "Views (past 30 days)", y_min=0, y_max=5000
+                ),
+            },
+            hide_index=True,
+        )
     
