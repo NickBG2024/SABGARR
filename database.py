@@ -83,10 +83,11 @@ def display_match_grid(match_type_id):
             # Loop through the diagonal and apply the style
             for i in range(min(len(df), len(df.columns))):  # Handle rectangular DataFrames gracefully
                 style.iloc[i, i] = "background-color: #505050; color: #505050;"  # Dark gray with invisible text
-                    # Style the first column (row headers)
-                style.iloc[:, 0] = "background-color: #D3D3D3;"  # Light gray for first column            
-                # Style the first row (column headers)
-                style.iloc[0, :] = "background-color: #D3D3D3;"  # Light gray for first row
+                
+            # Style the first column (row headers)
+            style.iloc[:, 0] = "background-color: #D3D3D3;"  # Light gray for first column            
+            # Style the first row (column headers)
+            style.iloc[0, :] = "background-color: #D3D3D3;"  # Light gray for first row
 
             return style
 
