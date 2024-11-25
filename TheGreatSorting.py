@@ -20,6 +20,8 @@ tab1, tab2 = st.tabs(["Player Standings", "Sorting Groups"])
 with tab1:
     st.header("Player Standings - ordered by PR")
     st.write("These standings will be used to help sort players in their appropriate league groups, for the start of the SABGA Round Robin 2025.")
+    # Assuming standings is a DataFrame
+    standings = standings.reset_index(drop=True)
     st.table(standings)
 
 with tab2:
