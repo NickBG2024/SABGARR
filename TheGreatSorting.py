@@ -37,13 +37,31 @@ with tab2:
         list_remaining_fixtures(match_type_id)
         st.write("Maybe a metric of completion ?")
     with tab4:
-        st.header("Sorting Group 2")
-        st.write("Sorting Group 2:")
-        st.write("To add: table, outstanding fixtures, match-grid")
-        st.write("Maybe a metric of completion?")
+        match_type_id = 2      
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
     with tab5:
-        st.header("Sorting Group 3")
-        st.write("Select the season from the dropdown to view season's stats")
+        match_type_id = 3      
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
     with tab6:
-        st.header("Sorting Group 4")
-        st.write("Select the year from the dropdown to view year's stats")
+        match_type_id = 4      
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
+    with tab7:
+        match_type_id = 5      
+        #Call function to show group table with match_type_id
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        st.write("Maybe a metric of completion ?")
+    
