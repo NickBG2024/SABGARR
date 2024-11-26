@@ -91,6 +91,10 @@ if email_checker_checkbox != email_checker_status:
 if generate_fixtures:
     st.subheader("Generate Fixtures")
 
+    # Session state to manage form reset
+    if "reset_flag" not in st.session_state:
+        st.session_state.reset_flag = False
+
     # Fetch available match types and players for dropdowns
     match_types = get_match_types()  # Assuming get_match_types() returns a list of tuples (MatchTypeID, MatchTypeTitle, ...)
     players = get_players_simple()  # Assuming get_players_simple() returns a list of tuples (PlayerID, Name, Nickname)
@@ -106,7 +110,8 @@ if generate_fixtures:
     match_type_id = st.selectbox(
         "Select Match Type",
         options=list(match_type_dict.keys()),
-        format_func=lambda x: match_type_dict[x]
+        format_func=lambda x: match_type_dict[x],
+        key="match_type" if not st.session_state.reset_flag else None
     )
 
     # Multi-select dropdowns for selecting up to 10 players
@@ -115,7 +120,8 @@ if generate_fixtures:
         player = st.selectbox(
             f"Select Player {i}",
             options=[None] + players,
-            format_func=lambda x: x[1] if x else "None"  # Assuming x[1] is the player's name
+            format_func=lambda x: x[1] if x else "None",
+            key=f"player_select_{i}" if not st.session_state.reset_flag else None
         )
         if player:
             selected_players.append(player[0])  # Append PlayerID
@@ -128,6 +134,12 @@ if generate_fixtures:
         if st.button("Generate Fixtures"):
             generate_fixture_entries(match_type_id, selected_players)
             st.success("Fixtures generated successfully!")
+
+            # Reset session state flags to clear the form
+            for key in st.session_state.keys():
+                if key.startswith("match_type") or key.startswith("player_select_"):
+                    st.session_state[key] = None
+            st.session_state.reset_flag = True  # Trigger reset on the next render
             
 # Function to generate fixture entries in the database
 def generate_fixture_entries(match_type_id, player_ids):
