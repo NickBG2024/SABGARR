@@ -166,6 +166,75 @@ def display_group_table(match_type_id):
     else:
         st.subheader("No matches scheduled yet.")
 
+def show_matches_completed(match_type_id):
+    # Connect to the database
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    # Query to fetch completed matches for the given MatchTypeID
+    query = """
+    SELECT 
+        Fixtures.DateCompleted, 
+        p1.Name AS WinnerName, 
+        p1.Nickname AS WinnerNickname, 
+        p2.Name AS LoserName, 
+        p2.Nickname AS LoserNickname, 
+        MatchResults.Player1Points, 
+        MatchResults.Player1PR AS WinnerPR, 
+        MatchResults.Player1Luck AS WinnerLuck, 
+        MatchResults.Player2PR AS LoserPR, 
+        MatchResults.Player2Luck AS LoserLuck
+    FROM MatchResults
+    JOIN Fixtures ON MatchResults.FixtureID = Fixtures.FixtureID
+    JOIN Players p1 ON MatchResults.Player1ID = p1.PlayerID
+    JOIN Players p2 ON MatchResults.Player2ID = p2.PlayerID
+    WHERE Fixtures.MatchTypeID = %s AND Fixtures.Completed = 1
+    ORDER BY Fixtures.DateCompleted DESC;
+    """
+    
+    cursor.execute(query, (match_type_id,))
+    results = cursor.fetchall()
+
+    conn.close()
+
+    # If no matches found
+    if not results:
+        st.warning("No completed matches found for this match type.")
+        return
+
+    # Prepare data for display
+    data = []
+    for row in results:
+        date_completed = row[0].strftime("%Y-%m-%d")
+        winner_info = f"{row[1]} ({row[2]})"
+        loser_info = f"{row[3]} ({row[4]})"
+        score = row[5]
+        data.append(
+            [
+                date_completed,
+                f"{winner_info} beat {loser_info}",
+                score,
+                row[6],  # Winner PR
+                row[7],  # Winner Luck
+                row[8],  # Loser PR
+                row[9],  # Loser Luck
+            ]
+        )
+
+    # Display results in a table
+    st.subheader(f"Completed Matches for Match Type {match_type_id}")
+    st.table(
+        {
+            "Date Completed": [row[0] for row in data],
+            "Result": [row[1] for row in data],
+            "Score": [row[2] for row in data],
+            "Winner PR": [row[3] for row in data],
+            "Winner Luck": [row[4] for row in data],
+            "Loser PR": [row[5] for row in data],
+            "Loser Luck": [row[6] for row in data],
+        }
+    )
+
 def get_match_results_for_grid(match_type_id):
     try:
         conn = create_connection()
