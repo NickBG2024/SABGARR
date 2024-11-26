@@ -9,11 +9,14 @@ from datetime import datetime, timedelta, timezone
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
 
+url = "https://sabgasorting.streamlit.app/"
+
 # Public-facing app for all users
 st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin!")
 st.write("This page will automatically update to show the latest standings, fixtures and results of the SABGA National Round Robin.")
 st.write("Please be patient as League data is fetched from the database...")
+st.subheader("For now, The Great Sorting is underway to determine starting leagues for the first 2025 Round Robin series. To see those standings, here's the link: [link](%s)" %) 
 
 def check_for_new_emails():
     #st.title("Check for New Match Results via Email")
