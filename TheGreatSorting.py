@@ -30,8 +30,8 @@ with tab2:
     tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11",])
     with tab3:
         # Example match type id
-        match_type_id = 1
-        
+        match_type_id = 14
+        st.write("Nish Nush Test data below:")
         #Call function to show group table with match_type_id
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
