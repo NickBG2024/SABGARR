@@ -4,7 +4,7 @@ import re
 import random
 import streamlit as st
 import pandas as pd
-from database import display_series_table, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import show_matches_completed, display_series_table, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
@@ -33,10 +33,11 @@ with tab2:
         match_type_id = 14
         st.write("Nish Nush Test data below:")
         #Call function to show group table with match_type_id
+        #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
-        st.write("Maybe a metric of completion ?")
+        show_matches_completed(match_type_id)
     with tab4:
         match_type_id = 2      
         #Call function to show group table with match_type_id
