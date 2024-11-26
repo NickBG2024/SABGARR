@@ -179,7 +179,8 @@ def show_matches_completed(match_type_id):
         p1.Nickname AS WinnerNickname, 
         p2.Name AS LoserName, 
         p2.Nickname AS LoserNickname, 
-        MatchResults.Player1Points AS Score,
+        MatchResults.Player1Points AS WinnerPoints,
+        MatchResults.Player2Points AS LoserPoints,
         MatchResults.Player1PR AS WinnerPR, 
         MatchResults.Player1Luck AS WinnerLuck, 
         MatchResults.Player2PR AS LoserPR, 
@@ -208,16 +209,16 @@ def show_matches_completed(match_type_id):
         match_date = row[0].strftime("%Y-%m-%d")
         winner_info = f"{row[1]} ({row[2]})"
         loser_info = f"{row[3]} ({row[4]})"
-        score = row[5]
+        score = f"{row[5]}-{row[6]}"
         data.append(
             [
                 match_date,
                 f"{winner_info} beat {loser_info}",
                 score,
-                row[6],  # Winner PR
-                row[7],  # Winner Luck
-                row[8],  # Loser PR
-                row[9],  # Loser Luck
+                f"{row[7]:.2f}",  # Winner PR rounded to 2 decimals
+                f"{row[8]:.2f}",  # Winner Luck rounded to 2 decimals
+                f"{row[9]:.2f}",  # Loser PR rounded to 2 decimals
+                f"{row[10]:.2f}",  # Loser Luck rounded to 2 decimals
             ]
         )
 
