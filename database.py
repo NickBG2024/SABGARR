@@ -174,12 +174,12 @@ def show_matches_completed(match_type_id):
     # Query to fetch completed matches for the given MatchTypeID
     query = """
     SELECT 
-        Fixtures.DateCompleted, 
+        MatchResults.Date AS MatchDate,
         p1.Name AS WinnerName, 
         p1.Nickname AS WinnerNickname, 
         p2.Name AS LoserName, 
         p2.Nickname AS LoserNickname, 
-        MatchResults.Player1Points, 
+        MatchResults.Player1Points AS Score,
         MatchResults.Player1PR AS WinnerPR, 
         MatchResults.Player1Luck AS WinnerLuck, 
         MatchResults.Player2PR AS LoserPR, 
@@ -189,7 +189,7 @@ def show_matches_completed(match_type_id):
     JOIN Players p1 ON MatchResults.Player1ID = p1.PlayerID
     JOIN Players p2 ON MatchResults.Player2ID = p2.PlayerID
     WHERE Fixtures.MatchTypeID = %s AND Fixtures.Completed = 1
-    ORDER BY Fixtures.DateCompleted DESC;
+    ORDER BY MatchResults.Date DESC;
     """
     
     cursor.execute(query, (match_type_id,))
@@ -205,13 +205,13 @@ def show_matches_completed(match_type_id):
     # Prepare data for display
     data = []
     for row in results:
-        date_completed = row[0].strftime("%Y-%m-%d")
+        match_date = row[0].strftime("%Y-%m-%d")
         winner_info = f"{row[1]} ({row[2]})"
         loser_info = f"{row[3]} ({row[4]})"
         score = row[5]
         data.append(
             [
-                date_completed,
+                match_date,
                 f"{winner_info} beat {loser_info}",
                 score,
                 row[6],  # Winner PR
@@ -234,7 +234,7 @@ def show_matches_completed(match_type_id):
             "Loser Luck": [row[6] for row in data],
         }
     )
-
+    
 def get_match_results_for_grid(match_type_id):
     try:
         conn = create_connection()
