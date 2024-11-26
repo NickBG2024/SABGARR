@@ -87,27 +87,38 @@ if email_checker_checkbox != email_checker_status:
     set_email_checker_status(email_checker_checkbox)
     st.success(f"Email Checker {'enabled' if email_checker_checkbox else 'disabled'}")
 
-# Generating Fixtures UI
+# Generate Fixtures UI
 if generate_fixtures:
     st.subheader("Generate Fixtures")
 
     # Fetch available match types and players for dropdowns
-    match_types = get_match_types()  # Assuming get_match_types() returns a list of tuples (MatchTypeID, MatchTypeTitle)
+    match_types = get_match_types()  # Assuming get_match_types() returns a list of tuples (MatchTypeID, MatchTypeTitle, ...)
     players = get_players_simple()  # Assuming get_players_simple() returns a list of tuples (PlayerID, Name, Nickname)
 
-    # Print statements to debug
+    # Debugging output
     print("Match Types:", match_types)
     print("Players:", players)
 
+    # Convert match_types into a dictionary for easier lookup
+    match_type_dict = {mt[0]: mt[1] for mt in match_types}  # Assuming MatchTypeID is mt[0] and Title is mt[1]
+
     # Dropdown for Match Type selection
-    match_type_id = st.selectbox("Select Match Type", [mt[0] for mt in match_types], format_func=lambda x: dict(match_types)[x])
+    match_type_id = st.selectbox(
+        "Select Match Type",
+        options=list(match_type_dict.keys()),
+        format_func=lambda x: match_type_dict[x]
+    )
 
     # Multi-select dropdowns for selecting up to 10 players
     selected_players = []
     for i in range(1, 11):
-        player = st.selectbox(f"Select Player {i}", options=[None] + players, format_func=lambda x: x[1] if x else "None")
+        player = st.selectbox(
+            f"Select Player {i}",
+            options=[None] + players,
+            format_func=lambda x: x[1] if x else "None"  # Assuming x[1] is the player's name
+        )
         if player:
-            selected_players.append(player[0])
+            selected_players.append(player[0])  # Append PlayerID
 
     # Ensure at least 3 players are selected
     if len(selected_players) < 3:
@@ -117,25 +128,25 @@ if generate_fixtures:
         if st.button("Generate Fixtures"):
             generate_fixture_entries(match_type_id, selected_players)
             st.success("Fixtures generated successfully!")
-
-# Define function to generate fixtures based on selected match type and players
+            
+# Function to generate fixture entries in the database
 def generate_fixture_entries(match_type_id, player_ids):
     conn = create_connection()
     cursor = conn.cursor()
+
     # Generate unique matchups between players
     for i in range(len(player_ids)):
         for j in range(i + 1, len(player_ids)):
             player1_id, player2_id = player_ids[i], player_ids[j]
             cursor.execute(
                 '''
-                INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID)
-                VALUES (%s, %s, %s)
+                INSERT INTO Fixtures (MatchTypeID, Player1ID, Player2ID, Completed)
+                VALUES (%s, %s, %s, %s)
                 ''',
-                (match_type_id, player1_id, player2_id)
+                (match_type_id, player1_id, player2_id, 0)  # Ensure 'Completed' defaults to 0
             )
     conn.commit()
-    conn.close()
-    
+    conn.close()    
 # *****************************************************ADDING FORMS********************************************
 # Add Player Form
 if show_add_player_form:
