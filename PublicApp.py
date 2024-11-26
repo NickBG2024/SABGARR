@@ -16,7 +16,7 @@ st.title("SABGA Backgammon: Round Robin 2025")
 st.write("Welcome to the homepage of the South African Backgammon Round Robin!")
 st.write("This page will automatically update to show the latest standings, fixtures and results of the SABGA National Round Robin.")
 st.write("Please be patient as League data is fetched from the database...")
-st.subheader("For now, The Great Sorting is underway to determine starting leagues for the first 2025 Round Robin series. To see those standings, here's the link: [link](%s)" %) 
+st.write("For now, The Great Sorting is underway to determine starting leagues for the first 2025 Round Robin series. To see those standings, here's the link: [link](%s)" %) 
 
 def check_for_new_emails():
     #st.title("Check for New Match Results via Email")
