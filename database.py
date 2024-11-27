@@ -21,26 +21,28 @@ def create_connection():
         return None
 
 def list_players_alphabetically():
-    conn = create_connection()
-    cursor = conn.cursor()
-    # Query to get players sorted by name
-    query = "SELECT Name FROM Players ORDER BY Name ASC;"
-    cursor.execute(query)
-    
-    # Fetch all results
-    players = [row[0] for row in cursor.fetchall()]
-    return players
+    try:
+        # Establish connection
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Query to get players sorted by name
+        query = "SELECT Name FROM Players ORDER BY Name ASC;"
+        cursor.execute(query)
+
+        # Fetch all results
+        players = [row[0] for row in cursor.fetchall()]
+        return players
 
     except mysql.connector.Error as e:
         print(f"Error: {e}")
-    return []
+        return []
 
     finally:
-        # Close the connection
-        if connection.is_connected():
+        # Ensure the connection is closed
+        if 'conn' in locals() and conn.is_connected():
             cursor.close()
-            connection.close()
-
+            conn.close()
 
 # Function to Check for Duplicates
 def is_duplicate_player(player_name, heroes_nickname, email):
