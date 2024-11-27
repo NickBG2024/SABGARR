@@ -17,6 +17,7 @@ from database import (
     get_match_results_nicely_formatted,
     get_nickname_to_full_name_map,
     get_email_checker_status,
+    list_players_alphabetically,
     is_duplicate_player,
     set_email_checker_status,
     add_series,
@@ -68,6 +69,7 @@ show_add_series_form = st.sidebar.checkbox("Add Series")
 # New checkboxes for showing tables
 st.sidebar.subheader("Show Databases")
 show_players = st.sidebar.checkbox("Show all Players")
+show_AZ_list = st.sidebar.checkbox("List Players A-Z")
 show_match_types = st.sidebar.checkbox("Show all Match Types")
 show_match_results = st.sidebar.checkbox("Show all Match Results")
 show_match_results_nicely_formatted = st.sidebar.checkbox("Show Match Results Nicely Formatted")
@@ -318,7 +320,12 @@ if show_series:
         st.table(series_df)
     else:
         st.write("No Series found in the database.")
-        
+
+if show_AZ_list:
+    players = list_players_alphabetically()
+    st.write("Players A-Z:")
+    st.write(players)
+
 if show_fixtures:
     st.subheader("Fixtures in Database:")
     fixtures = get_fixtures()
