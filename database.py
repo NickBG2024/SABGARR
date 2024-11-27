@@ -20,6 +20,19 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+# Function to Check for Duplicates
+def is_duplicate_player(player_name, heroes_nickname, email):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) 
+        FROM Players 
+        WHERE Name = %s OR Nickname = %s OR Email = %s
+    """, (player_name, heroes_nickname, email))
+    duplicate_count = cursor.fetchone()[0]
+    conn.close()
+    return duplicate_count > 0
+
 def get_remaining_fixtures(match_type_id):
     try:
         conn = create_connection()
