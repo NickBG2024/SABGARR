@@ -17,6 +17,7 @@ from database import (
     get_match_results_nicely_formatted,
     get_nickname_to_full_name_map,
     get_email_checker_status,
+    is_duplicate_player,
     set_email_checker_status,
     add_series,
     add_match_type_to_series,
@@ -182,19 +183,6 @@ if show_add_player_form:
                 add_player(player_name, heroes_nickname, email)
                 st.success(f"Player '{player_name}' added successfully!")
                 st.experimental_rerun()  # Clear form and refresh
-
-# Function to Check for Duplicates
-def is_duplicate_player(player_name, heroes_nickname, email):
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT COUNT(*) 
-        FROM Players 
-        WHERE Name = %s OR Nickname = %s OR Email = %s
-    """, (player_name, heroes_nickname, email))
-    duplicate_count = cursor.fetchone()[0]
-    conn.close()
-    return duplicate_count > 0
 
 # Add Match Result
 if show_add_match_result_form:
