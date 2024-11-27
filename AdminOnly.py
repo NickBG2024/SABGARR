@@ -161,6 +161,7 @@ def generate_fixture_entries(match_type_id, player_ids):
     conn.close()    
 # *****************************************************ADDING FORMS********************************************
 # Add Player Form
+# Add Player Form
 if show_add_player_form:
     st.subheader("Add a New Player")
 
@@ -172,11 +173,29 @@ if show_add_player_form:
 
         # Submit to add the Player to the database
         submitted = st.form_submit_button("Add Player")
-        if submitted and player_name and heroes_nickname and email:
-            add_player(player_name, heroes_nickname, email)
-            st.success(f"Player '{player_name}' added successfully!")
-            player_form_placeholder.empty()  # Clear form by emptying the placeholder
-            st.experimental_rerun()
+
+        if submitted:
+            if not player_name or not heroes_nickname or not email:
+                st.warning("All fields are required!")
+            elif is_duplicate_player(player_name, heroes_nickname, email):
+                st.error("Duplicate entry found! Please use unique values.")
+            else:
+                add_player(player_name, heroes_nickname, email)
+                st.success(f"Player '{player_name}' added successfully!")
+                st.experimental_rerun()  # Clear form and refresh
+
+# Function to Check for Duplicates
+def is_duplicate_player(player_name, heroes_nickname, email):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) 
+        FROM Players 
+        WHERE Name = %s OR Nickname = %s OR Email = %s
+    """, (player_name, heroes_nickname, email))
+    duplicate_count = cursor.fetchone()[0]
+    conn.close()
+    return duplicate_count > 0
 
 # Add Match Result
 if show_add_match_result_form:
