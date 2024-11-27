@@ -161,7 +161,6 @@ def generate_fixture_entries(match_type_id, player_ids):
     conn.close()    
 # *****************************************************ADDING FORMS********************************************
 # Add Player Form
-# Add Player Form
 if show_add_player_form:
     st.subheader("Add a New Player")
 
