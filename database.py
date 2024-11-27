@@ -20,6 +20,28 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+def list_players_alphabetically():
+    conn = create_connection()
+    cursor = conn.cursor()
+    # Query to get players sorted by name
+    query = "SELECT Name FROM Players ORDER BY Name ASC;"
+    cursor.execute(query)
+    
+    # Fetch all results
+    players = [row[0] for row in cursor.fetchall()]
+    return players
+
+    except mysql.connector.Error as e:
+        print(f"Error: {e}")
+    return []
+
+    finally:
+        # Close the connection
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
 # Function to Check for Duplicates
 def is_duplicate_player(player_name, heroes_nickname, email):
     conn = create_connection()
