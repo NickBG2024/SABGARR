@@ -230,7 +230,7 @@ def show_matches_completed(match_type_id):
         )
 
     # Display results in a table
-    st.subheader(f"Completed Matches for Match Type {match_type_id}")
+    st.subheader(f"Completed Matches:")
     st.table(
         {
             "Date Completed": [row[0] for row in data],
