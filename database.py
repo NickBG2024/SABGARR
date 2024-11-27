@@ -162,6 +162,7 @@ def display_group_table(match_type_id):
         
         # Display DataFrame without the index column
         st.dataframe(df)  # Streamlit
+        st.markdown(df.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
     else:
         st.subheader("No matches scheduled yet.")
