@@ -1121,7 +1121,14 @@ def get_players_full():
         conn = create_connection()
         cursor = conn.cursor()
         # Include the Email column in the query
-        cursor.execute("SELECT PlayerID, Name, Nickname, Email, GamesPlayed, AveragePR, CurrentLeague, DaysIdle FROM Players")
+        cursor.execute("""
+            SELECT 
+                PlayerID, Name, Nickname, Email, GamesPlayed, AveragePR, CurrentLeague, DaysIdle 
+            FROM 
+                Players
+            ORDER BY 
+                Name ASC
+        """)
         players = cursor.fetchall()
         conn.close()
 
