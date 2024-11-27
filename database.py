@@ -179,12 +179,12 @@ def show_matches_completed(match_type_id):
         p1.Nickname AS WinnerNickname, 
         p2.Name AS LoserName, 
         p2.Nickname AS LoserNickname, 
-        MatchResults.Player1Points AS WinnerPoints,
-        MatchResults.Player2Points AS LoserPoints,
-        MatchResults.Player1PR AS WinnerPR, 
-        MatchResults.Player1Luck AS WinnerLuck, 
-        MatchResults.Player2PR AS LoserPR, 
-        MatchResults.Player2Luck AS LoserLuck
+        MatchResults.Player1Points AS Player1Points,
+        MatchResults.Player2Points AS Player2Points,
+        MatchResults.Player1PR AS Player1PR, 
+        MatchResults.Player1Luck AS Player1Luck, 
+        MatchResults.Player2PR AS Player2PR, 
+        MatchResults.Player2Luck AS Player2Luck
     FROM MatchResults
     JOIN Fixtures ON MatchResults.FixtureID = Fixtures.FixtureID
     JOIN Players p1 ON MatchResults.Player1ID = p1.PlayerID
@@ -209,7 +209,14 @@ def show_matches_completed(match_type_id):
         match_date = row[0].strftime("%Y-%m-%d")
         winner_info = f"{row[1]} ({row[2]})"
         loser_info = f"{row[3]} ({row[4]})"
-        score = f"{row[5]}-{row[6]}"
+        player1_points, player2_points = row[5], row[6]
+
+        # Ensure the score is displayed with the larger value first
+        if player1_points > player2_points:
+            score = f"{player1_points}-{player2_points}"
+        else:
+            score = f"{player2_points}-{player1_points}"
+
         data.append(
             [
                 match_date,
