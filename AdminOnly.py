@@ -18,7 +18,6 @@ from database import (
     get_nickname_to_full_name_map,
     get_email_checker_status,
     list_players_alphabetically,
-    list_players_and_nicknames,
     is_duplicate_player,
     set_email_checker_status,
     add_series,
