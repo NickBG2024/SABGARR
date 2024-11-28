@@ -334,11 +334,11 @@ if show_AZ_list_and_nicknames:
     st.write("Players and Nicknames A-Z:")
     
     if players:  # Check if there are players in the list
-    st.write("### Players List")
-    for _, name, nickname in players:
-        st.write(f"{name} - {nickname}")
-else:
-    st.error("No players available to display.")
+        st.write("### Players List")
+        for _, name, nickname in players:
+            st.write(f"{name} - {nickname}")
+    else:
+        st.error("No players available to display.")
 
 if show_fixtures:
     st.subheader("Fixtures in Database:")
