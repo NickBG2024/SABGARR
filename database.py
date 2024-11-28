@@ -1184,7 +1184,7 @@ def get_players_simple():
     try:
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT PlayerID, Name, Nickname FROM Players")
+        cursor.execute("SELECT PlayerID, Name, Nickname FROM Players ORDER by Name ASC")
         players = cursor.fetchall()
         conn.close()
 
