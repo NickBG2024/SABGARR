@@ -18,7 +18,7 @@ from database import (
     get_nickname_to_full_name_map,
     get_email_checker_status,
     list_players_alphabetically,
-list_players_and_nicknames,
+    list_players_and_nicknames,
     is_duplicate_player,
     set_email_checker_status,
     add_series,
@@ -329,9 +329,16 @@ if show_AZ_list:
     st.write(players)
 
 if show_AZ_list_and_nicknames:
-    players = list_players_and_nicknames()
+    #players = list_players_and_nicknames()
+    players = get_players_simple()
     st.write("Players and Nicknames A-Z:")
-    st.write(players)
+    
+    if players:  # Check if there are players in the list
+    st.write("### Players List")
+    for _, name, nickname in players:
+        st.write(f"{name} - {nickname}")
+else:
+    st.error("No players available to display.")
 
 if show_fixtures:
     st.subheader("Fixtures in Database:")
