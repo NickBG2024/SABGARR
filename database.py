@@ -618,6 +618,7 @@ def get_series_match_types(series_id):
         WHERE SMT.SeriesID = %s
     ''', (series_id,))
     match_types = cursor.fetchall()
+    st.write(match_types)
     conn.close()
     return match_types
 
