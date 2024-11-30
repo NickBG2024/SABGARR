@@ -30,7 +30,7 @@ with tab2:
     tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11","Group 12","Group 13"])
     with tab3:
         # Example match type id
-        match_type_id = 3
+        match_type_id = 4
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
@@ -38,7 +38,7 @@ with tab2:
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
     with tab4:
-        match_type_id = 4      
+        match_type_id = 5      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
@@ -46,7 +46,7 @@ with tab2:
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
     with tab5:
-        match_type_id = 5      
+        match_type_id = 6      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
@@ -54,14 +54,6 @@ with tab2:
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)    
     with tab6:
-        match_type_id = 6      
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab7:
         match_type_id = 7      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
@@ -69,7 +61,7 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-    with tab8:       
+    with tab7:
         match_type_id = 8      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
@@ -77,7 +69,7 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-    with tab9:
+    with tab8:       
         match_type_id = 9      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
@@ -85,7 +77,7 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-    with tab10:       
+    with tab9:
         match_type_id = 10      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
@@ -93,7 +85,7 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-    with tab11:
+    with tab10:       
         match_type_id = 11      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
@@ -101,15 +93,15 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-    with tab12:       
-        match_type_id = 12     
+    with tab11:
+        match_type_id = 12      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-    with tab13:       
+    with tab12:       
         match_type_id = 13     
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
@@ -117,7 +109,7 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-    with tab14:       
+    with tab13:       
         match_type_id = 14     
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
@@ -127,6 +119,14 @@ with tab2:
         show_matches_completed(match_type_id)
     with tab14:       
         match_type_id = 15     
+        #Call function to show group table with match_type_id
+        #display_group_metrics(match_type_id)
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        show_matches_completed(match_type_id)
+    with tab15:       
+        match_type_id = 16     
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
