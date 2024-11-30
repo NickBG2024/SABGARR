@@ -502,7 +502,6 @@ if edit_players:
 
     # Fetch all players to populate the selectbox
     players = get_players_full()
-    st.write("Players fetched:", players)  # Debugging: Display the raw player data
 
     if players:
         # Create a dictionary to map player names to their IDs for selection
@@ -515,9 +514,6 @@ if edit_players:
         if selected_player:
             player_data = player_dict[selected_player]
             player_id = player_data[0]  # Extract the PlayerID
-
-            # Ensure data is in the correct format
-            st.write("Selected player data:", player_data)  # Debugging: Output the selected player data
 
             # Prepopulate form with the selected player's data
             with st.form(key='edit_player_form'):
