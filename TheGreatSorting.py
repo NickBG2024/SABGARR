@@ -22,7 +22,7 @@ with tab1:
     st.header("Player Standings - ordered by PR")
     st.write("These standings will be used to help sort players in their appropriate league groups, for the start of the SABGA Round Robin 2025.")
     # Example series id
-    series_id = 1
+    series_id = 4
     #Call function to show series table with series_id
     display_series_table(series_id)
 with tab2:
