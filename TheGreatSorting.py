@@ -24,7 +24,7 @@ with tab1:
     # Example series id
     series_id = 4
     #Call function to show series table with series_id
-    display_series_table_completedonly(series_id)
+    #display_series_table_completedonly(series_id)
     display_series_table(series_id)
 with tab2:
     # Create tabs for additional stats
