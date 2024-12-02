@@ -191,7 +191,7 @@ def display_series_table(series_id):
         # Create a DataFrame
         df = pd.DataFrame(
             formatted_stats, 
-            columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+            columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Averaged PR", "Average Luck"]
         )
         
         # Set the index to None to remove the index column
