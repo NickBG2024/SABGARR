@@ -143,6 +143,36 @@ def list_remaining_fixtures(match_type_id):
     else:
         st.write("No remaining fixtures for this match type.")
 
+def display_series_table_completedonly(series_id):
+    player_stats = get_player_stats_by_series_completedonly(series_id)
+    if player_stats:
+        st.subheader("Latest Series Standings:")
+        formatted_stats = []
+        for stat in player_stats:
+            name_with_nickname = f"{stat[1]} ({stat[2]})"
+            wins = int(stat[3] or 0)  # Ensure it's an integer
+            losses = int(stat[4] or 0)  # Ensure it's an integer
+            played = wins + losses
+            win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
+            avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+            avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
+            formatted_stats.append([name_with_nickname, played, wins, losses, win_percentage, avg_pr, avg_luck])  
+        
+        # Create a DataFrame
+        df = pd.DataFrame(
+            formatted_stats, 
+            columns=["Name (Nickname)", "Played", "Wins", "Losses", "Win%", "Average PR", "Average Luck"]
+        )
+        
+        # Set the index to None to remove the index column
+        df = df.reset_index(drop=True)
+        
+        # Display DataFrame without the index column
+        st.dataframe(df)  # Streamlit
+
+    else:
+        st.subheader("No series matches scheduled yet.")
+    
 def display_series_table(series_id):
     player_stats = get_player_stats_by_series(series_id)  
     if player_stats:
@@ -1194,6 +1224,58 @@ def get_players_simple():
         return [(p[0], p[1], p[2]) for p in players]  # Ensure tuples with (ID, Name, Nickname)
     except Exception as e:
         st.error(f"Error retrieving players: {e}")
+        return []
+
+def get_player_stats_by_series_completedonly(series_id):
+    try:
+        # Step 1: Fetch match types associated with the series
+        match_types = get_series_match_types(series_id)
+        if not match_types:
+            return []  # No match types found for the series
+
+        # Step 2: Extract match type IDs from the result
+        match_type_ids = [mt[0] for mt in match_types]
+
+        # Step 3: Prepare the query to fetch player stats
+        conn = create_connection()
+        cursor = conn.cursor()
+        query = f'''
+            SELECT
+                p.PlayerID,
+                p.Name,
+                p.Nickname,
+                COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+                           WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1 END) AS Wins,
+                COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+                           WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1 END) AS Losses,
+                COUNT(mr.MatchResultID) AS GamesPlayed,
+                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) AS AveragePR,
+                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
+                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck END) AS AverageLuck
+            FROM
+                Players p
+            LEFT JOIN MatchResults mr ON (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID)
+            GROUP BY
+                p.PlayerID, p.Name, p.Nickname
+            ORDER BY
+                CASE WHEN AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                                   WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) IS NULL THEN 1 ELSE 0 END,
+                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) ASC;
+        '''
+        
+        # Step 4: Execute the query with match type IDs
+        cursor.execute(query, tuple(match_type_ids))
+        results = cursor.fetchall()
+
+        # Close the connection
+        conn.close()
+
+        return results
+
+    except Exception as e:
+        st.error(f"Error fetching player stats by series: {e}")
         return []
 
 def get_player_stats_by_series(series_id):
