@@ -1298,8 +1298,7 @@ def get_player_stats_by_series(series_id):
 
         # Step 2: Extract match type IDs from the result
         match_type_ids = [mt[0] for mt in match_types]
-        st.write(match_type_ids)
-
+        
         # Step 3: Prepare the query to fetch player stats
         conn = create_connection()
         cursor = conn.cursor()
