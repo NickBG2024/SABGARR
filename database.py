@@ -1304,32 +1304,32 @@ def get_player_stats_by_series(series_id):
         cursor = conn.cursor()
         query = f'''
             SELECT
-                p.PlayerID,
-                p.Name,
-                p.Nickname,
-                COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
-                           WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1 END) AS Wins,
-                COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
-                           WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1 END) AS Losses,
-                COUNT(mr.MatchResultID) AS GamesPlayed,
-                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
-                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) AS AveragePR,
-                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
-                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck END) AS AverageLuck
-            FROM
-                Players p
-            LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
-            LEFT JOIN MatchResults mr ON (mr.MatchTypeID = f.MatchTypeID AND 
-                                           (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID))
-            WHERE
-                f.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))})
-            GROUP BY
-                p.PlayerID, p.Name, p.Nickname
-            ORDER BY
-                CASE WHEN AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
-                                   WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) IS NULL THEN 1 ELSE 0 END,
-                AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
-                         WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) ASC;
+    p.PlayerID,
+    p.Name,
+    p.Nickname,
+    COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+               WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1 END) AS Wins,
+    COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+               WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1 END) AS Losses,
+    COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
+    AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+             WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) AS AveragePR,
+    AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
+             WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck END) AS AverageLuck
+FROM
+    Players p
+LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+LEFT JOIN MatchResults mr ON (mr.MatchTypeID = f.MatchTypeID AND 
+                               (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID))
+WHERE
+    f.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))})
+GROUP BY
+    p.PlayerID, p.Name, p.Nickname
+ORDER BY
+    CASE WHEN AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                       WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) IS NULL THEN 1 ELSE 0 END,
+    AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+             WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) ASC;
         '''
         
         # Step 4: Execute the query with match type IDs
