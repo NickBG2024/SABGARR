@@ -1323,7 +1323,7 @@ LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
 LEFT JOIN MatchResults mr ON (mr.MatchTypeID = f.MatchTypeID AND 
                                (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID))
 WHERE
-    f.MatchTypeID = 4
+    f.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))})
 GROUP BY
     p.PlayerID, p.Name, p.Nickname
 ORDER BY
@@ -1331,7 +1331,7 @@ ORDER BY
                        WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) IS NULL THEN 1 ELSE 0 END,
     AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
              WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) ASC;
-        '''
+       '''
         
         # Step 4: Execute the query with match type IDs
         cursor.execute(query, tuple(match_type_ids))
