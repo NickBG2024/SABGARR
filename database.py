@@ -1323,7 +1323,7 @@ LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
 LEFT JOIN MatchResults mr ON (mr.MatchTypeID = f.MatchTypeID AND 
                                (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID))
 WHERE
-    f.MatchTypeID IN 4
+    f.MatchTypeID = 4
 GROUP BY
     p.PlayerID, p.Name, p.Nickname
 ORDER BY
