@@ -272,45 +272,56 @@ def show_matches_completed(match_type_id):
         return
 
     # Prepare data for display
-    data = []
-    for row in results:
-        match_date = row[0].strftime("%Y-%m-%d")
+# Prepare data for display
+data = []
+for row in results:
+    match_date = row[0].strftime("%Y-%m-%d")
+    
+    # Extract values from the row
+    player1_points, player2_points = row[5], row[6]
+    player1_pr, player2_pr = row[7], row[9]
+    player1_luck, player2_luck = row[8], row[10]
+    
+    # Determine winner and loser based on points
+    if player1_points > player2_points:
         winner_info = f"{row[1]} ({row[2]})"
         loser_info = f"{row[3]} ({row[4]})"
-        player1_points, player2_points = row[5], row[6]
+        score = f"{player1_points}-{player2_points}"
+        winner_pr, winner_luck = player1_pr, player1_luck
+        loser_pr, loser_luck = player2_pr, player2_luck
+    else:
+        winner_info = f"{row[3]} ({row[4]})"
+        loser_info = f"{row[1]} ({row[2]})"
+        score = f"{player2_points}-{player1_points}"
+        winner_pr, winner_luck = player2_pr, player2_luck
+        loser_pr, loser_luck = player1_pr, player1_luck
 
-        # Ensure the score is displayed with the larger value first
-        if player1_points > player2_points:
-            score = f"{player1_points}-{player2_points}"
-        else:
-            score = f"{player2_points}-{player1_points}"
-
-        data.append(
-            [
-                match_date,
-                f"{winner_info} beat {loser_info}",
-                score,
-                f"{row[7]:.2f}",  # Winner PR rounded to 2 decimals
-                f"{row[8]:.2f}",  # Winner Luck rounded to 2 decimals
-                f"{row[9]:.2f}",  # Loser PR rounded to 2 decimals
-                f"{row[10]:.2f}",  # Loser Luck rounded to 2 decimals
-            ]
-        )
-
-    # Display results in a table
-    st.subheader(f"Completed Matches:")
-    st.table(
-        {
-            "Date Completed": [row[0] for row in data],
-            "Result": [row[1] for row in data],
-            "Score": [row[2] for row in data],
-            "Winner PR": [row[3] for row in data],
-            "Winner Luck": [row[4] for row in data],
-            "Loser PR": [row[5] for row in data],
-            "Loser Luck": [row[6] for row in data],
-        }
+    # Append to the data list
+    data.append(
+        [
+            match_date,
+            f"{winner_info} beat {loser_info}",
+            score,
+            f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
+            f"{winner_luck:.2f}",  # Winner Luck rounded to 2 decimals
+            f"{loser_pr:.2f}",  # Loser PR rounded to 2 decimals
+            f"{loser_luck:.2f}",  # Loser Luck rounded to 2 decimals
+        ]
     )
-    
+
+# Display results in a table
+st.subheader(f"Completed Matches:")
+st.table(
+    {
+        "Date Completed": [row[0] for row in data],
+        "Result": [row[1] for row in data],
+        "Score": [row[2] for row in data],
+        "Winner PR": [row[3] for row in data],
+        "Winner Luck": [row[4] for row in data],
+        "Loser PR": [row[5] for row in data],
+        "Loser Luck": [row[6] for row in data],
+    }
+)    
 def get_match_results_for_grid(match_type_id):
     try:
         conn = create_connection()
