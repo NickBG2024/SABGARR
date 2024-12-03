@@ -1298,6 +1298,7 @@ def get_player_stats_by_series(series_id):
 
         # Step 2: Extract match type IDs from the result
         match_type_ids = [mt[0] for mt in match_types]
+        st.write(match_type_ids)
 
         # Step 3: Prepare the query to fetch player stats
         conn = create_connection()
@@ -1322,7 +1323,7 @@ LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
 LEFT JOIN MatchResults mr ON (mr.MatchTypeID = f.MatchTypeID AND 
                                (mr.Player1ID = p.PlayerID OR mr.Player2ID = p.PlayerID))
 WHERE
-    f.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))})
+    f.MatchTypeID IN 4
 GROUP BY
     p.PlayerID, p.Name, p.Nickname
 ORDER BY
