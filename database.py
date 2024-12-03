@@ -272,42 +272,42 @@ def show_matches_completed(match_type_id):
         return
 
     # Prepare data for display
-# Prepare data for display
-data = []
-for row in results:
-    match_date = row[0].strftime("%Y-%m-%d")
+    # Prepare data for display
+    data = []
+    for row in results:
+        match_date = row[0].strftime("%Y-%m-%d")
+        
+        # Extract values from the row
+        player1_points, player2_points = row[5], row[6]
+        player1_pr, player2_pr = row[7], row[9]
+        player1_luck, player2_luck = row[8], row[10]
+        
+        # Determine winner and loser based on points
+        if player1_points > player2_points:
+            winner_info = f"{row[1]} ({row[2]})"
+            loser_info = f"{row[3]} ({row[4]})"
+            score = f"{player1_points}-{player2_points}"
+            winner_pr, winner_luck = player1_pr, player1_luck
+            loser_pr, loser_luck = player2_pr, player2_luck
+        else:
+            winner_info = f"{row[3]} ({row[4]})"
+            loser_info = f"{row[1]} ({row[2]})"
+            score = f"{player2_points}-{player1_points}"
+            winner_pr, winner_luck = player2_pr, player2_luck
+            loser_pr, loser_luck = player1_pr, player1_luck
     
-    # Extract values from the row
-    player1_points, player2_points = row[5], row[6]
-    player1_pr, player2_pr = row[7], row[9]
-    player1_luck, player2_luck = row[8], row[10]
-    
-    # Determine winner and loser based on points
-    if player1_points > player2_points:
-        winner_info = f"{row[1]} ({row[2]})"
-        loser_info = f"{row[3]} ({row[4]})"
-        score = f"{player1_points}-{player2_points}"
-        winner_pr, winner_luck = player1_pr, player1_luck
-        loser_pr, loser_luck = player2_pr, player2_luck
-    else:
-        winner_info = f"{row[3]} ({row[4]})"
-        loser_info = f"{row[1]} ({row[2]})"
-        score = f"{player2_points}-{player1_points}"
-        winner_pr, winner_luck = player2_pr, player2_luck
-        loser_pr, loser_luck = player1_pr, player1_luck
-
-    # Append to the data list
-    data.append(
-        [
-            match_date,
-            f"{winner_info} beat {loser_info}",
-            score,
-            f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
-            f"{winner_luck:.2f}",  # Winner Luck rounded to 2 decimals
-            f"{loser_pr:.2f}",  # Loser PR rounded to 2 decimals
-            f"{loser_luck:.2f}",  # Loser Luck rounded to 2 decimals
-        ]
-    )
+        # Append to the data list
+        data.append(
+            [
+                match_date,
+                f"{winner_info} beat {loser_info}",
+                score,
+                f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
+                f"{winner_luck:.2f}",  # Winner Luck rounded to 2 decimals
+                f"{loser_pr:.2f}",  # Loser PR rounded to 2 decimals
+                f"{loser_luck:.2f}",  # Loser Luck rounded to 2 decimals
+            ]
+        )
 
 # Display results in a table
 st.subheader(f"Completed Matches:")
