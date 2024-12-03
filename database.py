@@ -1303,14 +1303,14 @@ def get_player_stats_by_series(series_id):
         conn = create_connection()
         cursor = conn.cursor()
         query = f'''
-            SELECT
+ SELECT
     p.PlayerID,
     p.Name,
     p.Nickname,
-    COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
-               WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1 END) AS Wins,
-    COUNT(CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
-               WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1 END) AS Losses,
+    COUNT(DISTINCT CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN mr.MatchResultID
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN mr.MatchResultID END) AS Wins,
+    COUNT(DISTINCT CASE WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN mr.MatchResultID
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN mr.MatchResultID END) AS Losses,
     COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
     AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
              WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) AS AveragePR,
