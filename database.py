@@ -321,7 +321,8 @@ st.table(
         "Loser PR": [row[5] for row in data],
         "Loser Luck": [row[6] for row in data],
     }
-)    
+)
+
 def get_match_results_for_grid(match_type_id):
     try:
         conn = create_connection()
