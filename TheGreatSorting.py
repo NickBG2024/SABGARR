@@ -15,7 +15,7 @@ st.title("SABGA Backgammon presents...")
 st.header("The Great Sorting 2025!")
 standings = get_sorting_standings()
 # Create tabs in a section
-tab1, tab2, tab16 = st.tabs(["Player Standings", "Sorting Groups (1-7)", "Sorting Groups (8-14)"])
+tab1, tab2, tab16 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorting Groups (8 - 14)"])
 
 # Content for each tab
 with tab1:
