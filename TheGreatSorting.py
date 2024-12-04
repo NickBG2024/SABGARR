@@ -31,7 +31,7 @@ with tab2:
     # Create tabs for additional stats
     tab4, tab5, tab6, tab7, tab8, tab9, tab10  = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7"])
 with tab3:
-    tab11, tab12, tab13, tab14, tab15, tab16, tab17 = st.tabs([,"Group 8","Group 9","Group 10","Group 11","Group 12","Group 13"])
+    tab11, tab12, tab13, tab14, tab15, tab16, tab17 = st.tabs(["Group 8","Group 9","Group 10","Group 11","Group 12","Group 13","Group 14"])
     
     with tab4:
         # Example match type id
