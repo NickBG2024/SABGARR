@@ -234,6 +234,8 @@ def display_group_table(match_type_id):
     else:
         st.subheader("No matches scheduled yet.")
 
+#def show_matches_completed_by_series(series_id):
+    
 def show_matches_completed(match_type_id):
     # Connect to the database
     conn = create_connection()
