@@ -15,7 +15,7 @@ st.title("SABGA Backgammon presents...")
 st.header("The Great Sorting 2025!")
 standings = get_sorting_standings()
 # Create tabs in a section
-tab1, tab2 = st.tabs(["Player Standings", "Sorting Groups"])
+tab1, tab2, tab16 = st.tabs(["Player Standings", "Sorting Groups (1-7)", "Sorting Groups (8-14)"])
 
 # Content for each tab
 with tab1:
@@ -30,20 +30,6 @@ with tab1:
 with tab2:
     # Create tabs for additional stats
     #tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11","Group 12","Group 13"])
-
-    st.markdown("""
-    <style>
-    div[data-testid="stTabs"] > div {
-        overflow-x: scroll;
-        display: flex;
-        flex-wrap: nowrap;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs(
-        ["Grooup 1", "Group 2", "Group 3", "Group 4", "Group 5", "Group 6", "Group 7", "Group 8", "Group 9", "Group 10", "Group 11", "Group 12", "Group 13"]
-    )
 
     with tab3:
         # Example match type id
