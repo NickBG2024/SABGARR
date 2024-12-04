@@ -135,7 +135,7 @@ with tab2:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-     with tab16:       
+    with tab16:       
         match_type_id = 18     
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
