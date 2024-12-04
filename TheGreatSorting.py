@@ -29,7 +29,16 @@ with tab1:
     show_matches_completed_by_series(series_id)
 with tab2:
     # Create tabs for additional stats
-    tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11","Group 12","Group 13"])
+    #tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7","Group 8","Group 9","Group 10","Group 11","Group 12","Group 13"])
+    with st.expander("Group 1-5"):
+    tab3, tab4, tab5, tab6, tab7 = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5"])
+
+with st.expander("Group 6-10"):
+    tab8, tab9, tab10, tab11, tab12 = st.tabs(["Group 6", "Group 7", "Group 8", "Group 9", "Group 10"])
+
+with st.expander("Group 11-13"):
+    tab13, tab14, tab15 = st.tabs(["Group 11", "Group 12", "Group 13"])
+
     with tab3:
         # Example match type id
         match_type_id = 4
