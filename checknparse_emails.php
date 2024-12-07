@@ -13,7 +13,7 @@ $email_port = 993;
 date_default_timezone_set("Africa/Johannesburg");
 
 // Error log file
-$logFile = 'newer_sabga_cron_log.txt'; // Adjust this path as needed
+$logFile = 'newersabga_cron_log.txt'; // Adjust this path as needed
 
 function log_debug($message) {
     global $logFile;
@@ -146,7 +146,6 @@ try {
             log_debug("Original email subject: $subject");
             $cleaned_subject = preg_replace('/^(Fwd:|Re:)\s*/', '', $subject);
             log_debug("Cleaned email subject: $cleaned_subject");
-
             log_debug("Email recipient: $to_field");
                 
             // First try extract matchidentifier from the "To" address
@@ -157,26 +156,28 @@ try {
                 if (preg_match('/\+([a-zA-Z0-9_-]+)@/', $to_field, $matches)) {
                     $sort_part = $matches[1];  // Extracted part after '+' (e.g., 'sort4')
                     log_debug("Extracted identifier from To address: $sort_part");
-		    $identifier = $sort_part;
+                    $identifier = $sort_part;
                 } else {
                     log_debug("No identifier found in To address: $to_field");
-		             // Extract match type identifier from from Fwd field
-                             preg_match('/To:.*<(.+?)>/', $msg, $forwarded_to);
-                             if ($forwarded_to) {
-                                 $forwarded_email = $forwarded_to[1];
-                                 log_debug("Forwarded email address found: $forwarded_email");
-
-                                 preg_match('/\+([^@]+)@/', $forwarded_email, $match_type_identifier);
-                                 if ($match_type_identifier) {
-                                     $identifier = $match_type_identifier[1];
-                                     log_debug("Match type identifier extracted: $identifier");
-                             } else {
-                                 log_debug("No match type identifier in Fwd part either.");
-			         continue; // Skip this email
-                } else {
-                    log_debug("Failed to extract match type identifier from To or Fwd parts of email!");
-                    continue; // Skip this email
-                }
+            
+                    // Extract match type identifier from Fwd field
+                    preg_match('/To:.*<(.+?)>/', $msg, $forwarded_to);
+                    if ($forwarded_to) {
+                        $forwarded_email = $forwarded_to[1];
+                        log_debug("Forwarded email address found: $forwarded_email");
+            
+                        preg_match('/\+([^@]+)@/', $forwarded_email, $match_type_identifier);
+                        if ($match_type_identifier) {
+                            $identifier = $match_type_identifier[1];
+                            log_debug("Match type identifier extracted: $identifier");
+                        } else {
+                            log_debug("No match type identifier in Fwd part either.");
+                            continue; // Skip this email
+                        }
+                    } else {
+                        log_debug("No forwarded email address found.");
+                        continue; // Skip this email
+                    }
                 }
             } else {
                 log_debug("No To address found.");
@@ -186,8 +187,6 @@ try {
              if (!$match_type_id) {
                 log_debug("Failed to retrieve MatchTypeID for identifier: $identifier");
                 continue; // Skip this email
-
-   
             } else {
                 log_debug("No forwarded email address found.");
             }
@@ -230,12 +229,11 @@ try {
             log_debug("No matching fixture found for MatchTypeID: $match_type_id, Player1ID: $player1_id, Player2ID: $player2_id");
         }
     } else {
-        log_debug("Failed to parse player match details from subject");
-    }
-}
-
-    } else {
-        log_debug("No new emails found.\n");
+        log_debug("No match details for extraction.")
+      } 
+      
+      } else {
+        log_debug("No new emails found.");
     }
        // Sleep for 5 minutes before checking again
         sleep(300); // 5 minutes
