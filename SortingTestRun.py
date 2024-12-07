@@ -30,7 +30,7 @@ with tab1:
     #Call function to show series table with series_id
     #display_series_table_completedonly(series_id)
     display_series_table(series_id)
-        df = pd.DataFrame(
+    df = pd.DataFrame(
         {
             "name": ["Roadmap", "Extras", "Issues"],
             "url": ["https://roadmap.streamlit.app", "https://extras.streamlit.app", "https://issues.streamlit.app"],
