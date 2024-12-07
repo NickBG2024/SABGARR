@@ -13,9 +13,9 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
 col1, col2, col3 = st.columns(3)
-col1.metric("Temperature", "70 °F", "1.2 °F")
-col2.metric("Wind", "9 mph", "-8%")
-col3.metric("Humidity", "86%", "4%")
+col1.metric("Players", "54", "3")
+col2.metric("Games Played", "8", "2")
+col3.metric("The Great Sorting Completion", "6%", "0.5%")
 st.header("The Great Sorting 2025!")
 standings = get_sorting_standings()
 # Create tabs in a section
@@ -37,16 +37,14 @@ with tab2:
     for group_id in range(1, 8):
             st.subheader(f"Group {group_id}")
             display_group_table(group_id)
-            display_match_grid(match_type_id)        
-            list_remaining_fixtures(match_type_id)
-            show_matches_completed(match_type_id)
+            display_match_grid(group_id)        
+            list_remaining_fixtures(group_id)
+            show_matches_completed(group_id)
 with tab3:
     #tab11, tab12, tab13, tab14, tab15, tab16, tab17 = st.tabs(["Group 8","Group 9","Group 10","Group 11","Group 12","Group 13","Group 14"])
     for group_id in range(9, 14):
             st.subheader(f"Group {group_id}")
             display_group_table(group_id)
-            display_match_grid(match_type_id)        
-            list_remaining_fixtures(match_type_id)
-            show_matches_completed(match_type_id)
-    
-    
+            display_match_grid(group_id)        
+            list_remaining_fixtures(group_id)
+            show_matches_completed(group_id)
