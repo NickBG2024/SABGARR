@@ -13,7 +13,7 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
 col1, col2, col3 = st.columns(3)
-col1.metric("Players", "54", "3")
+col1.metric("Players", "54", "3",help="fred")
 col2.metric("Games Played", "8", "2")
 col3.metric("The Great Sorting Completion", "6%", "0.5%")
 st.header("The Great Sorting 2025!")
