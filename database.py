@@ -287,8 +287,6 @@ def display_series_table(series_id):
 def display_sorting_series_table(series_id):
     player_stats = get_player_stats_by_series(series_id)  
     if player_stats:
-        st.subheader("Latest Sorting Series Standings:")
-        st.write("(sorted by average PR)")
         formatted_stats = []
         for stat in player_stats:
             name_with_nickname = f"{stat[1]} ({stat[2]})"
@@ -303,7 +301,7 @@ def display_sorting_series_table(series_id):
         # Add the ranking column
         df = pd.DataFrame(
             formatted_stats, 
-            columns=["Name (Nickname)", "AVERAGE PR", "Played", "Wins", "Losses", "Win%", "Average Luck"]
+            columns=["Name (Nickname)", "Average PR", "Played", "Wins", "Losses", "Win%", "Average Luck"]
         )
         df.insert(0, "Ranking", range(1, len(df) + 1))  # Insert a ranking column at the start
 
