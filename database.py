@@ -296,7 +296,7 @@ def display_sorting_series_table(series_id):
             losses = int(stat[4] or 0)  # Ensure it's an integer
             played = wins + losses
             win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
-            avg_pr = f"**{stat[6]:.2f}**" if stat[6] is not None else "-"  # Bold Average PR
+            avg_pr = stat[6] if stat[6] is not None else None
             avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
             formatted_stats.append([name_with_nickname, avg_pr, played, wins, losses, win_percentage, avg_luck])  
         
@@ -307,8 +307,16 @@ def display_sorting_series_table(series_id):
         )
         df.insert(0, "Ranking", range(1, len(df) + 1))  # Insert a ranking column at the start
 
-        # Display the DataFrame as a table
-        st.dataframe(df, hide_index=True)
+        # Style the "Average PR" column to make it bold
+        def highlight_pr(val):
+            if val is not None:
+                return f"font-weight: bold;"  # Style for bold text
+            return ""
+        
+        styled_df = df.style.applymap(highlight_pr, subset=["Average PR"])
+
+        # Display the styled DataFrame
+        st.write(styled_df.to_html(), unsafe_allow_html=True)
 
     else:
         st.subheader("No series matches scheduled yet.")
