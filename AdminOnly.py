@@ -9,9 +9,11 @@ from database import (
     add_match_type,
     add_match_result,
     get_fixtures,
+    get_fixturescount_by_series,
     get_fixtures_with_names,
     get_players_simple,
     get_players_full,
+    get_matchcount_by_series,
     get_match_types,
     get_match_results,
     get_match_results_nicely_formatted,
@@ -51,7 +53,7 @@ st.sidebar.markdown(
 
 # Retrieve the current status of the email checker
 email_checker_status = get_email_checker_status()
-
+st.sidebar.metric("Series data - players","54","3")
 st.sidebar.subheader("Admin-Functions: Main")
 # Checkbox to access "Generate Fixtures" functionality
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
