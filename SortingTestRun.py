@@ -24,7 +24,7 @@ tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorti
 # Content for each tab
 with tab1:
     st.header("Player Standings - ordered by PR")
-    st.write("These standings will be used to help sort players into the most 'fitting' league groups, for the start of the SABGA Round Robin 2025.")
+    st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
     # Example series id
     series_id = 4
     #Call function to show series table with series_id
