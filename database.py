@@ -316,7 +316,8 @@ def display_sorting_series_table(series_id):
         styled_df = df.style.applymap(highlight_pr, subset=["Average PR"])
 
         # Display the styled DataFrame
-        st.write(styled_df.to_html(), unsafe_allow_html=True)
+        #st.write(styled_df.to_html(), unsafe_allow_html=True)
+        st.dataframe(styled_df, hide_index=True)
 
     else:
         st.subheader("No series matches scheduled yet.")
