@@ -287,7 +287,8 @@ def display_series_table(series_id):
 def display_sorting_series_table(series_id):
     player_stats = get_player_stats_by_series(series_id)  
     if player_stats:
-        st.subheader("Latest Series Standings:")
+        st.subheader("Latest Sorting Series Standings:")
+        st.write("(sorted by average PR)")
         formatted_stats = []
         for stat in player_stats:
             name_with_nickname = f"{stat[1]} ({stat[2]})"
@@ -306,7 +307,7 @@ def display_sorting_series_table(series_id):
         )
         
         # Set the index to None to remove the index column
-        df = df.reset_index(drop=True)
+        #df = df.reset_index(drop=True)
         
         # Display DataFrame without the index column
         st.dataframe(df,hide_index=True)
