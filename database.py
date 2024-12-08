@@ -296,21 +296,19 @@ def display_sorting_series_table(series_id):
             losses = int(stat[4] or 0)  # Ensure it's an integer
             played = wins + losses
             win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
-            avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+            avg_pr = f"**{stat[6]:.2f}**" if stat[6] is not None else "-"  # Bold Average PR
             avg_luck = f"{stat[7]:.2f}" if stat[7] is not None else "-"
             formatted_stats.append([name_with_nickname, avg_pr, played, wins, losses, win_percentage, avg_luck])  
         
-        # Create a DataFrame
+        # Add the ranking column
         df = pd.DataFrame(
             formatted_stats, 
             columns=["Name (Nickname)", "Average PR", "Played", "Wins", "Losses", "Win%", "Average Luck"]
         )
-        
-        # Set the index to None to remove the index column
-        #df = df.reset_index(drop=True)
-        
-        # Display DataFrame without the index column
-        st.dataframe(df,hide_index=True)
+        df.insert(0, "Ranking", range(1, len(df) + 1))  # Insert a ranking column at the start
+
+        # Display the DataFrame as a table
+        st.dataframe(df, hide_index=True)
 
     else:
         st.subheader("No series matches scheduled yet.")
