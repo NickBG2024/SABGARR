@@ -4,7 +4,7 @@ import re
 import random
 import streamlit as st
 import pandas as pd
-from database import show_matches_completed_by_series, show_matches_completed, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
@@ -18,14 +18,15 @@ standings = get_sorting_standings()
 tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorting Groups (8 - 14)"])
 
 # Content for each tab
-with tab1:
+with tab1:    
     st.header("Player Standings - ordered by PR")
-    st.write("These standings will be used to help sort players in their appropriate league groups, for the start of the SABGA Round Robin 2025.")
+    st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
     # Example series id
     series_id = 4
     #Call function to show series table with series_id
     #display_series_table_completedonly(series_id)
-    display_series_table(series_id)
+    #display_series_table(series_id)
+    display_sorting_series_table(series_id)
     show_matches_completed_by_series(series_id)
 with tab2:
     # Create tabs for additional stats
