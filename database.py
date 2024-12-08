@@ -20,6 +20,87 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+def get_matchcount_by_series(series_id):
+    """
+    Returns the count of completed matches for a specific series.
+    
+    Args:
+        series_id (int): The ID of the series.
+    
+    Returns:
+        int: Number of completed matches.
+    """
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Step 1: Fetch MatchTypeIDs associated with the series
+        query_match_types = """
+        SELECT MatchTypeID
+        FROM SeriesMatchTypes
+        WHERE SeriesID = %s;
+        """
+        cursor.execute(query_match_types, (series_id,))
+        match_type_ids = [row[0] for row in cursor.fetchall()]
+
+        if not match_type_ids:
+            return 0  # No match types linked to this series
+
+        # Step 2: Count completed matches for those MatchTypeIDs
+        query_count_matches = f"""
+        SELECT COUNT(*)
+        FROM Fixtures
+        WHERE MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))})
+          AND Completed = 1;
+        """
+        cursor.execute(query_count_matches, tuple(match_type_ids))
+        result = cursor.fetchone()
+
+        return result[0] if result else 0
+    finally:
+        cursor.close()
+        conn.close()
+    
+def get_fixturescount_by_series(series_id): 
+    """
+    Returns the count of matches for a specific series.
+    
+    Args:
+        series_id (int): The ID of the series.
+    
+    Returns:
+        int: Number of matches.
+    """
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Step 1: Fetch MatchTypeIDs associated with the series
+        query_match_types = """
+        SELECT MatchTypeID
+        FROM SeriesMatchTypes
+        WHERE SeriesID = %s;
+        """
+        cursor.execute(query_match_types, (series_id,))
+        match_type_ids = [row[0] for row in cursor.fetchall()]
+
+        if not match_type_ids:
+            return 0  # No match types linked to this series
+
+        # Step 2: Count matches for those MatchTypeIDs
+        query_count_matches = f"""
+        SELECT COUNT(*)
+        FROM Fixtures
+        WHERE MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))});
+        """
+        cursor.execute(query_count_matches, tuple(match_type_ids))
+        result = cursor.fetchone()
+
+        return result[0] if result else 0
+    finally:
+        cursor.close()
+        conn.close()
+
 def list_players_alphabetically():
     try:
         # Establish connection
