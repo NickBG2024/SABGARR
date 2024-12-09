@@ -416,7 +416,7 @@ def smccc(series_id):
             MatchResults.Player1PR AS Player1PR, 
             MatchResults.Player1Luck AS Player1Luck, 
             MatchResults.Player2PR AS Player2PR, 
-            MatchResults.Player2Luck AS Player2Luck
+            MatchResults.Player2Luck AS Player2Luck,
             MT.MatchTypeTitle AS MTTitle
         FROM MatchResults
         JOIN Fixtures ON MatchResults.FixtureID = Fixtures.FixtureID
