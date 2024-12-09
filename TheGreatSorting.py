@@ -10,6 +10,11 @@ from datetime import datetime, timedelta, timezone
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
 
+matches_played = get_matchcount_by_series(4)
+total_fixtures = get_fixturescount_by_series(4)
+percentage = (matches_played / total_fixtures) * 100
+metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
 col1, col2 = st.columns(2)
