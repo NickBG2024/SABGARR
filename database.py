@@ -19,6 +19,48 @@ def create_connection():
     except mysql.connector.Error as e:
         st.error(f"Error connecting to the database: {e}")
         return None
+        
+def get_unique_player_count_by_series(series_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Step 1: Get MatchTypeIDs linked to the series
+        query_match_types = """
+        SELECT MatchTypeID
+        FROM SeriesMatchTypes
+        WHERE SeriesID = %s;
+        """
+        cursor.execute(query_match_types, (series_id,))
+        match_type_ids = [row[0] for row in cursor.fetchall()]
+
+        if not match_type_ids:
+            return 0  # No match types for this series
+
+        # Step 2: Get Player1ID and Player2ID from Fixtures linked to these MatchTypeIDs
+        query_players = f"""
+        SELECT DISTINCT Player1ID, Player2ID
+        FROM Fixtures
+        WHERE MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))});
+        """
+        cursor.execute(query_players, tuple(match_type_ids))
+
+        # Extract unique player IDs
+        players = set()
+        for row in cursor.fetchall():
+            players.add(row[0])  # Add Player1ID
+            players.add(row[1])  # Add Player2ID
+
+        # Exclude None (in case of incomplete data)
+        players.discard(None)
+        return len(players)  # Return the count of unique players
+
+    except Exception as e:
+        print(f"Error fetching player count for series {series_id}: {e}")
+        return 0
+    finally:
+        cursor.close()
+        conn.close()
 
 def get_matchcount_by_series(series_id):
     """
