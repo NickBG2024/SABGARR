@@ -8,7 +8,7 @@ from database import smccc, get_matchcount_by_series, get_fixturescount_by_serie
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
-st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_column_width=True)  # The image will resize to the width of the page
+st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
 
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
