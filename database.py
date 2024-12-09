@@ -417,10 +417,12 @@ def smccc(series_id):
             MatchResults.Player1Luck AS Player1Luck, 
             MatchResults.Player2PR AS Player2PR, 
             MatchResults.Player2Luck AS Player2Luck
+            MT.MatchTypeTitle AS MTTitle
         FROM MatchResults
         JOIN Fixtures ON MatchResults.FixtureID = Fixtures.FixtureID
         JOIN Players p1 ON MatchResults.Player1ID = p1.PlayerID
         JOIN Players p2 ON MatchResults.Player2ID = p2.PlayerID
+        JOIN MatchType MT ON MT.MatchTypeID = Fixtures.MatchTypeID
         WHERE Fixtures.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))})
           AND Fixtures.Completed = 1
         ORDER BY MatchResults.Date DESC;
@@ -439,6 +441,7 @@ def smccc(series_id):
             player1_points, player2_points = row[5], row[6]
             player1_pr, player2_pr = row[7], row[9]
             player1_luck, player2_luck = row[8], row[10]
+            match_type_title = row[11]
 
             # Determine winner and loser
             if player1_points > player2_points:
@@ -458,6 +461,7 @@ def smccc(series_id):
             data.append(
                 [
                     match_date,
+                    match_type_title,
                     f"{winner_info} beat {loser_info}",
                     score,
                     f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
@@ -470,7 +474,7 @@ def smccc(series_id):
         # Step 4: Display results
           # Create DataFrame
         df = pd.DataFrame(data, columns=[
-            "Date Completed", "Result", "Score", 
+            "Date Completed", "Match Type","Result", "Score", 
             "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
         ])
         
@@ -485,6 +489,7 @@ def smccc(series_id):
         st.error(f"Error fetching matches for series: {e}")
     finally:
         conn.close()    
+        
 def show_matches_completed_by_series(series_id):
     # Connect to the database
     conn = create_connection()
