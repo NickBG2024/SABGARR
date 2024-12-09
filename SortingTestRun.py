@@ -12,10 +12,18 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
+matches_played = get_matchcount_by_series(4)
+total_fixtures = get_fixturescount_by_series(4)
+percentage = (matches_played / total_fixtures) * 100
+metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+
+# Display the metric in the sidebar
+st.sidebar.metric(label="Matches Played", value=metric_value)
+
 col1, col2, col3 = st.columns(3)
 col1.metric("Players", get_unique_player_count_by_series(4), "3",help="Using series ID = 4")
 col2.metric("Games Played",get_matchcount_by_series(4), "2")
-col3.metric("The Great Sorting Completion", "6%", "0.5%")
+col3.metric("The Great Sorting Completion",metric_value, "0.5%")
 st.header("The Great Sorting 2025!")
 standings = get_sorting_standings()
 # Create tabs in a section
