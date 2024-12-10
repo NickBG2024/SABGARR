@@ -21,11 +21,10 @@ metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 st.sidebar.metric(label="Matches Played", value=metric_value)
 
 col1, col2, col3 = st.columns(3)
-col1.metric("Players", get_unique_player_count_by_series(4), "3",help="Using series ID = 4")
-col2.metric("Games Played",get_matchcount_by_series(4), "2")
-col3.metric("The Great Sorting Completion",metric_value, "4/84")
-st.header("The Great Sorting 2025!")
-standings = get_sorting_standings()
+col1.title("The Great Sorting!")
+col2.metric("Progress...",metric_value, "4")
+col3.metric("Players", get_unique_player_count_by_series(4), "3",help="Using series ID = 4")
+#standings = get_sorting_standings()
 # Create tabs in a section
 tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorting Groups (8 - 14)"])
 
