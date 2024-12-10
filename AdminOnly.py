@@ -244,7 +244,8 @@ if show_add_match_type_form:
                 add_match_type(match_type_title, match_type_identifier, active)
                 st.success(f"Match Type '{match_type_title}' with identifier '{match_type_identifier}' added successfully!")
                 match_type_form_placeholder.empty()  # Clear form
-                st.experimental_rerun()
+                st.session_state["key"] = None
+                #st.experimental_rerun()
 
 
 # Add Fixture
