@@ -59,6 +59,7 @@ total_fixtures = get_fixturescount_by_series(4)
 percentage = (matches_played / total_fixtures) * 100
 metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
+st.sidebar.header("Current series: SORTING (id=4)")
 st.sidebar.metric("Series data - players","54","3")
 st.sidebar.metric("Series data - matches",metric_value, "4")
 st.sidebar.subheader("Admin-Functions: Main")
