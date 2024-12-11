@@ -18,7 +18,7 @@ total_fixtures = get_fixturescount_by_series(series_id)
 if total_fixtures !=0:
     percentage = (matches_played / total_fixtures) * 100
     metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
-else
+else:
     percentage = 0
     metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
