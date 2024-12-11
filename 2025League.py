@@ -15,8 +15,13 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 series_id = 5
 matches_played = get_matchcount_by_series(series_id)
 total_fixtures = get_fixturescount_by_series(series_id)
-percentage = (matches_played / total_fixtures) * 100
-metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+if total_fixtures !=0
+    percentage = (matches_played / total_fixtures) * 100
+    metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+else
+    percentage = 0
+    metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+
 
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
