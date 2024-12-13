@@ -33,7 +33,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Overview Tab", "A-League", 
 # Content for each tab
 with tab1:    
     st.header("Overview Tab")
-    st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
+    st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
     
     #Call function to show series table with series_id
     #display_series_table_completedonly(series_id)
