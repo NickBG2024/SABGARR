@@ -10,7 +10,6 @@ from datetime import datetime, timedelta, timezone
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
 
-
 #Initialisation variables:
 series_id = 5
 matches_played = get_matchcount_by_series(series_id)
@@ -22,19 +21,18 @@ else:
     percentage = 0
     metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
-
-# Public-facing app for all users
+# Public-facing app for RR Leagues
 st.title("SABGA Backgammon presents...") 
 col1, col2 = st.columns(2)
 col1.title("Round Robin Leagues!")
 col2.metric("Progress...",metric_value, "0")
-standings = get_sorting_standings()
+#standings = get_sorting_standings()
 # Create tabs in a section
-tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorting Groups (8 - 14)"])
+tab1, tab2, tab3, tab4, tab 5, tab6, tab7 = st.tabs(["Overview Tab", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"])
 
 # Content for each tab
 with tab1:    
-    st.header("Player Standings - ordered by PR")
+    st.header("Overview Tab")
     st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
     
     #Call function to show series table with series_id
@@ -44,11 +42,23 @@ with tab1:
     smccc(series_id)
     #show_matches_completed_by_series(series_id)
 with tab2:
-    # Create tabs for additional stats
-    tab4, tab5, tab6, tab7, tab8, tab9, tab10  = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7"])
-with tab3:
-    tab11, tab12, tab13, tab14, tab15, tab16, tab17 = st.tabs(["Group 8","Group 9","Group 10","Group 11","Group 12","Group 13","Group 14"])
-    
+       # Example match type id
+        match_type_id = 4
+        #Call function to show group table with match_type_id
+        #display_group_metrics(match_type_id)
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        show_matches_completed(match_type_id)
+    with tab3:
+       # Example match type id
+        match_type_id = 4
+        #Call function to show group table with match_type_id
+        #display_group_metrics(match_type_id)
+        display_group_table(match_type_id)
+        display_match_grid(match_type_id)        
+        list_remaining_fixtures(match_type_id)
+        show_matches_completed(match_type_id)  
     with tab4:
         # Example match type id
         match_type_id = 4
@@ -76,86 +86,6 @@ with tab3:
         show_matches_completed(match_type_id)    
     with tab7:
         match_type_id = 7      
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab8:
-        match_type_id = 8      
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab9:       
-        match_type_id = 9      
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab10:
-        match_type_id = 10      
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab11:       
-        match_type_id = 11      
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab12:
-        match_type_id = 12      
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab13:       
-        match_type_id = 13     
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab14:       
-        match_type_id = 15
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab15:       
-        match_type_id = 16     
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab16:       
-        match_type_id = 17     
-        #Call function to show group table with match_type_id
-        #display_group_metrics(match_type_id)
-        display_group_table(match_type_id)
-        display_match_grid(match_type_id)        
-        list_remaining_fixtures(match_type_id)
-        show_matches_completed(match_type_id)
-    with tab17:       
-        match_type_id = 18    
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
