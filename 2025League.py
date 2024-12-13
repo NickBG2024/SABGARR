@@ -28,7 +28,7 @@ col1.title("Round Robin Leagues!")
 col2.metric("Progress...",metric_value, "0")
 #standings = get_sorting_standings()
 # Create tabs in a section
-tab1, tab2, tab3, tab4, tab 5, tab6, tab7 = st.tabs(["Overview Tab", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Overview Tab", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"])
 
 # Content for each tab
 with tab1:    
