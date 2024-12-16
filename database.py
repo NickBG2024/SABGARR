@@ -62,6 +62,26 @@ def get_unique_player_count_by_series(series_id):
         cursor.close()
         conn.close()
 
+def get_matches_played_by_date(matchdate):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+     # SQL query to count matches for the given date
+        query = "SELECT COUNT(*) FROM MatchResults WHERE Date = %s;"
+        cursor.execute(query, (matchdate,))
+        result = cursor.fetchone()  # Fetch the single result (COUNT)
+
+        return result[0] if result else 0
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return 0
+
+    finally:
+        cursor.close()
+        connection.close()
+    
 def get_matchcount_by_series(series_id):
     """
     Returns the count of completed matches for a specific series.
