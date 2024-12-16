@@ -19,7 +19,7 @@ metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 st.title("SABGA Backgammon presents...") 
 col1, col2 = st.columns(2)
 col1.title("The Great Sorting!")
-col2.metric("Progress...",metric_value, "4")
+col2.metric("Progress...",metric_value, "2")
 standings = get_sorting_standings()
 # Create tabs in a section
 tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorting Groups (8 - 14)"])
