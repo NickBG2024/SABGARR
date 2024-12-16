@@ -62,7 +62,7 @@ def get_unique_player_count_by_series(series_id):
         cursor.close()
         conn.close()
 
-def get_matches_played_by_date(matchdate):
+def get_matchcount_by_date(matchdate):
     conn = create_connection()
     cursor = conn.cursor()
 
