@@ -1428,6 +1428,8 @@ def get_match_results_nicely_formatted():
                 Players p1 ON mr.Player1ID = p1.PlayerID
             JOIN 
                 Players p2 ON mr.Player2ID = p2.PlayerID
+            ORDER by 
+                mr.Date, mr.TimeCompleted;
         """
         
         cursor.execute(query)
