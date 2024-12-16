@@ -4,7 +4,7 @@ import re
 import random
 import streamlit as st
 import pandas as pd
-from database import smccc, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import smccc, get_matchcount_by_date, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
 # Add a header image at the top of the page
@@ -15,14 +15,21 @@ total_fixtures = get_fixturescount_by_series(4)
 percentage = (matches_played / total_fixtures) * 100
 metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
+# Get today and yesterday's date
+today = date.today()
+yesterday = today - timedelta(days=1)
+
+# Fetch match count for yesterday
+match_count_yesterday = get_matchcount_by_date(yesterday.strftime("%Y-%m-%d"))
+
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
 col1, col2 = st.columns(2)
 col1.title("The Great Sorting!")
-col2.metric("Progress...",metric_value, "2")
+col2.metric("Progress...",metric_value, match_count_yesterday)
 standings = get_sorting_standings()
 # Create tabs in a section
-tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorting Groups (8 - 14)"])
+tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorting Groups (8 - 15)"])
 
 # Content for each tab
 with tab1:    
