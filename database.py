@@ -80,7 +80,7 @@ def get_matchcount_by_date(matchdate):
 
     finally:
         cursor.close()
-        connection.close()
+        conn.close()
     
 def get_matchcount_by_series(series_id):
     """
