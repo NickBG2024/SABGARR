@@ -82,10 +82,13 @@ def display_series_with_points(series_id):
             p2.PlayerID AS Player2ID
         FROM MatchResults mr
         JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+        JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+        JOIN SeriesMatchTypes smt ON mt.MatchTypeID = smt.MatchTypeID
         JOIN Players p1 ON mr.Player1ID = p1.PlayerID
         JOIN Players p2 ON mr.Player2ID = p2.PlayerID
-        WHERE f.SeriesID = %s
+        WHERE smt.SeriesID = %s
         ORDER BY mr.Date DESC;
+
         """
         cursor.execute(query, (series_id,))
         results = cursor.fetchall()
