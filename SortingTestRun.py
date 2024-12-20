@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
 
 # Public-facing app for all users
-st.title("SABGA Backgammon presents...") 
+st.title("TESTING...") 
 matches_played = get_matchcount_by_series(4)
 total_fixtures = get_fixturescount_by_series(4)
 percentage = (matches_played / total_fixtures) * 100
