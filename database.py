@@ -62,6 +62,84 @@ def get_unique_player_count_by_series(series_id):
         cursor.close()
         conn.close()
 
+def display_series_with_points(series_id):
+    # Connect to the database
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Query data for the series
+        query = """
+        SELECT 
+            mr.Date,
+            p1.Name AS Player1Name, 
+            p2.Name AS Player2Name, 
+            mr.Player1Points, 
+            mr.Player2Points, 
+            mr.Player1PR, 
+            mr.Player2PR, 
+            p1.PlayerID AS Player1ID,
+            p2.PlayerID AS Player2ID
+        FROM MatchResults mr
+        JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+        JOIN Players p1 ON mr.Player1ID = p1.PlayerID
+        JOIN Players p2 ON mr.Player2ID = p2.PlayerID
+        WHERE f.SeriesID = %s
+        ORDER BY mr.Date DESC;
+        """
+        cursor.execute(query, (series_id,))
+        results = cursor.fetchall()
+
+        if not results:
+            st.warning("No matches found for this series.")
+            return
+
+        # Calculate points for each player
+        player_points = {}
+        data = []
+        for row in results:
+            match_date, player1_name, player2_name, p1_points, p2_points, p1_pr, p2_pr, p1_id, p2_id = row
+            
+            # Determine the winner
+            if p1_points > p2_points:
+                winner_id, loser_id = p1_id, p2_id
+                winner_name, loser_name = player1_name, player2_name
+                winner_pr, loser_pr = p1_pr, p2_pr
+            else:
+                winner_id, loser_id = p2_id, p1_id
+                winner_name, loser_name = player2_name, player1_name
+                winner_pr, loser_pr = p2_pr, p1_pr
+
+            # Assign points
+            player_points[winner_id] = player_points.get(winner_id, 0) + 2  # Winner gets 2 points
+            if winner_pr < loser_pr:
+                player_points[winner_id] += 1  # Bonus for lower PR
+            if loser_pr < winner_pr:
+                player_points[loser_id] = player_points.get(loser_id, 0) + 1  # Loser gets 1 point for lower PR
+
+            # Add match details to data
+            data.append([match_date, player1_name, player2_name, p1_points, p2_points, winner_name, loser_name])
+
+        # Create DataFrame with points
+        points_data = []
+        for player_id, points in player_points.items():
+            points_data.append([player_id, points])
+
+        # Display results
+        df = pd.DataFrame(data, columns=[
+            "Date", "Player 1", "Player 2", "Player 1 Points", "Player 2 Points", "Winner", "Loser"
+        ])
+        points_df = pd.DataFrame(points_data, columns=["Player ID", "Points"])
+
+        st.subheader("Match Details with Points")
+        st.dataframe(df)
+        st.subheader("Player Points")
+        st.dataframe(points_df)
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
 def get_matchcount_by_date(matchdate):
     conn = create_connection()
     cursor = conn.cursor()
