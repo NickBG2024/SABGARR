@@ -34,10 +34,12 @@ with tab1:
     st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
     # Example series id
     series_id = 4
+    match_type_id = 18
     #Call function to show series table with series_id
     #display_series_table_completedonly(series_id)
     #display_series_table(series_id)
     display_series_with_points(series_id)
+    display_matchtype_standings_with_points(match_type_id)
     display_sorting_series_table(series_id)
     
     df = pd.DataFrame(
