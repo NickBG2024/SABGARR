@@ -62,6 +62,100 @@ def get_unique_player_count_by_series(series_id):
         cursor.close()
         conn.close()
 
+def display_matchtype_standings_with_points(match_type_id):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Fetch player stats with the updated query
+        query = """SELECT
+    p.PlayerID,
+    p.Name,
+    p.Nickname,
+    SUM(CASE 
+            WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+            WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+            ELSE 0 
+        END) AS Wins,
+    SUM(CASE 
+            WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+            WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1
+            ELSE 0 
+        END) AS Losses,
+    COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
+    AVG(CASE 
+            WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+            WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR
+            ELSE NULL 
+        END) AS AveragePR,
+    SUM(CASE 
+            WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+            WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+            ELSE 0 
+        END) AS PRWins,
+    AVG(CASE 
+            WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
+            WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck
+            ELSE NULL 
+        END) AS AverageLuck,
+    (SUM(CASE 
+            WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+            WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+            ELSE 0 
+        END) * 2) +
+    SUM(CASE 
+            WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+            WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+            ELSE 0 
+        END) AS Points
+FROM
+    Players p
+LEFT JOIN Fixtures f 
+    ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+LEFT JOIN MatchResults mr 
+    ON (f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID)
+WHERE
+    f.MatchTypeID = %s
+GROUP BY
+    p.PlayerID, p.Name, p.Nickname
+ORDER BY
+    Points DESC;
+"""
+        cursor.execute(query, (match_type_id,))
+        player_stats = cursor.fetchall()
+        conn.close()
+
+        if player_stats:
+            st.subheader("Standings with Points:")
+            formatted_stats = []
+            for stat in player_stats:
+                name_with_nickname = f"{stat[1]} ({stat[2]})"
+                played = int(stat[3] or 0) + int(stat[4] or 0)  # Wins + Losses
+                points = int(stat[8] or 0)  # Points column
+                wins = int(stat[3] or 0)
+                losses = int(stat[4] or 0)
+                win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
+                avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+                pr_wins = int(stat[7] or 0)  # PRWins column
+                avg_luck = f"{stat[9]:.2f}" if stat[9] is not None else "-"
+                formatted_stats.append([name_with_nickname, played, points, wins, losses, win_percentage, avg_pr, pr_wins, avg_luck])
+
+            # Create a DataFrame
+            df = pd.DataFrame(
+                formatted_stats,
+                columns=["Name (Nickname)", "Played", "Points", "Wins", "Losses", "Win%", "Averaged PR", "PR Wins", "Average Luck"]
+            )
+
+            # Set the index to None to remove the index column
+            df = df.reset_index(drop=True)
+
+            # Display DataFrame
+            st.dataframe(df)  # Streamlit
+        else:
+            st.subheader("No matches scheduled yet.")
+    except Exception as e:
+        st.error(f"Error displaying match type standings: {e}")
+    
 def display_series_with_points(series_id):
     # Connect to the database
     conn = create_connection()
