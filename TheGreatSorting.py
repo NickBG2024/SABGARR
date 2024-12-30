@@ -29,7 +29,7 @@ col1.title("The Great Sorting!")
 col2.metric("Progress...",metric_value, match_count_yesterday)
 standings = get_sorting_standings()
 # Create tabs in a section
-tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 8)", "Sorting Groups (8 - 16)"])
+tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 8)", "Sorting Groups (9 - 16)"])
 
 # Content for each tab
 with tab1:    
