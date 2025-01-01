@@ -75,8 +75,7 @@ with tab3:
     tab11, tab12, tab13, tab14, tab15, tab16, tab17 = st.tabs(["Group 8","Group 9","Group 10","Group 11","Group 12","Group 13","Group 14"])
     
     with tab4:
-        def display_series_standings_with_points(series_id)
-        
+        display_series_standings_with_points(series_id)        
     with tab5:
         match_type_id = 5      
         #Call function to show group table with match_type_id
