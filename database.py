@@ -98,16 +98,16 @@ def display_matchtype_standings_with_points(match_type_id):
             WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck
             ELSE NULL 
         END) AS AverageLuck,
-    (SUM(CASE 
-            WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
-            WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
-            ELSE 0 
-        END) * 2) +
-    SUM(CASE 
-            WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
-            WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
-            ELSE 0 
-        END) AS Points
+COALESCE(SUM(CASE 
+        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+        ELSE 0 
+    END), 0) * 2 +
+COALESCE(SUM(CASE 
+        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+        ELSE 0 
+    END), 0) AS Points
 FROM
     Players p
 LEFT JOIN Fixtures f 
