@@ -31,7 +31,7 @@ def display_series_standings_with_points(series_id):
         # Step 1: Fetch all MatchTypeIDs associated with the given SeriesID
         match_type_query = """
             SELECT MatchTypeID
-            FROM SeriesMatchType
+            FROM SeriesMatchTypes
             WHERE SeriesID = %s;
         """
         cursor.execute(match_type_query, (series_id,))
