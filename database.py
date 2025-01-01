@@ -121,10 +121,25 @@ def display_matchtype_standings_with_points(match_type_id):
         ORDER BY
             Points DESC;
         """
-        cursor.execute(query, (match_type_id,))
-        player_stats = cursor.fetchall()
-        conn.close()
-
+        try:
+            # Fetch player stats with the updated query
+            cursor.execute(query, (match_type_id,))
+            player_stats = cursor.fetchall()
+        
+            # Debug: Print or display the result set
+            st.write(player_stats)  # For Streamlit
+        
+            if not player_stats:
+                st.subheader("No matches found for this match type.")
+                return
+        
+            # Check if indices match the expected columns
+            formatted_stats = []
+            for stat in player_stats:
+                if len(stat) < 10:  # Adjust based on expected columns
+                    st.error(f"Unexpected data structure: {stat}")
+                    continue
+                    
         if player_stats:
             st.subheader("Standings with Points:")
             formatted_stats = []
