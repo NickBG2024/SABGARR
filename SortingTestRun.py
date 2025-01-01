@@ -34,7 +34,7 @@ with tab1:
     st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
     # Example series id
     series_id = 4
-    match_type_id = 18
+    match_type_id = 17
     #Call function to show series table with series_id
     #display_series_table_completedonly(series_id)
     #display_series_table(series_id)
