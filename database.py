@@ -19,7 +19,134 @@ def create_connection():
     except mysql.connector.Error as e:
         st.error(f"Error connecting to the database: {e}")
         return None
-        
+
+def display_series_standings_with_points(series_id):
+    """
+    Fetch and display standings with points for a specific series.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Step 1: Fetch all MatchTypeIDs associated with the given SeriesID
+        match_type_query = """
+            SELECT MatchTypeID
+            FROM SeriesMatchType
+            WHERE SeriesID = %s;
+        """
+        cursor.execute(match_type_query, (series_id,))
+        match_type_ids = cursor.fetchall()
+
+        if not match_type_ids:
+            st.subheader("No match types found for this series.")
+            return
+
+        # Flatten the MatchTypeIDs into a tuple for the SQL IN clause
+        match_type_ids = tuple(mt[0] for mt in match_type_ids)
+
+        # Step 2: Fetch player stats across all related match types
+        standings_query = f"""
+            SELECT
+                p.PlayerID,
+                p.Name,
+                p.Nickname,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+                        ELSE 0 
+                    END) AS Wins,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1
+                        ELSE 0 
+                    END) AS Losses,
+                COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
+                AVG(CASE 
+                        WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                        WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR
+                        ELSE NULL 
+                    END) AS AveragePR,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+                        ELSE 0 
+                    END) AS PRWins,
+                AVG(CASE 
+                        WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
+                        WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck
+                        ELSE NULL 
+                    END) AS AverageLuck,
+                (SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+                        ELSE 0 
+                    END) * 2) +
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+                        ELSE 0 
+                    END) AS Points
+            FROM
+                Players p
+            LEFT JOIN Fixtures f 
+                ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+            LEFT JOIN MatchResults mr 
+                ON (f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID)
+            WHERE
+                f.MatchTypeID IN {match_type_ids}
+            GROUP BY
+                p.PlayerID, p.Name, p.Nickname
+            ORDER BY
+                Points DESC;
+        """
+
+        cursor.execute(standings_query)
+        player_stats = cursor.fetchall()
+
+        if not player_stats:
+            st.subheader("No matches found for this series.")
+            return
+
+        # Step 3: Format and display the standings
+        formatted_stats = []
+        for stat in player_stats:
+            try:
+                name_with_nickname = f"{stat[1]} ({stat[2]})"
+                played = int(stat[3] or 0) + int(stat[4] or 0)  # Wins + Losses
+                wins = int(stat[3] or 0)
+                losses = int(stat[4] or 0)
+                points = int(stat[9] or 0)
+                win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
+                avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+                pr_wins = int(stat[7] or 0)
+                avg_luck = f"{stat[8]:.2f}" if stat[8] is not None else "-"
+                formatted_stats.append([
+                    name_with_nickname, played, points, wins, losses, win_percentage, avg_pr, pr_wins, avg_luck
+                ])
+            except IndexError as ie:
+                st.warning(f"Skipping malformed row: {stat}. Error: {ie}")
+            except Exception as e:
+                st.error(f"Unexpected error while processing data: {e}")
+
+        if formatted_stats:
+            df = pd.DataFrame(
+                formatted_stats,
+                columns=["Name (Nickname)", "Played", "Points", "Wins", "Losses", "Win%", "Averaged PR", "PR Wins", "Averaged Luck"]
+            )
+            st.subheader("Series Standings with Points:")
+            st.dataframe(df)
+        else:
+            st.subheader("No valid matches to display.")
+
+    except Exception as e:
+        st.error(f"Error displaying series standings: {e}")
+    finally:
+        # Ensure resources are properly closed
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 def get_unique_player_count_by_series(series_id):
     conn = create_connection()
     cursor = conn.cursor()
