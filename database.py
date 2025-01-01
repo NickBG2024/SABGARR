@@ -141,7 +141,8 @@ def display_matchtype_standings_with_points(match_type_id):
                     continue
                     
         if player_stats:
-            st.subheader("Standings with Points:")
+            st.subheader("Standings withhh Points:")
+            st.write(player_stats)
             formatted_stats = []
             for stat in player_stats:
                 name_with_nickname = f"{stat[1]} ({stat[2]})"
