@@ -160,7 +160,6 @@ with tab3:
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
-        display_match_gridd(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
     with tab18:       
