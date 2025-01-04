@@ -381,6 +381,78 @@ def display_series_with_points(series_id):
     finally:
         conn.close()
 
+def get_matchcount_by_date_and_matchtype(matchdate, match_type_id):
+    """
+    Returns the count of matches completed on a specific date for a given match type.
+    
+    Args:
+        matchdate (str): The date to filter matches (in 'YYYY-MM-DD' format).
+        match_type_id (int): The MatchTypeID to filter by.
+    
+    Returns:
+        int: Number of matches completed on the specified date for the given match type.
+    """
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # SQL query to count matches for the given date and match type
+        query = """
+        SELECT COUNT(*)
+        FROM MatchResults
+        JOIN Fixtures ON MatchResults.FixtureID = Fixtures.FixtureID
+        WHERE MatchResults.Date = %s AND Fixtures.MatchTypeID = %s;
+        """
+        cursor.execute(query, (matchdate, match_type_id))
+        result = cursor.fetchone()
+
+        return result[0] if result else 0
+    finally:
+        cursor.close()
+        conn.close()
+
+def get_matchcount_by_date_and_series(matchdate, series_id):
+    """
+    Returns the count of matches completed on a specific date for a given series.
+    
+    Args:
+        matchdate (str): The date to filter matches (in 'YYYY-MM-DD' format).
+        series_id (int): The SeriesID to filter by.
+    
+    Returns:
+        int: Number of matches completed on the specified date for the given series.
+    """
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Step 1: Fetch MatchTypeIDs linked to the given series
+        query_match_types = """
+        SELECT MatchTypeID
+        FROM SeriesMatchTypes
+        WHERE SeriesID = %s;
+        """
+        cursor.execute(query_match_types, (series_id,))
+        match_type_ids = [row[0] for row in cursor.fetchall()]
+
+        if not match_type_ids:
+            return 0  # No match types linked to this series
+
+        # Step 2: Count matches for the given date and match types
+        query_count_matches = f"""
+        SELECT COUNT(*)
+        FROM MatchResults
+        JOIN Fixtures ON MatchResults.FixtureID = Fixtures.FixtureID
+        WHERE MatchResults.Date = %s AND Fixtures.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))});
+        """
+        cursor.execute(query_count_matches, (matchdate, *match_type_ids))
+        result = cursor.fetchone()
+
+        return result[0] if result else 0
+    finally:
+        cursor.close()
+        conn.close()
+
 def get_matchcount_by_date(matchdate):
     conn = create_connection()
     cursor = conn.cursor()
