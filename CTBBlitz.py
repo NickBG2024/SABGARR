@@ -31,9 +31,10 @@ st.title("SABGA Backgammon presents...")
 col1, col2 = st.columns(2)
 col1.title("CTB Blitz!")
 col2.metric("Progress...",metric_value, match_count_yesterday)
-standings = get_sorting_standings()
+#standings = get_sorting_standings()
+
 # Create tabs in a section
-tab1, tab2, tab3 = st.tabs(["Player Standings", "Further Details"])
+tab1, tab2 = st.tabs(["Player Standings", "Further Details"])
 
 # Content for each tab
 with tab1:    
