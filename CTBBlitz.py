@@ -50,7 +50,7 @@ with tab1:
     #show_matches_completed_by_series(series_id)
     display_matchtype_standings_with_points(match_type_id)
 with tab2:
-        display_group_table(match_type_id)
+        #display_group_table(match_type_id)
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)    
