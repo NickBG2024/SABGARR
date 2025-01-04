@@ -400,7 +400,36 @@ def get_matchcount_by_date(matchdate):
     finally:
         cursor.close()
         conn.close()
+
+def get_matchcount_by_matchtype(matchtype_id):
+    """
+    Returns the count of completed matches for a specific match type.
     
+    Args:
+        matchtype_id (int): The ID of the match type.
+    
+    Returns:
+        int: Number of completed matches.
+    """
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Query to count completed matches for the given MatchTypeID
+        query = """
+        SELECT COUNT(*)
+        FROM Fixtures
+        WHERE MatchTypeID = %s
+          AND Completed = 1;
+        """
+        cursor.execute(query, (matchtype_id,))
+        result = cursor.fetchone()
+
+        return result[0] if result else 0
+    finally:
+        cursor.close()
+        conn.close()
+
 def get_matchcount_by_series(series_id):
     """
     Returns the count of completed matches for a specific series.
@@ -441,7 +470,35 @@ def get_matchcount_by_series(series_id):
     finally:
         cursor.close()
         conn.close()
+
+def get_fixturescount_by_matchtype(matchtype_id):
+    """
+    Returns the count of matches for a specific match type.
     
+    Args:
+        matchtype_id (int): The ID of the match type.
+    
+    Returns:
+        int: Number of matches.
+    """
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Query to count fixtures for the given MatchTypeID
+        query = """
+        SELECT COUNT(*)
+        FROM Fixtures
+        WHERE MatchTypeID = %s;
+        """
+        cursor.execute(query, (matchtype_id,))
+        result = cursor.fetchone()
+
+        return result[0] if result else 0
+    finally:
+        cursor.close()
+        conn.close()
+
 def get_fixturescount_by_series(series_id): 
     """
     Returns the count of matches for a specific series.
