@@ -24,7 +24,7 @@ today = date.today()
 yesterday = today - timedelta(days=1)
 
 # Fetch match count for yesterday
-matches_count = get_matchcount_by_date_and_matchtype(yesterday.strftime("%Y-%m-%d"), 5)
+match_count_yesterday = get_matchcount_by_date_and_matchtype(yesterday.strftime("%Y-%m-%d"), 5)
 
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
