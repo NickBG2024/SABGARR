@@ -26,7 +26,7 @@ col2.metric("Progress...",metric_value, "4")
 col3.metric("Players", get_unique_player_count_by_series(4), "3",help="Using series ID = 4")
 #standings = get_sorting_standings()
 # Create tabs in a section
-tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "Sorting Groups (8 - 14)"])
+tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "2025 Rules etc"])
 
 # Content for each tab
 with tab1:
@@ -108,8 +108,17 @@ with tab2:
     # Create tabs for additional stats
     tab4, tab5, tab6, tab7, tab8, tab9, tab10  = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7"])
 with tab3:
-    tab11, tab12, tab13, tab14, tab15, tab16, tab17 = st.tabs(["Group 8","Group 9","Group 10","Group 11","Group 12","Group 13","Group 14"])
-    
+    # Title for the page
+st.title("Streamlit PDF Viewer")
+
+# Add the PDF viewer
+pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v3dot1.pdf"  # Replace with your PDF's URL
+st.markdown(
+    f"""
+    <iframe src="{pdf_url}" width="700" height="1000" frameborder="0"></iframe>
+    """,
+    unsafe_allow_html=True,
+)
     with tab4:
         display_series_standings_with_points(series_id)        
     with tab5:
