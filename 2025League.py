@@ -51,7 +51,7 @@ with tab1:
     #show_matches_completed_by_series(series_id)
 with tab2:
        # Example match type id
-        match_type_id = 4
+        match_type_id = 19
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
@@ -60,7 +60,7 @@ with tab2:
         show_matches_completed(match_type_id)
 with tab3:
        # Example match type id
-        match_type_id = 4
+        match_type_id = 20
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
@@ -69,7 +69,7 @@ with tab3:
         show_matches_completed(match_type_id)  
 with tab4:
         # Example match type id
-        match_type_id = 4
+        match_type_id = 21
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
@@ -77,7 +77,7 @@ with tab4:
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
 with tab5:
-        match_type_id = 5      
+        match_type_id = 22
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
@@ -85,7 +85,7 @@ with tab5:
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
 with tab6:
-        match_type_id = 6      
+        match_type_id = 23      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
@@ -93,7 +93,7 @@ with tab6:
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)    
 with tab7:
-        match_type_id = 7      
+        match_type_id = 24     
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
