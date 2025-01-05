@@ -33,7 +33,9 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Overview Tab", "A-League", 
 # Content for each tab
 with tab1:    
     st.header("Overview Tab")
+    pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v3dot2.pdf"
     st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
+    st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v3.2.pdf]({pdf_url})", unsafe_allow_html=True)
     
     #Call function to show series table with series_id
     #display_series_table_completedonly(series_id)
