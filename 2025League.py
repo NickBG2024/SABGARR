@@ -14,6 +14,12 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 series_id = 5
 matches_played = get_matchcount_by_series(series_id)
 total_fixtures = get_fixturescount_by_series(series_id)
+# Get today and yesterday's date
+today = date.today()
+yesterday = today - timedelta(days=1)
+# Fetch match count for yesterday
+match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), seriesid)
+
 if total_fixtures !=0:
     percentage = (matches_played / total_fixtures) * 100
     metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
@@ -24,15 +30,15 @@ else:
 # Public-facing app for RR Leagues
 st.title("SABGA Backgammon presents...") 
 col1, col2 = st.columns(2)
-col1.title("Round Robin Leagues!")
-col2.metric("Progress...",metric_value, "0")
+col1.title("Round Robin Leagues 2025!")
+col2.metric("League Progress...",metric_value,match_count_yesterday)
 #standings = get_sorting_standings()
 # Create tabs in a section
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Overview Tab", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"])
 
 # Content for each tab
 with tab1:    
-    st.header("Overview Tab")
+    st.header("Overview:")
     pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v3dot2.pdf"
     st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v3.2.pdf]({pdf_url})", unsafe_allow_html=True)
     st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
