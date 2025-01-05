@@ -18,7 +18,7 @@ total_fixtures = get_fixturescount_by_series(series_id)
 today = date.today()
 yesterday = today - timedelta(days=1)
 # Fetch match count for yesterday
-match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), seriesid)
+match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), series_id)
 
 if total_fixtures !=0:
     percentage = (matches_played / total_fixtures) * 100
