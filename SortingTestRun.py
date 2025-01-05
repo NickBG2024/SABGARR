@@ -109,16 +109,16 @@ with tab2:
     tab4, tab5, tab6, tab7, tab8, tab9, tab10  = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7"])
 with tab3:
     # Title for the page
-st.title("Streamlit PDF Viewer")
-
-# Add the PDF viewer
-pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v3dot1.pdf"  # Replace with your PDF's URL
-st.markdown(
-    f"""
-    <iframe src="{pdf_url}" width="700" height="1000" frameborder="0"></iframe>
-    """,
-    unsafe_allow_html=True,
-)
+    st.title("Streamlit PDF Viewer")
+    
+    # Add the PDF viewer
+    pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v3dot1.pdf"  # Replace with your PDF's URL
+    st.markdown(
+        f"""
+        <iframe src="{pdf_url}" width="700" height="1000" frameborder="0"></iframe>
+        """,
+        unsafe_allow_html=True,
+    )
     with tab4:
         display_series_standings_with_points(series_id)        
     with tab5:
