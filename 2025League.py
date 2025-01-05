@@ -93,7 +93,7 @@ with tab6:
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)    
 with tab7:
-        match_type_id = 24     
+        match_type_id = 28     
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
