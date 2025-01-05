@@ -41,7 +41,43 @@ with tab1:
     #display_series_with_points(series_id)
     display_matchtype_standings_with_points(match_type_id)
     #display_sorting_series_table(series_id)
+
     
+    # Example data
+    data = [
+        ["2025-01-01", "Win", 10, 2.3, 0.5, 2.7, -0.3],
+        ["2025-01-02", "Loss", 8, 3.0, -0.1, 1.8, 0.8],
+    ]
+    
+    # Create a DataFrame
+    df = pd.DataFrame(
+        {
+            "Date Completed": [row[0] for row in data],
+            "Result": [row[1] for row in data],
+            "Score": [row[2] for row in data],
+            "Winner PR": [row[3] for row in data],
+            "Winner Luck": [row[4] for row in data],
+            "Loser PR": [row[5] for row in data],
+            "Loser Luck": [row[6] for row in data],
+        }
+    )
+    
+    # Define a custom Styler function to highlight the lower PR
+    def highlight_lower_pr(row):
+        # Determine the lower PR value
+        min_pr = min(row["Winner PR"], row["Loser PR"])
+        styles = [
+            "font-weight: bold;" if value == min_pr else "" for value in row[["Winner PR", "Loser PR"]]
+        ]
+        # Return styles for all columns
+        return [""] * (len(row) - 2) + styles
+    
+    # Apply the Styler to the DataFrame
+    styled_df = df.style.apply(highlight_lower_pr, axis=1)
+    
+    # Display in Streamlit
+    st.dataframe(styled_df)
+
     df = pd.DataFrame(
         {
             "name": ["Roadmap", "Extras", "Issues"],
