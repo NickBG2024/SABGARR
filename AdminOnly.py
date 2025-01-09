@@ -54,6 +54,10 @@ st.sidebar.markdown(
 # Retrieve the current status of the email checker
 email_checker_status = get_email_checker_status()
 
+if 'form_updated' in st.session_state and st.session_state['form_updated']:
+    del st.session_state['form_updated']
+    st.experimental_rerun()
+    
 matches_played = get_matchcount_by_series(4)
 total_fixtures = get_fixturescount_by_series(4)
 percentage = (matches_played / total_fixtures) * 100
@@ -283,7 +287,7 @@ if show_add_fixture_form:
             add_fixture(match_type_id, player1_id, player2_id)
             st.success("Fixture added successfully!")
             fixture_form_placeholder.empty()  # Clear form by emptying the placeholder
-            st.experimental_rerun()
+            st.session_state['form_updated'] = True
         elif submitted and player1_id == player2_id:
             st.error("Player 1 and Player 2 cannot be the same.")
 
