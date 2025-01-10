@@ -32,6 +32,7 @@ st.title("SABGA Backgammon presents...")
 col1, col2 = st.columns(2)
 col1.title("Round Robin Leagues 2025!")
 col2.metric("League Progress...",metric_value,match_count_yesterday)
+col2.write("Deadline: 1 April 2025")
 #standings = get_sorting_standings()
 # Create tabs in a section
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"])
