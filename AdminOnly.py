@@ -134,7 +134,7 @@ if generate_fixtures:
 
     # Multi-select dropdowns for selecting up to 10 players
     selected_players = []
-    for i in range(1, 11):
+    for i in range(1, 13):
         player = st.selectbox(
             f"Select Player {i}",
             options=[None] + players,
