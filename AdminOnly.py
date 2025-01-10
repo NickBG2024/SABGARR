@@ -58,13 +58,13 @@ if 'form_updated' in st.session_state and st.session_state['form_updated']:
     del st.session_state['form_updated']
     st.experimental_rerun()
     
-matches_played = get_matchcount_by_series(4)
-total_fixtures = get_fixturescount_by_series(4)
+matches_played = get_matchcount_by_series(5)
+total_fixtures = get_fixturescount_by_series(5)
 percentage = (matches_played / total_fixtures) * 100
 metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
-st.sidebar.header("Current series: SORTING (id=4)")
-st.sidebar.metric("Series data - players","54","3")
+st.sidebar.header("Current series: RR S1 2025 (id=5)")
+#st.sidebar.metric("Series data - players","54","3")
 st.sidebar.metric("Series data - matches",metric_value, "4")
 st.sidebar.subheader("Admin-Functions: Main")
 # Checkbox to access "Generate Fixtures" functionality
