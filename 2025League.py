@@ -63,6 +63,7 @@ with tab3:
        # Example match type id
         match_type_id = 20
         #Call function to show group table with match_type_id
+        display_matchtype_standings_with_points(match_type_id)
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
@@ -72,6 +73,7 @@ with tab4:
         # Example match type id
         match_type_id = 21
         #Call function to show group table with match_type_id
+        display_matchtype_standings_with_points(match_type_id)
         #display_group_metrics(match_type_id)
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
@@ -81,6 +83,7 @@ with tab5:
         match_type_id = 22
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
+        display_matchtype_standings_with_points(match_type_id)
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
@@ -89,6 +92,7 @@ with tab6:
         match_type_id = 23      
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
+        display_matchtype_standings_with_points(match_type_id)
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
@@ -97,6 +101,7 @@ with tab7:
         match_type_id = 28     
         #Call function to show group table with match_type_id
         #display_group_metrics(match_type_id)
+        display_matchtype_standings_with_points(match_type_id)
         display_group_table(match_type_id)
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
