@@ -40,9 +40,9 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["OVERVIEW", "A-League", "B-L
 # Content for each tab
 with tab1:    
     st.header("Overview:")
-    pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v3dot2.pdf"
+    pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4.pdf"
     st.markdown("**The 2025 Round Robin leagues kick-off with Series 1, taking place 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
-    st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v3.2.pdf]({pdf_url})", unsafe_allow_html=True)
+    st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.pdf]({pdf_url})", unsafe_allow_html=True)
     st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
     
     #Call function to show series table with series_id
