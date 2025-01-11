@@ -48,7 +48,8 @@ with tab1:
     #Call function to show series table with series_id
     #display_series_table_completedonly(series_id)
     #display_series_table(series_id)
-    display_sorting_series_table(series_id)
+    #display_sorting_series_table(series_id)
+    display_series_standings_with_points(series_id)
     smccc(series_id)
     #show_matches_completed_by_series(series_id)
 with tab2:
