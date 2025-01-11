@@ -870,11 +870,9 @@ def display_match_grid(match_type_id):
             player2_points = result[5]  # Points scored by Player 2
 
             if player1_points is not None:
-                # Player 1's points against Player 2
-                score_df.at[player1_name, player2_name] = str(player1_points)
+                score_df.at[player2_name, player1_name] = str(player1_points)  # Points Player 1 scored against Player 2
             if player2_points is not None:
-                # Player 2's points against Player 1
-                score_df.at[player2_name, player1_name] = str(player2_points)
+                score_df.at[player1_name, player2_name] = str(player2_points)  # Points Player 2 scored against Player 1
 
         def highlight_diagonal(df):
             # Create a blank style DataFrame with the same shape as the input DataFrame
