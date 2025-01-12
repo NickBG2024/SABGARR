@@ -1435,19 +1435,38 @@ def get_match_results_for_grid(match_type_id):
 
         # SQL query to fetch match results for a specific match type
         query = """
-        SELECT
-            p1.PlayerID AS Player1ID,
-            p1.Name AS Player1Name,
-            p2.PlayerID AS Player2ID,
-            p2.Name AS Player2Name,
-            mr.Player1Points AS Player1Points,
-            mr.Player2Points AS Player2Points
-        FROM Fixtures f
-        JOIN Players p1 ON f.Player1ID = p1.PlayerID
-        JOIN Players p2 ON f.Player2ID = p2.PlayerID
-        LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
-        WHERE f.MatchTypeID = %s
-        ORDER BY p1.Name, p2.Name;
+           SELECT
+        CASE
+            WHEN p1.Name < p2.Name THEN p1.PlayerID
+            ELSE p2.PlayerID
+        END AS Player1ID,
+        CASE
+            WHEN p1.Name < p2.Name THEN p1.Name
+            ELSE p2.Name
+        END AS Player1Name,
+        CASE
+            WHEN p1.Name < p2.Name THEN p2.PlayerID
+            ELSE p1.PlayerID
+        END AS Player2ID,
+        CASE
+            WHEN p1.Name < p2.Name THEN p2.Name
+            ELSE p1.Name
+        END AS Player2Name,
+        CASE
+            WHEN p1.Name < p2.Name THEN mr.Player1Points
+            ELSE mr.Player2Points
+        END AS Player1Points,
+        CASE
+            WHEN p1.Name < p2.Name THEN mr.Player2Points
+            ELSE mr.Player1Points
+        END AS Player2Points
+    FROM Fixtures f
+    JOIN Players p1 ON f.Player1ID = p1.PlayerID
+    JOIN Players p2 ON f.Player2ID = p2.PlayerID
+    LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
+    WHERE f.MatchTypeID = %s
+    ORDER BY Player1Name, Player2Name;
+
         """
         cursor.execute(query, (match_type_id,))
         match_results = cursor.fetchall()
