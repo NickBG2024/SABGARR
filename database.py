@@ -852,7 +852,7 @@ def display_match_grid(match_type_id):
         for result in match_results:
             player_names.add(result[1])  # Player 1 Name
             player_names.add(result[3])  # Player 2 Name
-            st.write(f"Processing match: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
+            #st.write(f"Processing match: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
 
         # Sort player names for consistent order
         player_names = sorted(player_names)
@@ -1463,6 +1463,7 @@ def get_match_results_for_grid(match_type_id):
         match_results = cursor.fetchall()
         conn.close()
 
+        st.write(match_results)
         return match_results
     except Exception as e:
         st.error(f"Error retrieving match results: {e}")
