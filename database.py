@@ -853,6 +853,10 @@ def display_match_grid(match_type_id):
             player_names.add(result[1])  # Player 1 Name
             player_names.add(result[3])  # Player 2 Name
 
+        for result in match_results:
+            fixture_id, player1_id, player1_name, player2_id, player2_name, player1_points, player2_points = result
+            st.write(f"Fixture {fixture_id}: {player1_name} ({player1_points}) vs {player2_name} ({player2_points})")
+
         # Sort player names for consistent order
         player_names = sorted(player_names)
 
