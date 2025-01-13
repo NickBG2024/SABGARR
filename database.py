@@ -1441,19 +1441,18 @@ def get_match_results_for_grid(match_type_id):
         cursor = conn.cursor()
 
         query = """
-        SELECT
-            f.Player1ID,
-            p1.Name AS Player1Name,
-            f.Player2ID,
-            p2.Name AS Player2Name,
-            mr.Player1Points AS Player1Points,
-            mr.Player2Points AS Player2Points
-        FROM Fixtures f
-        JOIN Players p1 ON f.Player1ID = p1.PlayerID
-        JOIN Players p2 ON f.Player2ID = p2.PlayerID
-        LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
-        WHERE f.MatchTypeID = %s
-        ORDER BY f.FixtureID
+        SELECT 
+        	p1.PlayerID AS Player1ID, 
+            p1.Name AS Player1Name, 
+            p2.PlayerID AS Player2ID, 
+            p2.Name AS Player2Name, 
+            MatchResults.Player1Points AS Player1Points, 
+            MatchResults.Player2Points AS Player2Points 
+        FROM MatchResults 
+        JOIN Fixtures ON MatchResults.FixtureID = Fixtures.FixtureID 
+        JOIN Players p1 ON MatchResults.Player1ID = p1.PlayerID 
+        JOIN Players p2 ON MatchResults.Player2ID = p2.PlayerID 
+        WHERE Fixtures.MatchTypeID = %s
         """  # No semicolon here
 
         # Execute the query without multi=True
