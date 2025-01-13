@@ -1433,7 +1433,7 @@ def get_match_results_for_grid(match_type_id):
         conn = create_connection()
         cursor = conn.cursor()
 
-        # SQL query to fetch match results with correct mapping of points
+        # SQL query to fetch match results for a specific match type
         query = """
         SELECT
             f.Player1ID,
