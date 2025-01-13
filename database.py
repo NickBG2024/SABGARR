@@ -852,10 +852,7 @@ def display_match_grid(match_type_id):
         for result in match_results:
             player_names.add(result[1])  # Player 1 Name
             player_names.add(result[3])  # Player 2 Name
-
-        for result in match_results:
-            fixture_id, player1_id, player1_name, player2_id, player2_name, player1_points, player2_points = result
-            st.write(f"Fixture {fixture_id}: {player1_name} ({player1_points}) vs {player2_name} ({player2_points})")
+            st.write(f"Processing match: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
 
         # Sort player names for consistent order
         player_names = sorted(player_names)
@@ -873,8 +870,10 @@ def display_match_grid(match_type_id):
             player2_name = result[3]
             player1_points = result[4]  # Points scored by Player 1
             player2_points = result[5]  # Points scored by Player 2
-            
-            st.write(f"Processing match: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
+
+            if player1_points is not None:
+              st.write(f"Processing match: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
+
 
             # Set points in the DataFrame
             if player1_points is not None:
