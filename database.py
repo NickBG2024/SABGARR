@@ -845,7 +845,7 @@ def get_remaining_fixtures(match_type_id):
 def display_match_grid(match_type_id):
     # Fetch match results for the specified match type
     match_results = get_match_results_for_grid(match_type_id)
-    # st.write(match_results)
+    #st.write(match_results)
     if match_results:
         # Create a list of unique player names
         player_names = set()
@@ -870,10 +870,6 @@ def display_match_grid(match_type_id):
             player2_name = result[3]
             player1_points = result[4]  # Points scored by Player 1
             player2_points = result[5]  # Points scored by Player 2
-
-            if player1_points is not None:
-              st.write(f"Processing match 2 dmg: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
-
 
             # Set points in the DataFrame
             if player1_points is not None:
@@ -1462,8 +1458,6 @@ def get_match_results_for_grid(match_type_id):
         match_results = cursor.fetchall()
         conn.close()
 
-        st.write("match_results from get_match_results_for_grid:")
-        st.write(match_results)
         return match_results
     except Exception as e:
         st.error(f"Error retrieving match results: {e}")
