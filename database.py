@@ -1433,7 +1433,6 @@ def get_match_results_for_grid(match_type_id):
         conn = create_connection()
         cursor = conn.cursor()
 
-        # SQL query to fetch match results for a specific match type
         query = """
         SELECT
             f.Player1ID,
@@ -1447,9 +1446,13 @@ def get_match_results_for_grid(match_type_id):
         JOIN Players p2 ON f.Player2ID = p2.PlayerID
         LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
         WHERE f.MatchTypeID = %s
-        ORDER BY f.FixtureID;  -- Use FixtureID to preserve order as recorded
-        """
-        cursor.execute(query, (match_type_id,))
+        ORDER BY f.FixtureID
+        """  # No semicolon here
+
+        # Execute the query with multi=True
+        cursor.execute(query, (match_type_id,), multi=True)
+
+        # Fetch all rows
         match_results = cursor.fetchall()
         conn.close()
 
@@ -1457,6 +1460,7 @@ def get_match_results_for_grid(match_type_id):
     except Exception as e:
         st.error(f"Error retrieving match results: {e}")
         return []
+
 
 def get_player_stats_with_fixtures(match_type_id):
     try:
