@@ -869,6 +869,8 @@ def display_match_grid(match_type_id):
             player2_name = result[3]
             player1_points = result[4]  # Points scored by Player 1
             player2_points = result[5]  # Points scored by Player 2
+            
+            st.write(f"Processing match: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
 
             # Set points in the DataFrame
             if player1_points is not None:
