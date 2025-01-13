@@ -845,7 +845,7 @@ def get_remaining_fixtures(match_type_id):
 def display_match_grid(match_type_id):
     # Fetch match results for the specified match type
     match_results = get_match_results_for_grid(match_type_id)
-    #st.write(match_results)
+    st.write(match_results)
     if match_results:
         # Create a list of unique player names
         player_names = set()
@@ -1449,8 +1449,8 @@ def get_match_results_for_grid(match_type_id):
         ORDER BY f.FixtureID
         """  # No semicolon here
 
-        # Execute the query with multi=True
-        cursor.execute(query, (match_type_id,), multi=True)
+        # Execute the query without multi=True
+        cursor.execute(query, (match_type_id,))
 
         # Fetch all rows
         match_results = cursor.fetchall()
