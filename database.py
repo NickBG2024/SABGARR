@@ -845,53 +845,55 @@ def get_remaining_fixtures(match_type_id):
 def display_match_grid(match_type_id):
     # Fetch match results for the specified match type
     match_results = get_match_results_for_grid(match_type_id)
-    st.write(match_results)
+    #st.write(match_results)
     if match_results:
-        # Create a list of unique player names
-        player_names = set()
-        for result in match_results:
-            player_names.add(result[1])  # Player 1 Name
-            player_names.add(result[3])  # Player 2 Name
+    # Create a list of unique player names
+    player_names = set()
+    for result in match_results:
+        player_names.add(result[1])  # Player 1 Name
+        player_names.add(result[3])  # Player 2 Name
 
-        # Sort player names for consistent order
-        player_names = sorted(player_names)
+    # Sort player names for consistent order
+    player_names = sorted(player_names)
 
-        # Initialize an empty DataFrame with player names as both rows and columns
-        score_df = pd.DataFrame(
-            "–",  # Default value
-            index=player_names,  # Scoring players
-            columns=player_names  # Opponent players
-        )
+    # Initialize an empty DataFrame with player names as both rows and columns
+    score_df = pd.DataFrame(
+        "–",  # Default value
+        index=player_names,  # Scoring players
+        columns=player_names  # Opponent players
+    )
 
-        # Populate the DataFrame with match results
-        for result in match_results:
-            player1_name = result[1]
-            player2_name = result[3]
-            player1_points = result[4]  # Points scored by Player 1
-            player2_points = result[5]  # Points scored by Player 2
+    # Populate the DataFrame with match results
+    for result in match_results:
+        player1_name = result[1]
+        player2_name = result[3]
+        player1_points = result[4]  # Points scored by Player 1
+        player2_points = result[5]  # Points scored by Player 2
 
-            if player1_points is not None:
-                score_df.at[player2_name, player1_name] = str(player1_points)  # Points Player 1 scored against Player 2
-            if player2_points is not None:
-                score_df.at[player1_name, player2_name] = str(player2_points)  # Points Player 2 scored against Player 1
+        # Set points in the DataFrame
+        if player1_points is not None:
+            score_df.loc[player2_name, player1_name] = str(player1_points)  # Player 1 scored against Player 2
+        if player2_points is not None:
+            score_df.loc[player1_name, player2_name] = str(player2_points)  # Player 2 scored against Player 1
 
-        def highlight_diagonal(df):
-            # Create a blank style DataFrame with the same shape as the input DataFrame
-            style = pd.DataFrame("", index=df.index, columns=df.columns)
-            # Loop through the diagonal and apply the style
-            for i in range(min(len(df), len(df.columns))):  # Handle rectangular DataFrames gracefully
-                style.iloc[i, i] = "background-color: #505050; color: #505050;"  # Dark gray with invisible text
+    def highlight_diagonal(df):
+        # Create a blank style DataFrame with the same shape as the input DataFrame
+        style = pd.DataFrame("", index=df.index, columns=df.columns)
+        # Loop through the diagonal and apply the style
+        for i in range(min(len(df), len(df.columns))):  # Handle rectangular DataFrames gracefully
+            style.iloc[i, i] = "background-color: #505050; color: #505050;"  # Dark gray with invisible text
 
-            return style
+        return style
 
-        # Apply the styling function
-        styled_df = score_df.style.apply(highlight_diagonal, axis=None)
+    # Apply the styling function
+    styled_df = score_df.style.apply(highlight_diagonal, axis=None)
 
-        # Display the styled DataFrame
-        st.subheader("Match Results Grid:")
-        st.dataframe(styled_df)  # Use st.dataframe for styling support
-    else:
-        st.write("No match results available for this match type.")
+    # Display the styled DataFrame
+    st.subheader("Match Results Grid:")
+    st.dataframe(styled_df)  # Use st.dataframe for styling support
+else:
+    st.write("No match results available for this match type.")
+
 
 def display_match_gridddd(match_type_id):
     # Fetch match results for the specified match type
