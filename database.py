@@ -852,7 +852,7 @@ def display_match_grid(match_type_id):
         for result in match_results:
             player_names.add(result[1])  # Player 1 Name
             player_names.add(result[3])  # Player 2 Name
-            #st.write(f"Processing match: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
+            #st.write(f"Processing match 1 dmg: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
 
         # Sort player names for consistent order
         player_names = sorted(player_names)
@@ -872,7 +872,7 @@ def display_match_grid(match_type_id):
             player2_points = result[5]  # Points scored by Player 2
 
             if player1_points is not None:
-              st.write(f"Processing match: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
+              st.write(f"Processing match 2 dmg: {player1_name} vs {player2_name}, {player1_points}-{player2_points}")
 
 
             # Set points in the DataFrame
@@ -1463,6 +1463,7 @@ def get_match_results_for_grid(match_type_id):
         match_results = cursor.fetchall()
         conn.close()
 
+        st.write("match_results from get_match_results_for_grid:")
         st.write(match_results)
         return match_results
     except Exception as e:
