@@ -60,11 +60,18 @@ with tab2:
         if league_fixtures !=0:
             percentage = (league_matches_played / league_fixtures) * 100
             metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            #games_left = f
         else:
             percentage = 0
             metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            #games_left = f
 
-        st.metric("A-League progress:",metric_value)
+        #days_left = 1 April 2025 - today
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("A-League progress:",metric_value)
+        col2.metric("Games remaining:",45)
+        col3.metric("Days left:",100)
         #Call function to show group table with match_type_id
         display_matchtype_standings_with_points(match_type_id)
         #display_group_metrics(match_type_id)
