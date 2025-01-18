@@ -55,8 +55,8 @@ with tab1:
 with tab2:
        # Example match type id
         match_type_id = 19
-        league_matches_played = get_matchcount_by_matchtype(matchtype_id)
-        league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
+        league_matches_played = get_matchcount_by_matchtype(match_type_id)
+        league_fixtures = get_fixturescount_by_matchtype(match_type_id)
         if league_fixtures !=0:
             percentage = (league_matches_played / league_fixtures) * 100
             metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
