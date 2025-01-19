@@ -75,7 +75,7 @@ with tab2:
         days_left = (end_date - today).days
         
         # Display metrics
-        col1, col2, col3, col4 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         col1.metric("A-League progress:", metric_value)
         col2.metric("Games remaining:", games_left)
         col3.metric("Days left:", days_left)
