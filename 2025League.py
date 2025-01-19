@@ -66,10 +66,11 @@ with tab2:
             percentage = 0
             metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
             games_left = 0
-        
+
+
         # Calculate days left until April 1, 2025
-        #today = datetime.date.today()
-        end_date = datetime.date(2025, 4, 1)
+        #today = date.today()
+        end_date = date(2025, 4, 1)
         days_left = (end_date - today).days
         
         # Display metrics
