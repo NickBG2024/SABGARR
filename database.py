@@ -691,6 +691,30 @@ def get_fixturescount_by_matchtype(matchtype_id):
         cursor.close()
         conn.close()
 
+def get_averagePR_by_matchtype(matchtype_id):
+    """
+    Retrieves the average PR (Performance Rating) for a given match type, rounded to 2 decimal places.
+    """
+    query = """
+        SELECT AVG((Player1PR + Player2PR) / 2) 
+        FROM MatchResults 
+        WHERE MatchTypeID = %s;
+    """
+    try:
+        conn = get_db_connection()  # Ensure you have a valid database connection
+        with conn.cursor() as cursor:
+            cursor.execute(query, (matchtype_id,))
+            result = cursor.fetchone()
+        conn.close()
+
+        return round(result[0], 2) if result and result[0] is not None else 0.00  # Return 0.00 if no matches found
+
+    except Exception as e:
+        st.error(f"Error retrieving average PR: {e}")
+        return None
+
+
+    
 def get_fixturescount_by_series(series_id): 
     """
     Returns the count of matches for a specific series.
