@@ -701,7 +701,7 @@ def get_averagePR_by_matchtype(matchtype_id):
         WHERE MatchTypeID = %s;
     """
     try:
-        conn = get_db_connection()  # Ensure you have a valid database connection
+        conn = create_connection()  # Ensure you have a valid database connection
         with conn.cursor() as cursor:
             cursor.execute(query, (matchtype_id,))
             result = cursor.fetchone()
