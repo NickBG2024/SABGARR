@@ -61,7 +61,8 @@ with tab2:
         
         if league_fixtures != 0:
             percentage = (league_matches_played / league_fixtures) * 100
-            metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            metric_value = f"{league_matches_played}/{league_fixtures}"
             games_left = league_fixtures - league_matches_played  # Calculate remaining games
         else:
             percentage = 0
