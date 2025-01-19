@@ -68,7 +68,7 @@ with tab2:
             games_left = 0
         
         # Calculate days left until April 1, 2025
-        today = datetime.date.today()
+        #today = datetime.date.today()
         end_date = datetime.date(2025, 4, 1)
         days_left = (end_date - today).days
         
