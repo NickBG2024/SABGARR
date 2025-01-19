@@ -69,7 +69,6 @@ with tab2:
             metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
             games_left = 0
 
-
         # Calculate days left until April 1, 2025
         #today = date.today()
         end_date = date(2025, 4, 1)
@@ -91,6 +90,31 @@ with tab2:
 with tab3:
        # Example match type id
         match_type_id = 20
+        league_matches_played = get_matchcount_by_matchtype(match_type_id)
+        league_fixtures = get_fixturescount_by_matchtype(match_type_id)
+        ave_pr = get_averagePR_by_matchtype(match_type_id)
+        
+        if league_fixtures != 0:
+            percentage = (league_matches_played / league_fixtures) * 100
+            #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            metric_value = f"{league_matches_played}/{league_fixtures}"
+            games_left = league_fixtures - league_matches_played  # Calculate remaining games
+        else:
+            percentage = 0
+            metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            games_left = 0
+
+        # Calculate days left until April 1, 2025
+        #today = date.today()
+        end_date = date(2025, 4, 1)
+        days_left = (end_date - today).days
+        
+        # Display metrics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("B-League progress:", metric_value)
+        col2.metric("Games remaining:", games_left)
+        col3.metric("Days left:", days_left)
+        col4.metric("Average PR:", ave_pr)
         #Call function to show group table with match_type_id
         display_matchtype_standings_with_points(match_type_id)
         #display_group_metrics(match_type_id)
@@ -101,6 +125,31 @@ with tab3:
 with tab4:
         # Example match type id
         match_type_id = 21
+        league_matches_played = get_matchcount_by_matchtype(match_type_id)
+        league_fixtures = get_fixturescount_by_matchtype(match_type_id)
+        ave_pr = get_averagePR_by_matchtype(match_type_id)
+        
+        if league_fixtures != 0:
+            percentage = (league_matches_played / league_fixtures) * 100
+            #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            metric_value = f"{league_matches_played}/{league_fixtures}"
+            games_left = league_fixtures - league_matches_played  # Calculate remaining games
+        else:
+            percentage = 0
+            metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            games_left = 0
+
+        # Calculate days left until April 1, 2025
+        #today = date.today()
+        end_date = date(2025, 4, 1)
+        days_left = (end_date - today).days
+        
+        # Display metrics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("C-League progress:", metric_value)
+        col2.metric("Games remaining:", games_left)
+        col3.metric("Days left:", days_left)
+        col4.metric("Average PR:", ave_pr)
         #Call function to show group table with match_type_id
         display_matchtype_standings_with_points(match_type_id)
         #display_group_metrics(match_type_id)
@@ -110,6 +159,31 @@ with tab4:
         show_matches_completed(match_type_id)
 with tab5:
         match_type_id = 23
+        league_matches_played = get_matchcount_by_matchtype(match_type_id)
+        league_fixtures = get_fixturescount_by_matchtype(match_type_id)
+        ave_pr = get_averagePR_by_matchtype(match_type_id)
+        
+        if league_fixtures != 0:
+            percentage = (league_matches_played / league_fixtures) * 100
+            #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            metric_value = f"{league_matches_played}/{league_fixtures}"
+            games_left = league_fixtures - league_matches_played  # Calculate remaining games
+        else:
+            percentage = 0
+            metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            games_left = 0
+
+        # Calculate days left until April 1, 2025
+        #today = date.today()
+        end_date = date(2025, 4, 1)
+        days_left = (end_date - today).days
+        
+        # Display metrics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("D-League progress:", metric_value)
+        col2.metric("Games remaining:", games_left)
+        col3.metric("Days left:", days_left)
+        col4.metric("Average PR:", ave_pr)
         #Call function to show group table with match_type_id
         display_matchtype_standings_with_points(match_type_id)
         #display_group_metrics(match_type_id)
@@ -119,6 +193,31 @@ with tab5:
         show_matches_completed(match_type_id)
 with tab6:
         match_type_id = 24      
+        league_matches_played = get_matchcount_by_matchtype(match_type_id)
+        league_fixtures = get_fixturescount_by_matchtype(match_type_id)
+        ave_pr = get_averagePR_by_matchtype(match_type_id)
+        
+        if league_fixtures != 0:
+            percentage = (league_matches_played / league_fixtures) * 100
+            #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            metric_value = f"{league_matches_played}/{league_fixtures}"
+            games_left = league_fixtures - league_matches_played  # Calculate remaining games
+        else:
+            percentage = 0
+            metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            games_left = 0
+
+        # Calculate days left until April 1, 2025
+        #today = date.today()
+        end_date = date(2025, 4, 1)
+        days_left = (end_date - today).days
+        
+        # Display metrics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("E-League progress:", metric_value)
+        col2.metric("Games remaining:", games_left)
+        col3.metric("Days left:", days_left)
+        col4.metric("Average PR:", ave_pr)
         #Call function to show group table with match_type_id
         display_matchtype_standings_with_points(match_type_id)
         #display_group_metrics(match_type_id)
@@ -128,6 +227,31 @@ with tab6:
         show_matches_completed(match_type_id)
 with tab7:
         match_type_id = 28     
+        league_matches_played = get_matchcount_by_matchtype(match_type_id)
+        league_fixtures = get_fixturescount_by_matchtype(match_type_id)
+        ave_pr = get_averagePR_by_matchtype(match_type_id)
+        
+        if league_fixtures != 0:
+            percentage = (league_matches_played / league_fixtures) * 100
+            #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            metric_value = f"{league_matches_played}/{league_fixtures}"
+            games_left = league_fixtures - league_matches_played  # Calculate remaining games
+        else:
+            percentage = 0
+            metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            games_left = 0
+
+        # Calculate days left until April 1, 2025
+        #today = date.today()
+        end_date = date(2025, 4, 1)
+        days_left = (end_date - today).days
+        
+        # Display metrics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("F-League progress:", metric_value)
+        col2.metric("Games remaining:", games_left)
+        col3.metric("Days left:", days_left)
+        col4.metric("Average PR:", ave_pr)
         #Call function to show group table with match_type_id
         display_matchtype_standings_with_points(match_type_id)
         #display_group_metrics(match_type_id)
