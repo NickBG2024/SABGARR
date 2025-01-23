@@ -121,7 +121,7 @@ def display_series_standings_with_points(series_id):
                 pr_wins = int(stat[7] or 0)
                 avg_luck = f"{stat[8]:.2f}" if stat[8] is not None else "-"
                 formatted_stats.append([
-                    name_with_nickname, played, points, wins, losses, win_percentage, avg_pr, pr_wins, avg_luck
+                    name_with_nickname, played, points, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
                 ])
             except IndexError as ie:
                 st.warning(f"Skipping malformed row: {stat}. Error: {ie}")
@@ -131,7 +131,7 @@ def display_series_standings_with_points(series_id):
         if formatted_stats:
             df = pd.DataFrame(
                 formatted_stats,
-                columns=["Name (Nickname)", "Played", "Points", "Wins", "Losses", "Win%", "Averaged PR", "PR Wins", "Averaged Luck"]
+                columns=["Name (Nickname)", "Played", "Points", "Wins", "PR wins", "Losses", "Win%", "Averaged PR", "Averaged Luck"]
             )
             st.subheader("Series Standings with Points:")
             st.dataframe(df)
@@ -273,7 +273,7 @@ def display_matchtype_standings_with_points(match_type_id):
                 pr_wins = int(stat[7] or 0)
                 avg_luck = f"{stat[8]:.2f}" if stat[8] is not None else "-"
                 formatted_stats.append([
-                    name_with_nickname, played, points, wins, losses, win_percentage, avg_pr, pr_wins, avg_luck
+                    name_with_nickname, played, points, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
                 ])
             except IndexError as ie:
                 st.warning(f"Skipping malformed row: {stat}. Error: {ie}")
@@ -284,7 +284,7 @@ def display_matchtype_standings_with_points(match_type_id):
         if formatted_stats:
             df = pd.DataFrame(
                 formatted_stats,
-                columns=["Name (Nickname)", "Played", "Points", "Wins", "Losses", "Win%", "Averaged PR", "PR Wins", "Averaged Luck"]
+                columns=["Name (Nickname)", "Played", "Points", "Wins", "PR Wins", "Losses", "Win%", "Averaged PR", "Averaged Luck"]
             )
             st.subheader("Standings with Points:")
             st.dataframe(df)
