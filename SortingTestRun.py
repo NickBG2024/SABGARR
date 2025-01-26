@@ -4,6 +4,9 @@ import re
 import random
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from database import display_series_standings_with_points, display_matchtype_standings_with_points, display_matchtype_standings_with_points_bold, smccc, display_series_with_points, get_unique_player_count_by_series, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone
 
@@ -121,8 +124,24 @@ with tab3:
     
     # Streamlit bar chart
     st.subheader("📊 Average PR per League")
-    st.line_chart(df.set_index("League"))
-    #st.bar_chart(df.set_index("League"))
+    #st.line_chart(df.set_index("League"))
+    st.bar_chart(df.set_index("League"))
+
+    # Set up the figure and axis
+    fig, ax = plt.subplots(figsize=(8, 5))
+    sns.barplot(x="League", y="Average PR", data=df, ax=ax, palette="coolwarm")
+    
+    # Add value labels on top of the bars
+    for i, v in enumerate(average_prs):
+        ax.text(i, v + 0.5, f"{v:.2f}", ha='center', fontsize=12, fontweight='bold')
+    
+    # Set labels and title
+    ax.set_ylabel("Average PR")
+    ax.set_xlabel("League")
+    ax.set_title("Average PR per League")
+    
+    # Display the chart in Streamlit
+    st.pyplot(fig)
 
     with tab4:
         display_series_standings_with_points(series_id)        
