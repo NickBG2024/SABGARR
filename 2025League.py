@@ -76,7 +76,7 @@ with tab2:
         
         # Display metrics
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("A-League progress:", metric_value,percentage)
+        col1.metric("A-League progress:", metric_value,({percentage:.1f}%))
         col2.metric("Games remaining:", games_left)
         col3.metric("Days left:", days_left)
         col4.metric("Average PR:", ave_pr)
