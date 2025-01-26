@@ -5,3 +5,5 @@ bcrypt
 mysql-connector-python
 altair==4.1.0
 streamlit-aggrid==0.3.3
+matplotlib
+seaborn
