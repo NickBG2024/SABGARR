@@ -30,6 +30,22 @@ tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "2025 
 
 # Content for each tab
 with tab1:
+
+    # League names and their corresponding average PR values
+    leagues = ["A-League", "B-League", "C-League", "D-League", "E-League", "F-League"]
+    average_prs = [5.65, 9.68, 10.07, 12.77, 15.45, 20.64]
+    
+    # Create a DataFrame
+    df = pd.DataFrame({"League": leagues, "Average PR": average_prs})
+    
+    # Streamlit bar chart
+    st.subheader("📊 Average PR per League")
+    st.bar_chart(df.set_index("League"))
+    
+    # Optional: Show data as a table below the chart
+    st.write("### Data Table:")
+    st.dataframe(df)
+
     st.header("Player Standings - ordered by PR")
     st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
     # Example series id
