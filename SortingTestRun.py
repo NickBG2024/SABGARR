@@ -31,21 +31,6 @@ tab1, tab2, tab3 = st.tabs(["Player Standings", "Sorting Groups (1 - 7)", "2025 
 # Content for each tab
 with tab1:
 
-    # League names and their corresponding average PR values
-    leagues = ["A-League", "B-League", "C-League", "D-League", "E-League", "F-League"]
-    average_prs = [5.65, 9.68, 10.07, 12.77, 15.45, 20.64]
-    
-    # Create a DataFrame
-    df = pd.DataFrame({"League": leagues, "Average PR": average_prs})
-    
-    # Streamlit bar chart
-    st.subheader("📊 Average PR per League")
-    st.bar_chart(df.set_index("League"))
-    
-    # Optional: Show data as a table below the chart
-    st.write("### Data Table:")
-    st.dataframe(df)
-
     st.header("Player Standings - ordered by PR")
     st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
     # Example series id
@@ -125,16 +110,19 @@ with tab2:
     tab4, tab5, tab6, tab7, tab8, tab9, tab10  = st.tabs(["Group 1", "Group 2", "Group 3", "Group 4", "Group 5","Group 6","Group 7"])
 with tab3:
     # Title for the page
-    st.title("Streamlit PDF Viewer")
+    st.title("League averages:")
+
+     # League names and their corresponding average PR values
+    leagues = ["A-League", "B-League", "C-League", "D-League", "E-League", "F-League"]
+    average_prs = [5.65, 9.68, 10.07, 12.77, 15.45, 20.64]
     
-    # Add the PDF viewer
-    pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v3dot1.pdf"  # Replace with your PDF's URL
-    st.markdown(
-        f"""
-        <iframe src="{pdf_url}" width="700" height="1000" frameborder="0"></iframe>
-        """,
-        unsafe_allow_html=True,
-    )
+    # Create a DataFrame
+    df = pd.DataFrame({"League": leagues, "Average PR": average_prs})
+    
+    # Streamlit bar chart
+    st.subheader("📊 Average PR per League")
+    st.bar_chart(df.set_index("League"))
+
     with tab4:
         display_series_standings_with_points(series_id)        
     with tab5:
