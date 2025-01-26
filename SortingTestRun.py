@@ -121,7 +121,8 @@ with tab3:
     
     # Streamlit bar chart
     st.subheader("📊 Average PR per League")
-    st.bar_chart(df.set_index("League"))
+    st.line_chart(df.set_index("League"))
+    #st.bar_chart(df.set_index("League"))
 
     with tab4:
         display_series_standings_with_points(series_id)        
