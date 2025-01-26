@@ -111,7 +111,7 @@ with tab3:
         
         # Display metrics
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("B-League progress:", metric_value)
+        col1.metric("B-League progress:", metric_value, f"{percentage:.1f}%")
         col2.metric("Games remaining:", games_left)
         col3.metric("Days left:", days_left)
         col4.metric("Average PR:", ave_pr)
@@ -146,7 +146,7 @@ with tab4:
         
         # Display metrics
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("C-League progress:", metric_value)
+        col1.metric("C-League progress:", metric_value, f"{percentage:.1f}%")
         col2.metric("Games remaining:", games_left)
         col3.metric("Days left:", days_left)
         col4.metric("Average PR:", ave_pr)
@@ -180,7 +180,7 @@ with tab5:
         
         # Display metrics
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("D-League progress:", metric_value)
+        col1.metric("D-League progress:", metric_value, f"{percentage:.1f}%")
         col2.metric("Games remaining:", games_left)
         col3.metric("Days left:", days_left)
         col4.metric("Average PR:", ave_pr)
@@ -214,7 +214,7 @@ with tab6:
         
         # Display metrics
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("E-League progress:", metric_value)
+        col1.metric("E-League progress:", metric_value, f"{percentage:.1f}%")
         col2.metric("Games remaining:", games_left)
         col3.metric("Days left:", days_left)
         col4.metric("Average PR:", ave_pr)
@@ -248,7 +248,7 @@ with tab7:
         
         # Display metrics
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("F-League progress:", metric_value)
+        col1.metric("F-League progress:", metric_value, f"{percentage:.1f}%")
         col2.metric("Games remaining:", games_left)
         col3.metric("Days left:", days_left)
         col4.metric("Average PR:", ave_pr)
