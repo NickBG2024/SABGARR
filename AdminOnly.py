@@ -71,6 +71,7 @@ st.sidebar.subheader("Admin-Functions: Main")
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
 # Checkbox to toggle email checker on/off
 email_checker_checkbox = st.sidebar.checkbox("Enable Email Checker", value=email_checker_status)
+see_series_details = st.sidebar.checkbox("Series details")
 
 # Sidebar checkboxes for adding to databases
 st.sidebar.subheader("Add to Databases")
@@ -105,6 +106,38 @@ if email_checker_checkbox != email_checker_status:
     set_email_checker_status(email_checker_checkbox)
     st.success(f"Email Checker {'enabled' if email_checker_checkbox else 'disabled'}")
 
+if see_series_details:
+    st.subheader("Series Details")
+    # Step 1: Fetch Series List
+    series_list = get_series_list()  # Fetch Series from database
+    
+    if series_list:
+        series_options = {series[0]: series[1] for series in series_list}  # {id: name}
+        selected_series_id = st.selectbox("Select a Series", options=series_options.keys(), format_func=lambda x: series_options[x])
+    
+        if selected_series_id:
+            # Step 2: Fetch Series-wide match stats
+            total_matches_played = get_match_count_by_series(selected_series_id)
+            total_fixtures = get_fixture_count_by_series(selected_series_id)
+            matches_left = total_fixtures - total_matches_played
+    
+            # Display overall progress
+            col1, col2 = st.columns(2)
+            col1.metric("Total Matches Played:", f"{total_matches_played}/{total_fixtures}")
+            col2.metric("Matches Left:", matches_left)
+    
+            # Step 3: Show match progress per Match Type
+            st.subheader("Match Type Breakdown")
+            match_types = get_match_types_in_series(selected_series_id)
+    
+            if match_types:
+                for match_type_id, match_type_title in match_types:
+                    played = get_match_count_by_matchtype(match_type_id)
+                    total = get_fixture_count_by_matchtype(match_type_id)
+                    remaining = total - played
+                    st.metric(match_type_title, f"{played}/{total}", f"{remaining} left")
+
+#-------------------------------------------------------------------------------------------------------
 # Generate Fixtures UI
 if generate_fixtures:
     st.subheader("Generate Fixtures")
