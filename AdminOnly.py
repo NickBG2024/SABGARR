@@ -109,7 +109,7 @@ if email_checker_checkbox != email_checker_status:
 if see_series_details:
     st.subheader("Series Details")
     # Step 1: Fetch Series List
-    series_list = get_series_list()  # Fetch Series from database
+    series_list = get_series()  # Fetch Series from database
     
     if series_list:
         series_options = {series[0]: series[1] for series in series_list}  # {id: name}
