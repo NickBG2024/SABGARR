@@ -143,7 +143,8 @@ if see_series_details:
                         percentage = (total / played) * 100
                     else : 
                         percentage = 0
-                    st.metric(match_type_title, f"{played}/{total} ({percentage:.1f}%)", f"{remaining} left")
+                    metval = f"{played}/{total} ({percentage:.1f}%)"
+                    st.metric(match_type_title, metval, f"{remaining} left")
 
 #-------------------------------------------------------------------------------------------------------
 # Generate Fixtures UI
