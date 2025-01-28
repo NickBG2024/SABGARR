@@ -117,8 +117,8 @@ if see_series_details:
     
         if selected_series_id:
             # Step 2: Fetch Series-wide match stats
-            total_matches_played = get_match_count_by_series(selected_series_id)
-            total_fixtures = get_fixture_count_by_series(selected_series_id)
+            total_matches_played = get_matchcount_by_series(selected_series_id)
+            total_fixtures = get_fixturescount_by_series(selected_series_id)
             matches_left = total_fixtures - total_matches_played
     
             # Display overall progress
