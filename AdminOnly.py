@@ -128,7 +128,7 @@ if see_series_details:
     
             # Step 3: Show match progress per Match Type
             st.subheader("Match Type Breakdown")
-            match_types = get_match_types(selected_series_id)
+            match_types = get_series_match_types(selected_series_id)
     
             if match_types:
                 for match_type_id, match_type_title in match_types:
