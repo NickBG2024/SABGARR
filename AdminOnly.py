@@ -140,7 +140,7 @@ if see_series_details:
                     total = get_fixturescount_by_matchtype(match_type_id)
                     remaining = total - played
                     if played != 0:
-                        percentage = (total / played)
+                        percentage = (played/total) * 100
                     else : 
                         percentage = 0
                     metval = f"{played}/{total} ({percentage:.1f}%)"
