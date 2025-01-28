@@ -132,8 +132,8 @@ if see_series_details:
     
             if match_types:
                 for match_type_id, match_type_title in match_types:
-                    played = get_match_count_by_matchtype(match_type_id)
-                    total = get_fixture_count_by_matchtype(match_type_id)
+                    played = get_matchcount_by_matchtype(match_type_id)
+                    total = get_fixturescount_by_matchtype(match_type_id)
                     remaining = total - played
                     st.metric(match_type_title, f"{played}/{total}", f"{remaining} left")
 
