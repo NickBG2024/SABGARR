@@ -13,6 +13,7 @@ from database import (
     get_fixtures_with_names,
     get_players_simple,
     get_players_full,
+    get_matchcount_by_matchtype,
     get_matchcount_by_series,
     get_match_types,
     get_match_results,
