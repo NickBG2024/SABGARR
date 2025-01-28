@@ -141,7 +141,8 @@ if see_series_details:
                     remaining = total - played
                     if played != 0:
                         percentage = (total / played) * 100
-                    else percentage = 0
+                    else : 
+                        percentage = 0
                     st.metric(match_type_title, f"{played}/{total} ({percentage:.1f}%)", f"{remaining} left")
 
 #-------------------------------------------------------------------------------------------------------
