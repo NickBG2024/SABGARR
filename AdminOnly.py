@@ -124,7 +124,9 @@ if see_series_details:
     
             # Display overall progress
             col1, col2 = st.columns(2)
-            col1.metric("Total Matches Played:", f"{total_matches_played}/{total_fixtures}")
+            percentage = (total_matches_played / total_fixtures) * 100
+            metric_value = f"{total_matches_played}/{total_fixtures} ({percentage:.1f}%)"
+            col1.metric("Total Matches Played:", metric_value)
             col2.metric("Matches Left:", matches_left)
     
             # Step 3: Show match progress per Match Type
@@ -136,7 +138,10 @@ if see_series_details:
                     played = get_matchcount_by_matchtype(match_type_id)
                     total = get_fixturescount_by_matchtype(match_type_id)
                     remaining = total - played
-                    st.metric(match_type_title, f"{played}/{total}", f"{remaining} left")
+                    if played != 0
+                        percentage = (total / played) * 100
+                    else percentage = 0
+                    st.metric(match_type_title, f"{played}/{total} ({percentage:.1f}%)", f"{remaining} left")
 
 #-------------------------------------------------------------------------------------------------------
 # Generate Fixtures UI
