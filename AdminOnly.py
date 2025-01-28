@@ -8,6 +8,7 @@ from database import (
     add_player,
     add_match_type,
     add_match_result,
+    get_averagePR_by_matchtype,
     get_fixtures,
     get_fixturescount_by_matchtype,
     get_fixturescount_by_series,
