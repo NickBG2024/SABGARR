@@ -9,6 +9,7 @@ from database import (
     add_match_type,
     add_match_result,
     get_fixtures,
+    get_fixturescount_by_matchtype,
     get_fixturescount_by_series,
     get_fixtures_with_names,
     get_players_simple,
@@ -138,7 +139,7 @@ if see_series_details:
                     played = get_matchcount_by_matchtype(match_type_id)
                     total = get_fixturescount_by_matchtype(match_type_id)
                     remaining = total - played
-                    if played != 0
+                    if played != 0:
                         percentage = (total / played) * 100
                     else percentage = 0
                     st.metric(match_type_title, f"{played}/{total} ({percentage:.1f}%)", f"{remaining} left")
