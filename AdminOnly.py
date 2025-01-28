@@ -146,6 +146,53 @@ if see_series_details:
                     metval = f"{played}/{total} ({percentage:.1f}%)"
                     st.metric(match_type_title, metval, f"{remaining} left")
 
+            #show Ave PRs
+            st.title("League averages:")
+            match_types = get_series_match_types(selected_series_id)
+            if match_types:
+                for match_type_id, match_type_title in match_types:
+                    matchtypePR = get_averagePR_by_matchtype(match_type_id)
+
+
+            # Step 1: Get Match Types for the Selected Series
+            match_types = get_series_match_types(selected_series_id)
+            
+            # Step 2: Fetch PR values for each match type in the series
+            league_names = []  # Store league names dynamically
+            average_prs = []   # Store corresponding PR values
+            
+            if match_types:
+                for match_type_id, match_type_title in match_types:
+                    league_names.append(match_type_title)  # Use match_type_title as league name
+                    average_prs.append(get_averagePR_by_matchtype(match_type_id))
+            
+            # Step 3: Create DataFrame
+            df = pd.DataFrame({"League": league_names, "Average PR": average_prs})
+            
+            # Step 4: Display DataFrame and Chart
+            st.dataframe(df)
+        
+            # Streamlit bar chart
+            st.subheader("📊 Average PR per League")
+            #st.line_chart(df.set_index("League"))
+            st.bar_chart(df.set_index("League"))
+        
+            # Set up the figure and axis
+            fig, ax = plt.subplots(figsize=(8, 5))
+            sns.barplot(x="League", y="Average PR", data=df, ax=ax, palette="coolwarm")
+            
+            # Add value labels on top of the bars
+            for i, v in enumerate(average_prs):
+                ax.text(i, v + 0.5, f"{v:.2f}", ha='center', fontsize=12, fontweight='bold')
+            
+            # Set labels and title
+            ax.set_ylabel("Average PR")
+            ax.set_xlabel("League")
+            ax.set_title("Average PR per League")
+            
+            # Display the chart in Streamlit
+            st.pyplot(fig)
+
 #-------------------------------------------------------------------------------------------------------
 # Generate Fixtures UI
 if generate_fixtures:
