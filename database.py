@@ -250,7 +250,7 @@ def display_matchtype_standings_with_points(match_type_id):
             GROUP BY
                 p.PlayerID, p.Name, p.Nickname
             ORDER BY
-                Points DESC;
+                Points DESC, Wins DESC;  -- ADDED WINS DESC FOR TIEBREAKERS
         """
         cursor.execute(query, (match_type_id,))
         player_stats = cursor.fetchall()
@@ -284,10 +284,17 @@ def display_matchtype_standings_with_points(match_type_id):
         if formatted_stats:
             df = pd.DataFrame(
                 formatted_stats,
-                columns=["Name (Nickname)", "Played", "Points", "Wins", "PR Wins", "Losses", "Win%", "Averaged PR", "Averaged Luck"]
+                columns=["Name (Nickname)", "Played", "Points", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
             )
+
+            # Customize Table Display
             st.subheader("Standings with Points:")
-            st.dataframe(df)
+            st.dataframe(df.style.format({
+                "Win%": "{:.2f}%",
+                "Avg PR": "{:.2f}",
+                "Avg Luck": "{:.2f}"
+            }).highlight_max(["Points", "Wins"], color="lightgreen", axis=0))  # Highlight best players
+
         else:
             st.subheader("No valid matches to display.")
 
