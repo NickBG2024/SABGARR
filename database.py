@@ -4,6 +4,7 @@ import imaplib
 import streamlit as st
 import datetime
 import pandas as pd
+from decimal import Decimal
 
 # Create a connection to the database
 def create_connection():
@@ -20,6 +21,15 @@ def create_connection():
         st.error(f"Error connecting to the database: {e}")
         return None
 
+def safe_float(value):
+    """Convert Decimal or string to float safely and format to 2 decimal places."""
+    try:
+        if isinstance(value, Decimal):  # Convert Decimal to float
+            value = float(value)
+        return f"{float(value):.2f}"
+    except (ValueError, TypeError):
+        return "-"
+        
 def display_series_standings_with_points(series_id):
     """
     Fetch and display standings with points for a specific series.
@@ -263,16 +273,16 @@ def display_matchtype_standings_with_points(match_type_id):
         formatted_stats = []
         for stat in player_stats:
             try:
-                st.write(f"Raw data: {stat}")  # Debugging: Show the row values
                 name_with_nickname = f"{stat[1]} ({stat[2]})"
                 played = int(stat[3] or 0) + int(stat[4] or 0)  # Wins + Losses
                 wins = int(stat[3] or 0)
                 losses = int(stat[4] or 0)
                 points = int(stat[9] or 0)  # Adjusted for the Points column
                 win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
-                avg_pr = f"{float(stat[6]):.2f}" if stat[6] is not None else "-"
-                avg_luck = f"{float(stat[8]):.2f}" if stat[8] is not None else "-"
+                avg_pr = safe_float(stat[6])  # Uses safe_float function
                 pr_wins = int(stat[7] or 0)
+                avg_luck = safe_float(stat[8])  # Uses safe_float function
+                
                 formatted_stats.append([
                     name_with_nickname, played, points, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
                 ])
