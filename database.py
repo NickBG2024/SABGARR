@@ -271,7 +271,6 @@ def display_matchtype_standings_with_points(match_type_id):
 
         # Prepare formatted stats for display
         formatted_stats = []
-        st.write(player_stats)  # See the full list before processing
         for stat in player_stats:
             try:
                 name_with_nickname = f"{stat[1]} ({stat[2]})"
@@ -287,7 +286,6 @@ def display_matchtype_standings_with_points(match_type_id):
                 formatted_stats.append([
                     name_with_nickname, played, points, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
                 ])
-                st.write(formatted_stats)
             except IndexError as ie:
                 st.warning(f"Skipping malformed row: {stat}. Error: {ie}")
             except Exception as e:
