@@ -269,9 +269,9 @@ def display_matchtype_standings_with_points(match_type_id):
                 losses = int(stat[4] or 0)
                 points = int(stat[9] or 0)  # Adjusted for the Points column
                 win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
-                avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+                avg_pr = f"{float(stat[6]):.2f}" if stat[6] is not None else "-"
+                avg_luck = f"{float(stat[8]):.2f}" if stat[8] is not None else "-"
                 pr_wins = int(stat[7] or 0)
-                avg_luck = f"{stat[8]:.2f}" if stat[8] is not None else "-"
                 formatted_stats.append([
                     name_with_nickname, played, points, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
                 ])
