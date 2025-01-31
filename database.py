@@ -299,14 +299,16 @@ def display_matchtype_standings_with_points(match_type_id):
                 formatted_stats,
                 columns=["Name (Nickname)", "Played", "Points", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
             )
-
+            
             # Customize Table Display
             st.subheader("Standings with Points:")
-            st.dataframe(df.style.format({
-                "Win%": "{:.2f}%",
-                "Avg PR": "{:.2f}",
-                "Avg Luck": "{:.2f}"
-            }).highlight_max(["Points", "Wins"], color="lightgreen", axis=0))  # Highlight best players
+            st.dataframe(df)
+            
+            #st.dataframe(df.style.format({
+            #    "Win%": "{:.2f}%",
+            #    "Avg PR": "{:.2f}",
+            #    "Avg Luck": "{:.2f}"
+            #}).highlight_max(["Points", "Wins"], color="lightgreen", axis=0))  # Highlight best players
 
         else:
             st.subheader("No valid matches to display.")
