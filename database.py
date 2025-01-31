@@ -299,6 +299,7 @@ def display_matchtype_standings_with_points(match_type_id):
             )
             
             # Customize Table Display
+            print(df.dtypes)  # Check data types of all columns
             st.subheader("Standings with Points:")
             st.dataframe(df)
             
