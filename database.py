@@ -263,6 +263,7 @@ def display_matchtype_standings_with_points(match_type_id):
         formatted_stats = []
         for stat in player_stats:
             try:
+                st.write(f"Raw data: {stat}")  # Debugging: Show the row values
                 name_with_nickname = f"{stat[1]} ({stat[2]})"
                 played = int(stat[3] or 0) + int(stat[4] or 0)  # Wins + Losses
                 wins = int(stat[3] or 0)
