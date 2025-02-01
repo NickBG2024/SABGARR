@@ -399,7 +399,9 @@ def display_matchtype_standings_with_points_and_details(match_type_id):
                 played = int(stat[3] or 0) + int(stat[4] or 0)  # Wins + Losses
                 wins = int(stat[3] or 0)
                 losses = int(stat[4] or 0)
-                points = int(stat[9] or 0)  # Adjusted for the Points column
+                points = int(stat[9] or 0)
+ points_percentage = f"{(points/(played * 3)) * 100:.2f}%" if played > 0 else "0.00%"
+# Adjusted for the Points column
                 win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
                 avg_pr = safe_float(stat[6])  # Uses safe_float function
                 pr_wins = int(stat[7] or 0)
