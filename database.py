@@ -321,6 +321,128 @@ def display_matchtype_standings_with_points(match_type_id):
         if conn:
             conn.close()
 
+def display_matchtype_standings_with_points_and_details(match_type_id):
+    """
+    Fetch and display standings with points for a specific match type.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # SQL Query to fetch player stats
+        query = """
+            SELECT
+                p.PlayerID,
+                p.Name,
+                p.Nickname,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+                        ELSE 0 
+                    END) AS Wins,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1
+                        ELSE 0 
+                    END) AS Losses,
+                COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
+                AVG(CASE 
+                        WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                        WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR
+                        ELSE NULL 
+                    END) AS AveragePR,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+                        ELSE 0 
+                    END) AS PRWins,
+                AVG(CASE 
+                        WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
+                        WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck
+                        ELSE NULL 
+                    END) AS AverageLuck,
+                (SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+                        ELSE 0 
+                    END) * 2) +
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+                        ELSE 0 
+                    END) AS Points
+            FROM
+                Players p
+            LEFT JOIN Fixtures f 
+                ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+            LEFT JOIN MatchResults mr 
+                ON (f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID)
+            WHERE
+                f.MatchTypeID = %s
+            GROUP BY
+                p.PlayerID, p.Name, p.Nickname
+            ORDER BY
+                Points DESC, Wins DESC;  -- ADDED WINS DESC FOR TIEBREAKERS
+        """
+        cursor.execute(query, (match_type_id,))
+        player_stats = cursor.fetchall()
+
+        if not player_stats:
+            st.subheader("No matches found for this match type.")
+            return
+
+        # Prepare formatted stats for display
+        formatted_stats = []
+        for stat in player_stats:
+            try:
+                name_with_nickname = f"{stat[1]} ({stat[2]})"
+                played = int(stat[3] or 0) + int(stat[4] or 0)  # Wins + Losses
+                wins = int(stat[3] or 0)
+                losses = int(stat[4] or 0)
+                points = int(stat[9] or 0)  # Adjusted for the Points column
+                win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
+                avg_pr = safe_float(stat[6])  # Uses safe_float function
+                pr_wins = int(stat[7] or 0)
+                avg_luck = safe_float(stat[8])  # Uses safe_float function
+                
+                formatted_stats.append([
+                    name_with_nickname, played, points, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
+                ])
+            except IndexError as ie:
+                st.warning(f"Skipping malformed row: {stat}. Error: {ie}")
+            except Exception as e:
+                st.error(f"Unexpected error while processing data: {e}")
+
+        # Convert to DataFrame for display
+        if formatted_stats:
+            df = pd.DataFrame(
+                formatted_stats,
+                columns=["Name (Nickname)", "Played", "Points", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
+            )
+            
+            # Customize Table Display
+            print(df.dtypes)  # Check data types of all columns
+            st.subheader("Standings with Points:")
+            st.dataframe(df)
+            
+            #st.dataframe(df.style.format({
+            #    "Win%": "{:.2f}%",
+            #    "Avg PR": "{:.2f}",
+            #    "Avg Luck": "{:.2f}"
+            #}).highlight_max(["Points", "Wins"], color="lightgreen", axis=0))  # Highlight best players
+
+        else:
+            st.subheader("No valid matches to display.")
+
+    except Exception as e:
+        st.error(f"Error displaying match type standings: {e}")
+    finally:
+        # Ensure resources are properly closed
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 def display_matchtype_standings_with_points_bold(match_type_id):
     """
     Fetch and display standings with points for a specific match type, highlighting the Points column and bolding the lower PR in each row.
