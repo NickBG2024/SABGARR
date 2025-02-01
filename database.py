@@ -408,7 +408,7 @@ def display_matchtype_standings_with_points_and_details(match_type_id):
                 avg_luck = safe_float(stat[8])  # Uses safe_float function
                 
                 formatted_stats.append([
-                    name_with_nickname, played, points, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
+                    name_with_nickname, played, points, points_percentage, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
                 ])
             except IndexError as ie:
                 st.warning(f"Skipping malformed row: {stat}. Error: {ie}")
@@ -419,7 +419,7 @@ def display_matchtype_standings_with_points_and_details(match_type_id):
         if formatted_stats:
             df = pd.DataFrame(
                 formatted_stats,
-                columns=["Name (Nickname)", "Played", "Points", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
+                columns=["Name (Nickname)", "Played", "Points", "Points%", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
             )
             
             # Customize Table Display
