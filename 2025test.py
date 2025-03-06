@@ -32,6 +32,17 @@ else:
     percentage = 0
     metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
+# Add an icon image to sidebar
+st.sidebar.markdown(
+    """
+    <div style='text-align: center; margin: 20px 5px 20px 5px;'>
+        <img src='https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg' width='250'/>
+    </div>
+    """, unsafe_allow_html=True
+)
+st.sidebar.title("SABGA Stats")
+
+
 # Public-facing app for RR Leagues
 st.title("SABGA Backgammon presents...") 
 col1, col2 = st.columns(2)
@@ -235,12 +246,3 @@ with tab7:
         display_match_grid(match_type_id)        
         list_remaining_fixtures(match_type_id)
         show_matches_completed(match_type_id)
-
-# Add an icon image to sidebar
-st.sidebar.markdown(
-    """
-    <div style='text-align: center; margin: 20px 5px 20px 5px;'>
-        <img src='https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg' width='250'/>
-    </div>
-    """, unsafe_allow_html=True
-)
