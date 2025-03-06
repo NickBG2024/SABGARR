@@ -40,10 +40,11 @@ st.sidebar.markdown(
     </div>
     """, unsafe_allow_html=True
 )
+
 st.sidebar.title("SABGA Stats:")
 st.sidebar.header("Past Series:")
 st.sidebar.subheader("2025 - Series 1:") 
-
+st.sidebar.write("hoyaaaa")
 
 # Public-facing app for RR Leagues
 st.title("SABGA Backgammon presents...") 
