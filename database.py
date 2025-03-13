@@ -553,7 +553,8 @@ def display_matchtype_standings_with_points_and_details(match_type_id):
             # Customize Table Display
             print(df.dtypes)  # Check data types of all columns
             st.subheader("Standings with Points:")
-            st.dataframe(df)
+            with st.spinner("Loading table..."):
+                st.dataframe(df)
             
             #st.dataframe(df.style.format({
             #    "Win%": "{:.2f}%",
