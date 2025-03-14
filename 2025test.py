@@ -10,12 +10,20 @@ from datetime import datetime, timedelta, timezone, date
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
 
+# Add an icon image to sidebar
+st.sidebar.markdown(
+    """
+    <div style='text-align: center; margin: 20px 5px 20px 5px;'>
+        <img src='https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg' width='250'/>
+    </div>
+    """, unsafe_allow_html=True
+)
 st.sidebar.title("Series Selection:")
 
 # Create a radio button section with "Current Series" as the default
 choice = st.sidebar.radio(
     "Select a series:",  
-    ["Current Series", "2025 - S1", "2024 - Sorting League"],  
+    ["Current Series: 2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],  
     index=0  # Sets "Current Series" as the default selection
 )
 
@@ -51,15 +59,6 @@ if total_fixtures !=0:
 else:
     percentage = 0
     metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
-
-# Add an icon image to sidebar
-st.sidebar.markdown(
-    """
-    <div style='text-align: center; margin: 20px 5px 20px 5px;'>
-        <img src='https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg' width='250'/>
-    </div>
-    """, unsafe_allow_html=True
-)
 
 # Public-facing app for RR Leagues
 st.title("SABGA Backgammon presents...") 
