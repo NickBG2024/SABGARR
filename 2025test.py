@@ -28,6 +28,9 @@ choice = st.sidebar.radio(
     index=0  # Sets "Current Series" as the default selection
 )
 
+def league_tab(matchtype_id):
+    st.write(matchtype_id)
+
 # Display content based on selection
 
 if choice == "Current Series":
@@ -68,6 +71,7 @@ if choice == "Current Series":
     # Content for each tab
     with tab1:    
         st.header("Overview:")
+        league_tab(3)
         pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4.pdf"
         st.markdown("**The 2025 Round Robin leagues kick-off with Series 1, taking place 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
         st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.pdf]({pdf_url})", unsafe_allow_html=True)
