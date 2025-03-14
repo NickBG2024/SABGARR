@@ -1803,22 +1803,22 @@ def show_matches_completed(match_type_id):
             ]
         )
 
-   # Step 4: Display results
-   st.subheader(f"Completed Matches:")
-      # Create DataFrame
-    df = pd.DataFrame(data, columns=[
-        "Date Completed","Result", "Score", 
-        "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
-    ])
-
-    # Step 4: Display DataFrame
-    if not df.empty:
-        st.subheader("Completed Matchess:")
-        st.dataframe(df, hide_index=True)
-    else:
-        st.subheader("No completed matches found.")
-
-    )
+       # Step 4: Display results
+       st.subheader(f"Completed Matches:")
+          # Create DataFrame
+        df = pd.DataFrame(data, columns=[
+            "Date Completed","Result", "Score", 
+            "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+        ])
+    
+        # Step 4: Display DataFrame
+        if not df.empty:
+            st.subheader("Completed Matchess:")
+            st.dataframe(df, hide_index=True)
+        else:
+            st.subheader("No completed matches found.")
+    
+        )
     
 def get_match_results_for_grid(match_type_id):
     try:
