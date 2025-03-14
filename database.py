@@ -1641,7 +1641,7 @@ def show_matches_completed_by_series(series_id):
     finally:
         conn.close()
         
-def show_matches_completed(match_type_id):
+def show_matches_completed_in_table(match_type_id):
     # Connect to the database
     conn = create_connection()
     cursor = conn.cursor()
@@ -1729,6 +1729,97 @@ def show_matches_completed(match_type_id):
         }
     )
 
+def show_matches_completed(match_type_id):
+    # Connect to the database
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    # Query to fetch completed matches for the given MatchTypeID
+    query = """
+    SELECT 
+        MatchResults.Date AS MatchDate,
+        p1.Name AS WinnerName, 
+        p1.Nickname AS WinnerNickname, 
+        p2.Name AS LoserName, 
+        p2.Nickname AS LoserNickname, 
+        MatchResults.Player1Points AS Player1Points,
+        MatchResults.Player2Points AS Player2Points,
+        MatchResults.Player1PR AS Player1PR, 
+        MatchResults.Player1Luck AS Player1Luck, 
+        MatchResults.Player2PR AS Player2PR, 
+        MatchResults.Player2Luck AS Player2Luck
+    FROM MatchResults
+    JOIN Fixtures ON MatchResults.FixtureID = Fixtures.FixtureID
+    JOIN Players p1 ON MatchResults.Player1ID = p1.PlayerID
+    JOIN Players p2 ON MatchResults.Player2ID = p2.PlayerID
+    WHERE Fixtures.MatchTypeID = %s AND Fixtures.Completed = 1
+    ORDER BY MatchResults.Date DESC;
+    """
+    
+    cursor.execute(query, (match_type_id,))
+    results = cursor.fetchall()
+
+    conn.close()
+
+    # If no matches found
+    if not results:
+        st.warning("No completed matches found for this match type.")
+        return
+
+    # Prepare data for display
+    data = []
+    for row in results:
+        match_date = row[0].strftime("%Y-%m-%d")
+        
+        # Extract values from the row
+        player1_points, player2_points = row[5], row[6]
+        player1_pr, player2_pr = row[7], row[9]
+        player1_luck, player2_luck = row[8], row[10]
+        
+        # Determine winner and loser based on points
+        if player1_points > player2_points:
+            winner_info = f"{row[1]} ({row[2]})"
+            loser_info = f"{row[3]} ({row[4]})"
+            score = f"{player1_points}-{player2_points}"
+            winner_pr, winner_luck = player1_pr, player1_luck
+            loser_pr, loser_luck = player2_pr, player2_luck
+        else:
+            winner_info = f"{row[3]} ({row[4]})"
+            loser_info = f"{row[1]} ({row[2]})"
+            score = f"{player2_points}-{player1_points}"
+            winner_pr, winner_luck = player2_pr, player2_luck
+            loser_pr, loser_luck = player1_pr, player1_luck
+    
+        # Append to the data list
+        data.append(
+            [
+                match_date,
+                f"{winner_info} beat {loser_info}",
+                score,
+                f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
+                f"{winner_luck:.2f}",  # Winner Luck rounded to 2 decimals
+                f"{loser_pr:.2f}",  # Loser PR rounded to 2 decimals
+                f"{loser_luck:.2f}",  # Loser Luck rounded to 2 decimals
+            ]
+        )
+
+   # Step 4: Display results
+   st.subheader(f"Completed Matches:")
+      # Create DataFrame
+    df = pd.DataFrame(data, columns=[
+        "Date Completed","Result", "Score", 
+        "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+    ])
+
+    # Step 4: Display DataFrame
+    if not df.empty:
+        st.subheader("Completed Matches:")
+        st.dataframe(df, hide_index=True)
+    else:
+        st.subheader("No completed matches found.")
+
+    )
+    
 def get_match_results_for_grid(match_type_id):
     try:
         conn = create_connection()
