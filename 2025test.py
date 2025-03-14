@@ -13,7 +13,7 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 # Add an icon image to sidebar
 st.sidebar.markdown(
     """
-    <div style='text-align: center; margin: 20px 5px 20px 5px;'>
+    <div style='text-align: center; margin: 10px 5px 10px 5px;'>
         <img src='https://www.sabga.co.za/wp-content/uploads/2020/06/SABGA_logo_tight.jpg' width='200'/>
     </div>
     """, unsafe_allow_html=True
