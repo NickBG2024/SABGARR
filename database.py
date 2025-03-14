@@ -1758,7 +1758,6 @@ def show_matches_completed(match_type_id):
     
     cursor.execute(query, (match_type_id,))
     results = cursor.fetchall()
-
     conn.close()
 
     # If no matches found
@@ -1791,34 +1790,30 @@ def show_matches_completed(match_type_id):
             loser_pr, loser_luck = player1_pr, player1_luck
     
         # Append to the data list
-        data.append(
-            [
-                match_date,
-                f"{winner_info} beat {loser_info}",
-                score,
-                f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
-                f"{winner_luck:.2f}",  # Winner Luck rounded to 2 decimals
-                f"{loser_pr:.2f}",  # Loser PR rounded to 2 decimals
-                f"{loser_luck:.2f}",  # Loser Luck rounded to 2 decimals
-            ]
-        )
-
-       # Step 4: Display results
-       st.subheader(f"Completed Matches:")
-          # Create DataFrame
-        df = pd.DataFrame(data, columns=[
-            "Date Completed","Result", "Score", 
-            "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+        data.append([
+            match_date,
+            f"{winner_info} beat {loser_info}",
+            score,
+            f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
+            f"{winner_luck:.2f}",  # Winner Luck rounded to 2 decimals
+            f"{loser_pr:.2f}",  # Loser PR rounded to 2 decimals
+            f"{loser_luck:.2f}",  # Loser Luck rounded to 2 decimals
         ])
+
+    # Display results
+    st.subheader("Completed Matches:")
     
-        # Step 4: Display DataFrame
-        if not df.empty:
-            st.subheader("Completed Matchess:")
-            st.dataframe(df, hide_index=True)
-        else:
-            st.subheader("No completed matches found.")
+    # Create DataFrame
+    df = pd.DataFrame(data, columns=[
+        "Date Completed", "Result", "Score", 
+        "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+    ])
     
-        )
+    # Display DataFrame
+    if not df.empty:
+        st.dataframe(df, hide_index=True)
+    else:
+        st.subheader("No completed matches found.")
     
 def get_match_results_for_grid(match_type_id):
     try:
