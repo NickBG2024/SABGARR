@@ -1813,7 +1813,7 @@ def show_matches_completed(match_type_id):
 
     # Step 4: Display DataFrame
     if not df.empty:
-        st.subheader("Completed Matches:")
+        st.subheader("Completed Matchess:")
         st.dataframe(df, hide_index=True)
     else:
         st.subheader("No completed matches found.")
