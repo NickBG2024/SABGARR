@@ -10,6 +10,26 @@ from datetime import datetime, timedelta, timezone, date
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
 
+st.sidebar.title("Series Selection:")
+
+# Create a radio button section with "Current Series" as the default
+choice = st.sidebar.radio(
+    "Select a series:",  
+    ["Current Series", "2025 - S1", "2024 - Sorting League"],  
+    index=0  # Sets "Current Series" as the default selection
+)
+
+# Display content based on selection
+st.write(f"You selected: {choice}")
+
+if choice == "Current Series":
+    st.write("Displaying data for the current series...")
+elif choice == "2025 - S1":
+    st.write("Displaying data for the 2025 - S1 series...")
+elif choice == "2024 - Sorting League":
+    st.write("Displaying data for the 2024 - Sorting League series...")
+
+
 #Initialisation variables:
 series_id = 5
 matches_played = get_matchcount_by_series(series_id)
@@ -40,11 +60,6 @@ st.sidebar.markdown(
     </div>
     """, unsafe_allow_html=True
 )
-
-st.sidebar.title("SABGA Stats:")
-st.sidebar.header("Past Series:")
-st.sidebar.subheader("2025 - Series 1:") 
-st.sidebar.write("hoyaaaa")
 
 # Public-facing app for RR Leagues
 st.title("SABGA Backgammon presents...") 
