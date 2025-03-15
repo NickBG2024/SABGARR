@@ -28,23 +28,24 @@ choice = st.sidebar.radio(
     index=0  # Sets "Current Series" as the default selection
 )
 
-def league_tab(matchtype_id):
+def league_tab(matchtype_id,metric_title):
     st.write(matchtype_id)
+    st.write(metric_title)
 
 # Display content based on selection
 
 if choice == "Current Series":
-    st.write("Displaying data for the current series...")
+    st.write("Loading data for the current series...")
 
     #Initialisation variables:
-    series_id = 5
-    matches_played = get_matchcount_by_series(series_id)
-    total_fixtures = get_fixturescount_by_series(series_id)
+    current_series_id = 5
+    matches_played = get_matchcount_by_series(current_series_id)
+    total_fixtures = get_fixturescount_by_series(current_series_id)
     # Get today and yesterday's date
     today = date.today()
     yesterday = today - timedelta(days=1)
     # Fetch match count for yesterday
-    match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), series_id)
+    match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), current_series_id)
     
     # Calculate days left until end of series 1 (April 1, 2025)
     #today = date.today()
@@ -71,19 +72,19 @@ if choice == "Current Series":
     # Content for each tab
     with tab1:    
         st.header("Overview:")
-        league_tab(3)
+        league_tab(3,"A-League")
         pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4.pdf"
         st.markdown("**The 2025 Round Robin leagues kick-off with Series 1, taking place 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
         st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.pdf]({pdf_url})", unsafe_allow_html=True)
         st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
         
-        #Call function to show series table with series_id
-        #display_series_table_completedonly(series_id)
-        #display_series_table(series_id)
-        #display_sorting_series_table(series_id)
-        display_series_standings_with_points_and_details(series_id)
-        smccc(series_id)
-        #show_matches_completed_by_series(series_id)
+        #Call function to show series table with current_series_id
+        #display_series_table_completedonly(current_series_id)
+        #display_series_table(current_series_id)
+        #display_sorting_series_table(current_series_id)
+        display_series_standings_with_points_and_details(current_series_id)
+        smccc(current_series_id)
+        #show_matches_completed_by_series(current_series_id)
     with tab2:
            # Example match type id        
             match_type_id = 19
