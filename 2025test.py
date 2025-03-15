@@ -18,7 +18,7 @@ st.sidebar.markdown(
     </div>
     """, unsafe_allow_html=True
 )
-st.sidebar.title("SABGA ROUND ROBIN STATS:")
+st.sidebar.title("LEAGUE SERIES STATS:")
 st.sidebar.markdown("Select the Series to display:")
 
 # Create a radio button section with "Current Series" as the default
