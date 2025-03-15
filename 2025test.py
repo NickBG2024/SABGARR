@@ -29,8 +29,6 @@ choice = st.sidebar.radio(
 )
 
 def league_tab(matchtype_id,league_title):
-    st.write(matchtype_id)
-    st.subheader(f"{league_title} Standings")
     league_matches_played = get_matchcount_by_matchtype(matchtype_id)
     league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
     ave_pr = get_averagePR_by_matchtype(matchtype_id)
@@ -47,7 +45,7 @@ def league_tab(matchtype_id,league_title):
     
     # Display metrics
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric(f"{league_title}"," progress:", metric_value, f"{percentage:.1f}%")
+    col1.metric(f"{league_title} Progress", f"{metric_value}", f"{percentage:.1f}%")
     col2.metric("Games remaining:", games_left)
     col3.metric("Days left:", days_left)
     col4.metric("Average PR:", ave_pr)
