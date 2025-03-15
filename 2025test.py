@@ -31,9 +31,9 @@ choice = st.sidebar.radio(
 def league_tab(matchtype_id,league_title):
     st.write(matchtype_id)
     st.subheader(f"{league_title} Standings")
-    league_matches_played = get_matchcount_by_matchtype(match_type_id)
-    league_fixtures = get_fixturescount_by_matchtype(match_type_id)
-    ave_pr = get_averagePR_by_matchtype(match_type_id)
+    league_matches_played = get_matchcount_by_matchtype(matchtype_id)
+    league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
+    ave_pr = get_averagePR_by_matchtype(matchtype_id)
             
     if league_fixtures != 0:
         percentage = (league_matches_played / league_fixtures) * 100
@@ -52,12 +52,12 @@ def league_tab(matchtype_id,league_title):
     col3.metric("Days left:", days_left)
     col4.metric("Average PR:", ave_pr)
     #Call function to show group table with match_type_id
-    display_matchtype_standings_with_points_and_details(match_type_id)
+    display_matchtype_standings_with_points_and_details(matchtype_id)
     #display_group_metrics(match_type_id)
     #display_group_table(match_type_id)
-    display_match_grid(match_type_id)        
-    list_remaining_fixtures(match_type_id)
-    show_matches_completed(match_type_id)
+    display_match_grid(matchtype_id)        
+    list_remaining_fixtures(matchtype_id)
+    show_matches_completed(matchtype_id)
 
 
 # Display content based on selection
