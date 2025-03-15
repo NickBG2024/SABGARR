@@ -28,9 +28,37 @@ choice = st.sidebar.radio(
     index=0  # Sets "Current Series" as the default selection
 )
 
-def league_tab(matchtype_id,metric_title):
+def league_tab(matchtype_id,league_title):
     st.write(matchtype_id)
-    st.write(metric_title)
+    st.subheader(f"{league_title} Standings")
+    league_matches_played = get_matchcount_by_matchtype(match_type_id)
+    league_fixtures = get_fixturescount_by_matchtype(match_type_id)
+    ave_pr = get_averagePR_by_matchtype(match_type_id)
+            
+    if league_fixtures != 0:
+        percentage = (league_matches_played / league_fixtures) * 100
+        #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+        metric_value = f"{league_matches_played}/{league_fixtures}"
+        games_left = league_fixtures - league_matches_played  # Calculate remaining games
+    else:
+        percentage = 0
+        metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+        games_left = 0
+    
+    # Display metrics
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric(f"{league_title}"," progress:", metric_value, f"{percentage:.1f}%")
+    col2.metric("Games remaining:", games_left)
+    col3.metric("Days left:", days_left)
+    col4.metric("Average PR:", ave_pr)
+    #Call function to show group table with match_type_id
+    display_matchtype_standings_with_points_and_details(match_type_id)
+    #display_group_metrics(match_type_id)
+    #display_group_table(match_type_id)
+    display_match_grid(match_type_id)        
+    list_remaining_fixtures(match_type_id)
+    show_matches_completed(match_type_id)
+
 
 # Display content based on selection
 
@@ -66,14 +94,27 @@ if choice == "Current Series":
     col2.metric("Series 1 progress:",metric_value,match_count_yesterday)
     col2.write("Deadline: 1 April 2025")
     #standings = get_sorting_standings()
-    # Create tabs in a section
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"])
+
+    # Define tab names
+    tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"]
+
+    # Define corresponding matchtype IDs (adjust these based on your database)
+    matchtype_ids = {
+        "A-League": 19,
+        "B-League": 20,
+        "C-League": 21,
+        "D-League": 23,
+        "E-League": 24,
+        "F-League": 28
+    }
     
-    # Content for each tab
-    with tab1:    
-        st.header("Overview:")
-        league_tab(3,"A-League")
-        pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4.pdf"
+    # Create tabs
+    tabs = st.tabs(tab_names)
+    
+    # Overview tab
+    with tabs[0]:
+        st.header("Overview")
+        pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4dot1.pdf"
         st.markdown("**The 2025 Round Robin leagues kick-off with Series 1, taking place 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
         st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.pdf]({pdf_url})", unsafe_allow_html=True)
         st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
@@ -85,185 +126,12 @@ if choice == "Current Series":
         display_series_standings_with_points_and_details(current_series_id)
         smccc(current_series_id)
         #show_matches_completed_by_series(current_series_id)
-    with tab2:
-           # Example match type id        
-            match_type_id = 19
-            league_matches_played = get_matchcount_by_matchtype(match_type_id)
-            league_fixtures = get_fixturescount_by_matchtype(match_type_id)
-            ave_pr = get_averagePR_by_matchtype(match_type_id)
-            
-            if league_fixtures != 0:
-                percentage = (league_matches_played / league_fixtures) * 100
-                #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                metric_value = f"{league_matches_played}/{league_fixtures}"
-                games_left = league_fixtures - league_matches_played  # Calculate remaining games
-            else:
-                percentage = 0
-                metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                games_left = 0
-            
-            # Display metrics
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("A-League progress:", metric_value, f"{percentage:.1f}%")
-            col2.metric("Games remaining:", games_left)
-            col3.metric("Days left:", days_left)
-            col4.metric("Average PR:", ave_pr)
-            #Call function to show group table with match_type_id
-            display_matchtype_standings_with_points_and_details(match_type_id)
-            #display_group_metrics(match_type_id)
-            #display_group_table(match_type_id)
-            display_match_grid(match_type_id)        
-            list_remaining_fixtures(match_type_id)
-            show_matches_completed(match_type_id)
-    with tab3:
-           # Example match type id
-            match_type_id = 20
-            league_matches_played = get_matchcount_by_matchtype(match_type_id)
-            league_fixtures = get_fixturescount_by_matchtype(match_type_id)
-            ave_pr = get_averagePR_by_matchtype(match_type_id)
-            
-            if league_fixtures != 0:
-                percentage = (league_matches_played / league_fixtures) * 100
-                #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                metric_value = f"{league_matches_played}/{league_fixtures}"
-                games_left = league_fixtures - league_matches_played  # Calculate remaining games
-            else:
-                percentage = 0
-                metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                games_left = 0
+
     
-            # Display metrics
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("B-League progress:", metric_value, f"{percentage:.1f}%")
-            col2.metric("Games remaining:", games_left)
-            col3.metric("Days left:", days_left)
-            col4.metric("Average PR:", ave_pr)
-            #Call function to show group table with match_type_id
-            display_matchtype_standings_with_points_and_details(match_type_id)
-            #display_group_metrics(match_type_id)
-            #display_group_table(match_type_id)
-            display_match_grid(match_type_id)        
-            list_remaining_fixtures(match_type_id)
-            show_matches_completed(match_type_id)
-    with tab4:
-            # Example match type id
-            match_type_id = 21
-            league_matches_played = get_matchcount_by_matchtype(match_type_id)
-            league_fixtures = get_fixturescount_by_matchtype(match_type_id)
-            ave_pr = get_averagePR_by_matchtype(match_type_id)
-            
-            if league_fixtures != 0:
-                percentage = (league_matches_played / league_fixtures) * 100
-                #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                metric_value = f"{league_matches_played}/{league_fixtures}"
-                games_left = league_fixtures - league_matches_played  # Calculate remaining games
-            else:
-                percentage = 0
-                metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                games_left = 0
-    
-            # Display metrics
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("C-League progress:", metric_value, f"{percentage:.1f}%")
-            col2.metric("Games remaining:", games_left)
-            col3.metric("Days left:", days_left)
-            col4.metric("Average PR:", ave_pr)
-            #Call function to show group table with match_type_id
-            #display_matchtype_standings_with_points(match_type_id)
-            display_matchtype_standings_with_points_and_details(match_type_id)
-            #display_group_metrics(match_type_id)
-            #display_group_table(match_type_id)
-            display_match_grid(match_type_id)        
-            list_remaining_fixtures(match_type_id)
-            show_matches_completed(match_type_id)
-    with tab5:
-            match_type_id = 23
-            league_matches_played = get_matchcount_by_matchtype(match_type_id)
-            league_fixtures = get_fixturescount_by_matchtype(match_type_id)
-            ave_pr = get_averagePR_by_matchtype(match_type_id)
-            
-            if league_fixtures != 0:
-                percentage = (league_matches_played / league_fixtures) * 100
-                #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                metric_value = f"{league_matches_played}/{league_fixtures}"
-                games_left = league_fixtures - league_matches_played  # Calculate remaining games
-            else:
-                percentage = 0
-                metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                games_left = 0
-            
-            # Display metrics
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("D-League progress:", metric_value, f"{percentage:.1f}%")
-            col2.metric("Games remaining:", games_left)
-            col3.metric("Days left:", days_left)
-            col4.metric("Average PR:", ave_pr)
-            #Call function to show group table with match_type_id
-            display_matchtype_standings_with_points_and_details(match_type_id)
-            #display_group_metrics(match_type_id)
-            #display_group_table(match_type_id)
-            display_match_grid(match_type_id)        
-            list_remaining_fixtures(match_type_id)
-            show_matches_completed(match_type_id)
-    with tab6:
-            match_type_id = 24      
-            league_matches_played = get_matchcount_by_matchtype(match_type_id)
-            league_fixtures = get_fixturescount_by_matchtype(match_type_id)
-            ave_pr = get_averagePR_by_matchtype(match_type_id)
-            
-            if league_fixtures != 0:
-                percentage = (league_matches_played / league_fixtures) * 100
-                #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                metric_value = f"{league_matches_played}/{league_fixtures}"
-                games_left = league_fixtures - league_matches_played  # Calculate remaining games
-            else:
-                percentage = 0
-                metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                games_left = 0
-            
-            # Display metrics
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("E-League progress:", metric_value, f"{percentage:.1f}%")
-            col2.metric("Games remaining:", games_left)
-            col3.metric("Days left:", days_left)
-            col4.metric("Average PR:", ave_pr)
-            #Call function to show group table with match_type_id
-            display_matchtype_standings_with_points_and_details(match_type_id)
-            #display_group_metrics(match_type_id)
-            #display_group_table(match_type_id)
-            display_match_grid(match_type_id)        
-            list_remaining_fixtures(match_type_id)
-            show_matches_completed(match_type_id)
-    with tab7:
-            match_type_id = 28     
-            league_matches_played = get_matchcount_by_matchtype(match_type_id)
-            league_fixtures = get_fixturescount_by_matchtype(match_type_id)
-            ave_pr = get_averagePR_by_matchtype(match_type_id)
-            
-            if league_fixtures != 0:
-                percentage = (league_matches_played / league_fixtures) * 100
-                #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                metric_value = f"{league_matches_played}/{league_fixtures}"
-                games_left = league_fixtures - league_matches_played  # Calculate remaining games
-            else:
-                percentage = 0
-                metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-                games_left = 0
-    
-            # Display metrics
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("F-League progress:", metric_value, f"{percentage:.1f}%")
-            col2.metric("Games remaining:", games_left)
-            col3.metric("Days left:", days_left)
-            col4.metric("Average PR:", ave_pr)
-            #Call function to show group table with match_type_id
-            display_matchtype_standings_with_points_and_details(match_type_id)
-            #display_group_metrics(match_type_id)
-            #display_group_table(match_type_id)
-            display_match_grid(match_type_id)        
-            list_remaining_fixtures(match_type_id)
-            show_matches_completed(match_type_id)
-    
+    # League tabs - dynamically call league_tab() with appropriate matchtype_id
+    for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
+        with tabs[i]:
+            league_tab(matchtype_ids[league_name], league_name)    
         
 elif choice == "2025 - Series 1":
     st.write("Displaying data for the 2025 - S1 series...")
