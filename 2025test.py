@@ -24,8 +24,8 @@ st.sidebar.markdown("Select the Series to display:")
 # Create a radio button section with "Current Series" as the default
 series_choice = st.sidebar.radio(
     "Select a series:",  
-    ["Current Series", "2025 - Series 1", "2024 - Sorting League"],  
-    index=0  # Sets "Current Series" as the default selection
+    ["2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],  
+    index=1  # Sets "Current Series" as the default selection
 )
 
 def league_tab(matchtype_id,league_title):
@@ -57,11 +57,81 @@ def league_tab(matchtype_id,league_title):
     list_remaining_fixtures(matchtype_id)
     show_matches_completed(matchtype_id)
 
+#2025 - SERIES 2 LEAGUE DATA DISPLAY        
+if series_choice == "2025 - Series 2":
+    st.write("No data to display yet...")
 
-# Display content based on selection
+    #Initialisation variables:
+    current_series_id = 5
+    matches_played = get_matchcount_by_series(current_series_id)
+    total_fixtures = get_fixturescount_by_series(current_series_id)
+    # Get today and yesterday's date
+    today = date.today()
+    yesterday = today - timedelta(days=1)
+    # Fetch match count for yesterday
+    match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), current_series_id)
+    
+    # Calculate days left until end of series 2 (July 3, 2025)
+    #today = date.today()
+    end_date = date(2025, 7, 3)
+    days_left = (end_date - today).days
+    
+    if total_fixtures !=0:
+        percentage = (matches_played / total_fixtures) * 100
+        metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+    else:
+        percentage = 0
+        metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+    
+    # Public-facing app for RR Leagues
+    st.title("SABGA Backgammon presents...") 
+    col1, col2 = st.columns(2)
+    col1.title("Round Robin Leagues!")
+    col2.metric("Series 2 progress:",metric_value,match_count_yesterday)
+    col2.write("Deadline: 3 July 2025")
+    #standings = get_sorting_standings()
 
-if series_choice == "Current Series":
-    st.write("Loading data for the current series...")
+    # Define tab names
+    tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"]
+
+    # Define corresponding matchtype IDs (adjust these based on your database)
+    matchtype_ids = {
+        "A-League": 19,
+        "B-League": 20,
+        "C-League": 21,
+        "D-League": 23,
+        "E-League": 24,
+        "F-League": 28
+    }
+    
+    # Create tabs
+    tabs = st.tabs(tab_names)
+    
+    # Overview tab
+    with tabs[0]:
+        st.header("Overview")
+        pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4dot1.pdf"
+        st.markdown("**The 2025 Round Robin leagues continues with Series 2, taking place 2 Apr 2025 - 3 July 2025, with ? players competing in seven leagues (A-G). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
+        st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.1.pdf]({pdf_url})", unsafe_allow_html=True)
+        st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
+        
+        #Call function to show series table with current_series_id
+        #display_series_table_completedonly(current_series_id)
+        #display_series_table(current_series_id)
+        #display_sorting_series_table(current_series_id)
+        display_series_standings_with_points_and_details(current_series_id)
+        smccc(current_series_id)
+        #show_matches_completed_by_series(current_series_id)
+
+    # League tabs - dynamically call league_tab() with appropriate matchtype_id
+    for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
+        with tabs[i]:
+            league_tab(matchtype_ids[league_name], league_name)    
+
+#2025 - SERIES 1 LEAGUE DATA DISPLAY        
+elif series_choice == "2025 - Series 1":
+    st.write("Loading data for the 2025 - S1 series...")
+    st.write("No data to display yet...")
 
     #Initialisation variables:
     current_series_id = 5
@@ -88,9 +158,9 @@ if series_choice == "Current Series":
     # Public-facing app for RR Leagues
     st.title("SABGA Backgammon presents...") 
     col1, col2 = st.columns(2)
-    col1.title("Round Robin Leagues (test)!")
+    col1.title("Round Robin Leagues!")
     col2.metric("Series 1 progress:",metric_value,match_count_yesterday)
-    col2.write("Deadline: 1 April 2025")
+    col2.write("Deadline: 3 July 2025")
     #standings = get_sorting_standings()
 
     # Define tab names
@@ -113,8 +183,8 @@ if series_choice == "Current Series":
     with tabs[0]:
         st.header("Overview")
         pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4dot1.pdf"
-        st.markdown("**The 2025 Round Robin leagues kick-off with Series 1, taking place 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
-        st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.pdf]({pdf_url})", unsafe_allow_html=True)
+        st.markdown("**The 2025 Round Robin leagues kicked-off with Series 1, taking place 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
+        st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.1.pdf]({pdf_url})", unsafe_allow_html=True)
         st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
         
         #Call function to show series table with current_series_id
@@ -125,16 +195,12 @@ if series_choice == "Current Series":
         smccc(current_series_id)
         #show_matches_completed_by_series(current_series_id)
 
-    
     # League tabs - dynamically call league_tab() with appropriate matchtype_id
     for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
         with tabs[i]:
             league_tab(matchtype_ids[league_name], league_name)    
-        
-elif series_choice == "2025 - Series 1":
-    st.write("Loading data for the 2025 - S1 series...")
 
-
+#SORTING LEAGUE DATA DISPLAY
 elif series_choice == "2024 - Sorting League":
     st.write("Loading data for Sorting League series...")
 
