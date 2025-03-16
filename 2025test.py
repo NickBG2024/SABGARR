@@ -131,8 +131,7 @@ if series_choice == "2025 - Series 2":
 #2025 - SERIES 1 LEAGUE DATA DISPLAY        
 elif series_choice == "2025 - Series 1":
     st.write("Loading data for the 2025 - S1 series...")
-    st.write("No data to display yet...")
-
+ 
     #Initialisation variables:
     current_series_id = 5
     matches_played = get_matchcount_by_series(current_series_id)
