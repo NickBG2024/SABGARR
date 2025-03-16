@@ -96,12 +96,12 @@ if series_choice == "2025 - Series 2":
 
     # Define corresponding matchtype IDs (adjust these based on your database)
     matchtype_ids = {
-        "A-League": 19,
-        "B-League": 20,
-        "C-League": 21,
-        "D-League": 23,
-        "E-League": 24,
-        "F-League": 28
+        "A-League": 30,
+        "B-League": 31,
+        "C-League": 32,
+        "D-League": 33,
+        "E-League": 34,
+        "F-League": 35
     }
     
     # Create tabs
