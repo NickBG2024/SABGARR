@@ -59,7 +59,7 @@ email_checker_status = get_email_checker_status()
 
 if 'form_updated' in st.session_state and st.session_state['form_updated']:
     del st.session_state['form_updated']
-    st.experimental_rerun()
+    st.rerun()
     
 matches_played = get_matchcount_by_series(5)
 total_fixtures = get_fixturescount_by_series(5)
@@ -289,7 +289,7 @@ if show_add_player_form:
             else:
                 add_player(player_name, heroes_nickname, email)
                 st.success(f"Player '{player_name}' added successfully!")
-                st.experimental_rerun()  # Clear form and refresh
+                st.rerun()  # Clear form and refresh
 
 # Add Match Result
 if show_add_match_result_form:
@@ -317,7 +317,7 @@ if show_add_match_result_form:
                              player1_luck, player2_luck)
             st.success("Match Result added successfully!")
             match_result_form_placeholder.empty()  # Clear form by emptying the placeholder
-            st.experimental_rerun()
+            st.rerun()
 
 # Add Match Type# Add Match Type
 if show_add_match_type_form:
@@ -347,7 +347,7 @@ if show_add_match_type_form:
                 st.success(f"Match Type '{match_type_title}' with identifier '{match_type_identifier}' added successfully!")
                 match_type_form_placeholder.empty()  # Clear form
                 st.session_state["key"] = None
-                #st.experimental_rerun()
+                #st.rerun()
 
 
 # Add Fixture
@@ -395,7 +395,7 @@ if show_add_series_form:
             add_series(series_title)
             st.success(f"Series '{series_title}' added successfully!")
             series_form_placeholder.empty()  # Clear form by emptying the placeholder
-            st.experimental_rerun()
+            st.rerun()
 
 # 2. ******************************************* SHOW TABLE CONTENTS ******************************************************
 if show_series:
@@ -569,7 +569,7 @@ if edit_series:
                 if submitted:
                     update_series_title(series_id, series_title)
                     st.success("Series updated successfully!")
-                    st.experimental_rerun()
+                    st.rerun()
 
             # Show match types with checkboxes
             st.write("Match Types in this Series:")
@@ -599,7 +599,7 @@ if edit_series:
                         remove_match_type_from_series(series_id, match_type_id)
 
                 st.success("Match Types updated in series!")
-                st.experimental_rerun()
+                st.rerun()
                     
 # Editing Players
 if edit_players:
@@ -632,7 +632,7 @@ if edit_players:
                     # Call update function to update the player in the database
                     update_player(player_id, name, nickname, email)
                     st.success("Player updated successfully!")
-                    st.experimental_rerun()
+                    st.rerun()
                     
 # Editing Match Types
 if edit_match_types:
@@ -660,7 +660,7 @@ if edit_match_types:
                 if submitted:
                     update_match_type_status(matchtype_id, active, identifier)  # Pass identifier
                     st.success("Match Type updated successfully!")
-                    st.experimental_rerun()
+                    st.rerun()
 
 # Add this function to update match type in database
 def update_match_type(match_type_id, match_type_title, active_status):
@@ -732,7 +732,7 @@ if edit_fixtures:
                         completed=completed
                     )
                     st.success("Fixture updated successfully!")
-                    st.experimental_rerun()
+                    st.rerun()
     
 
 # Editing Match Results
@@ -796,7 +796,7 @@ if edit_match_results:
                         player1_points, player2_points, player1_pr, player2_pr, player1_luck, player2_luck
                     )
                     st.success("Match result updated successfully!")
-                    st.experimental_rerun()
+                    st.rerun()
     else:
         st.warning("No match results available to edit.")
         
