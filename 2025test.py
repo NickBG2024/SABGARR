@@ -62,7 +62,7 @@ if series_choice == "2025 - Series 2":
     st.write("No data to display yet...")
 
     #Initialisation variables:
-    current_series_id = 5
+    current_series_id = 6
     matches_played = get_matchcount_by_series(current_series_id)
     total_fixtures = get_fixturescount_by_series(current_series_id)
     # Get today and yesterday's date
@@ -159,7 +159,7 @@ elif series_choice == "2025 - Series 1":
     col1, col2 = st.columns(2)
     col1.title("Round Robin Leagues!")
     col2.metric("Series 1 progress:",metric_value,match_count_yesterday)
-    col2.write("Deadline: 3 July 2025")
+    col2.write("Deadline: 1 April 2025")
     #standings = get_sorting_standings()
 
     # Define tab names
