@@ -22,7 +22,7 @@ st.sidebar.title("LEAGUE SERIES STATS:")
 st.sidebar.markdown("Select the Series to display:")
 
 # Create a radio button section with "Current Series" as the default
-choice = st.sidebar.radio(
+series_choice = st.sidebar.radio(
     "Select a series:",  
     ["Current Series", "2025 - Series 1", "2024 - Sorting League"],  
     index=0  # Sets "Current Series" as the default selection
@@ -60,7 +60,7 @@ def league_tab(matchtype_id,league_title):
 
 # Display content based on selection
 
-if choice == "Current Series":
+if series_choice == "Current Series":
     st.write("Loading data for the current series...")
 
     #Initialisation variables:
@@ -131,9 +131,11 @@ if choice == "Current Series":
         with tabs[i]:
             league_tab(matchtype_ids[league_name], league_name)    
         
-elif choice == "2025 - Series 1":
-    st.write("Displaying data for the 2025 - S1 series...")
-elif choice == "2024 - Sorting League":
+elif series_choice == "2025 - Series 1":
+    st.write("Loading data for the 2025 - S1 series...")
+
+
+elif series_choice == "2024 - Sorting League":
     st.write("Loading data for Sorting League series...")
 
     seriesid = 4
@@ -158,5 +160,15 @@ elif choice == "2024 - Sorting League":
     #display_series_table(series_id)
     display_sorting_series_table(series_id)
     smccc(series_id)
-    list_remaining_fixtures_by_series(series_id)
+    #list_remaining_fixtures_by_series(series_id)
     #show_matches_completed_by_series(series_id)
+
+st.sidebar.title("PLAYER STATS:")
+st.sidebar.markdown("Select the Stats to display:")
+show_player_history = st.sidebar.checkbox("Player Match Data")
+show_player_vs_player_history = st.sidebar.checkbox("Player vs Player Data")
+show_overall_PR_data = st.sidebar.checkbox("PR data")
+show_overall_luck_data = st.sidebar.checkbox("Luck data")
+
+
+
