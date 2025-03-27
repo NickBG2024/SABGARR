@@ -450,7 +450,7 @@ def display_matchtype_standings_with_points(match_type_id):
             conn.close()
 
 def display_matchtype_standings_full_details_styled(match_type_id):
-"""
+    """
     Fetch and display standings with points for a specific match type.
     """
     try:
