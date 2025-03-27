@@ -435,7 +435,8 @@ if show_AZ_list:
 if show_AZ_list_and_nicknames:
     #players = list_players_and_nicknames()
     players = get_players_simple()
-    st.write("Players and Nicknames A-Z:")
+    num_players = len(players)
+    st.write(f"Players and Nicknames A-Z ({num_players}):")  
     
     if players:  # Check if there are players in the list
         st.write("### Players List")
