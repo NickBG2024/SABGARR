@@ -29,6 +29,7 @@ series_choice = st.sidebar.radio(
 )
 
 def league_tab(matchtype_id,league_title):
+    with st.spinner(f"Loading {league_title} data..."):
     league_matches_played = get_matchcount_by_matchtype(matchtype_id)
     league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
     ave_pr = get_averagePR_by_matchtype(matchtype_id)
