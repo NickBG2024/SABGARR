@@ -439,7 +439,7 @@ if show_AZ_list_and_nicknames:
     st.write(f"Players and Nicknames A-Z ({num_players}):")  
     
     if players:  # Check if there are players in the list
-        st.write("### Players List")
+        st.write(f"### Players List({num_players}):")
         for _, name, nickname in players:
             st.write(f"{name} - {nickname}")
     else:
