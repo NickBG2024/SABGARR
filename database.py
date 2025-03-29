@@ -565,6 +565,9 @@ def display_matchtype_standings_full_details_styled(match_type_id):
             df["PR Wins"] = pd.to_numeric(df["PR Wins"], errors="coerce")
             df["Losses"] = pd.to_numeric(df["Losses"], errors="coerce")
 
+            # Add a Position column (1-based index)
+            df.insert(0, "Position", range(1, len(df) + 1))
+    
             #Display DataFrame
             if not df.empty:
                 st.dataframe(df,hide_index=True)
