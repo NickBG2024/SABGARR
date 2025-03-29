@@ -149,8 +149,15 @@ def display_series_standings_with_points_and_details(series_id):
             numeric_cols = ["Played", "Points", "Wins", "PR wins", "Losses", "Avg PR", "Avg Luck"]
             df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
 
+            styled_df = df.style.set_properties(
+                **{"font-weight": "bold"}, subset=["Position"]
+            ).format(
+                {"Avg PR": "{:.2f}", "Avg Luck": "{:.2f}"}  # Example formatting
+            )
+            
             st.subheader("Series Standings with Points:")
-            st.dataframe(df)
+            #st.dataframe(df)
+            st.dataframe(styled_df)
         else:
             st.subheader("No valid matches to display.")
 
