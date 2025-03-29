@@ -1575,10 +1575,10 @@ def display_group_table(match_type_id):
 
 def smccc(series_id):
     # Connect to the database
-    conn = create_connection()
-    cursor = conn.cursor()
-
     try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
         # Step 1: Fetch MatchTypeIDs linked to the Series_ID
         query_match_types = """
         SELECT MatchTypeID
@@ -1614,7 +1614,7 @@ def smccc(series_id):
         JOIN MatchType MT ON MT.MatchTypeID = Fixtures.MatchTypeID
         WHERE Fixtures.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))})
           AND Fixtures.Completed = 1
-        ORDER BY MatchResults.Date DESC;
+        ORDER BY MatchResults.Date DESC, MatchResults.MatchResultID DESC;
         """
         cursor.execute(query_matches, tuple(match_type_ids))
         results = cursor.fetchall()
@@ -1653,31 +1653,29 @@ def smccc(series_id):
                     match_type_title,
                     f"{winner_info} beat {loser_info}",
                     score,
-                    f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
-                    f"{winner_luck:.2f}",  # Winner Luck rounded to 2 decimals
-                    f"{loser_pr:.2f}",  # Loser PR rounded to 2 decimals
-                    f"{loser_luck:.2f}",  # Loser Luck rounded to 2 decimals
+                    f"{winner_pr:.2f}" if winner_pr is not None else "-",
+                    f"{winner_luck:.2f}" if winner_luck is not None else "-",
+                    f"{loser_pr:.2f}" if loser_pr is not None else "-",
+                    f"{loser_luck:.2f}" if loser_luck is not None else "-",
                 ]
             )
 
         # Step 4: Display results
-          # Create DataFrame
         df = pd.DataFrame(data, columns=[
-            "Date Completed", "Match Type","Result", "Score", 
+            "Date Completed", "Match Type", "Result", "Score", 
             "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
         ])
-        
-        
-        # Step 4: Display DataFrame
+
         if not df.empty:
             st.subheader("Completed Matches:")
-            st.dataframe(df, hide_index=True)
+            st.dataframe(df.set_index("Date Completed"))
         else:
             st.subheader("No completed matches found.")
     except Exception as e:
         st.error(f"Error fetching matches for series: {e}")
     finally:
-        conn.close()    
+        if conn:
+            conn.close()
         
 def show_matches_completed_by_series(series_id):
     # Connect to the database
