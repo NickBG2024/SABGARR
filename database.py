@@ -1667,6 +1667,9 @@ def smccc(series_id):
         ])
 
         if not df.empty:
+            # Convert PR and Luck columns to float for proper sorting
+            df[["Winner PR", "Winner Luck", "Loser PR", "Loser Luck"]] = df[["Winner PR", "Winner Luck", "Loser PR", "Loser Luck"]].astype(float)
+
             st.subheader("Completed Matches:")
             st.dataframe(df.set_index("Date Completed"))
         else:
