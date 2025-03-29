@@ -128,9 +128,9 @@ def display_series_standings_with_points_and_details(series_id):
                 points = int(stat[9] or 0)
                 points_percentage = f"{(points/(played * 3)) * 100:.2f}%" if played > 0 else "0.00%"
                 win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
-                avg_pr = f"{stat[6]:.2f}" if stat[6] is not None else "-"
+                avg_pr = safe_float(stat[6])  # Convert to float
                 pr_wins = int(stat[7] or 0)
-                avg_luck = f"{stat[8]:.2f}" if stat[8] is not None else "-"
+                avg_luck = safe_float(stat[8])  # Convert to float
                 formatted_stats.append([
                     name_with_nickname, played, points, points_percentage, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
                 ])
@@ -142,8 +142,13 @@ def display_series_standings_with_points_and_details(series_id):
         if formatted_stats:
             df = pd.DataFrame(
                 formatted_stats,
-                columns=["Name (Nickname)", "Played", "Points", "Points%", "Wins", "PR wins", "Losses", "Win%", "Averaged PR", "Averaged Luck"]
+                columns=["Name (Nickname)", "Played", "Points", "Points%", "Wins", "PR wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
             )
+
+            # Convert numerical columns to proper types for sorting
+            numeric_cols = ["Played", "Points", "Wins", "PR wins", "Losses", "Avg PR", "Avg Luck"]
+            df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
+
             st.subheader("Series Standings with Points:")
             st.dataframe(df)
         else:
@@ -157,6 +162,7 @@ def display_series_standings_with_points_and_details(series_id):
             cursor.close()
         if conn:
             conn.close()
+
 
 def display_series_standings_with_points(series_id):
     """
