@@ -550,6 +550,15 @@ def display_matchtype_standings_full_details_styled(match_type_id):
                 columns=["Name (Nickname)", "Played", "Points", "Points%", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
             )
 
+            # Convert numerical columns to appropriate types
+            df["Avg PR"] = pd.to_numeric(df["Avg PR"], errors="coerce")
+            df["Avg Luck"] = pd.to_numeric(df["Avg Luck"], errors="coerce")
+            df["Played"] = pd.to_numeric(df["Played"], errors="coerce")
+            df["Points"] = pd.to_numeric(df["Points"], errors="coerce")
+            df["Wins"] = pd.to_numeric(df["Wins"], errors="coerce")
+            df["PR Wins"] = pd.to_numeric(df["PR Wins"], errors="coerce")
+            df["Losses"] = pd.to_numeric(df["Losses"], errors="coerce")
+
             #Display DataFrame
             if not df.empty:
                 st.dataframe(df,hide_index=True)
