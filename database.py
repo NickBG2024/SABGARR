@@ -170,6 +170,54 @@ def display_series_standings_with_points_and_details(series_id):
         if conn:
             conn.close()
 
+def get_remaining_fixtures_by_series(series_id):
+    """
+    Retrieves remaining fixtures (Player1 vs Player2) for a specific series.
+
+    Args:
+        series_id (int): The ID of the series.
+
+    Returns:
+        list: A list of tuples with Player1 and Player2 names.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Step 1: Fetch MatchTypeIDs linked to the SeriesID
+        query_match_types = """
+        SELECT MatchTypeID
+        FROM SeriesMatchTypes
+        WHERE SeriesID = %s;
+        """
+        cursor.execute(query_match_types, (series_id,))
+        match_type_ids = [row[0] for row in cursor.fetchall()]
+
+        if not match_type_ids:
+            return []  # No match types linked to this series
+
+        # Step 2: Query remaining fixtures for the MatchTypeIDs
+        query_remaining_fixtures = f"""
+        SELECT
+            p1.Name AS Player1,
+            p2.Name AS Player2
+        FROM
+            Fixtures f
+        LEFT JOIN Players p1 ON f.Player1ID = p1.PlayerID
+        LEFT JOIN Players p2 ON f.Player2ID = p2.PlayerID
+        WHERE
+            f.MatchTypeID IN ({','.join(['%s'] * len(match_type_ids))}) AND f.Completed = 0
+        """
+        cursor.execute(query_remaining_fixtures, tuple(match_type_ids))
+        remaining_fixtures = cursor.fetchall()
+
+        return remaining_fixtures
+    except Exception as e:
+        st.error(f"Error retrieving remaining fixtures: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
 
 def display_series_standings_with_points(series_id):
     """
