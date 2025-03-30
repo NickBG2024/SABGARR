@@ -150,7 +150,7 @@ def display_series_standings_with_points_and_details(series_id):
             df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
 
             styled_df = df.style.set_properties(
-                **{"font-weight": "bold"}, subset=["Position"]
+                **{"font-weight": "bold"}, subset=["Points"]
             ).format(
                 {"Avg PR": "{:.2f}", "Avg Luck": "{:.2f}"}  # Example formatting
             )
@@ -574,7 +574,13 @@ def display_matchtype_standings_full_details_styled(match_type_id):
 
             # Add a Position column (1-based index)
             df.insert(0, "Position", range(1, len(df) + 1))
-    
+
+            styled_df = df.style.set_properties(
+                **{"font-weight": "bold"}, subset=["Position"]
+            ).format(
+                {"Avg PR": "{:.2f}", "Avg Luck": "{:.2f}"}  # Example formatting
+            )
+            
             #Display DataFrame
             if not df.empty:
                 st.dataframe(df,hide_index=True)
