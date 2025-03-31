@@ -234,14 +234,22 @@ elif series_choice == "2024 - Sorting League":
 
 st.sidebar.title("TOP 10 TABLES:")
 st.sidebar.markdown("Select the Stats to display:")
-show_top10_match_PRs = st.sidebar.radio("Top 10 - Lowest PRs (single match)")
-show_top10_9matchseries_PRs = st.sidebar.radio("Top 10 - Lowest Series PRs (9 match)")
-show_top10_unluckiest_wins = st.sidebar.radio("Top 10 - Unluckiest wins")
-show_top10_most_points_in_a_series = st.sidebar.radio("Top 10 - Most points in a Series")
+show_top10_match_PRs = st.sidebar.radio("Top 10 - Lowest PRs (single match)",
+    options=["Show", "Hide"])
+show_top10_9matchseries_PRs = st.sidebar.radio("Top 10 - Lowest Series PRs (9 match)",
+    options=["Show", "Hide"])
+show_top10_unluckiest_wins = st.sidebar.radio("Top 10 - Unluckiest wins",
+    options=["Show", "Hide"])
+show_top10_most_points_in_a_series = st.sidebar.radio("Top 10 - Most points in a Series",
+    options=["Show", "Hide"])
 
 st.sidebar.title("PLAYER STATS:")
 st.sidebar.markdown("Select the Stats to display:")
-show_player_history = st.sidebar.radio("Player Match Data")
-show_player_vs_player_history = st.sidebar.radio("Player vs Player Data")
-show_overall_PR_data = st.sidebar.radio("PR data")
-show_overall_luck_data = st.sidebar.radio("Luck data")
+show_player_history = st.sidebar.radio("Player Match Data",
+    options=["Show", "Hide"])
+show_player_vs_player_history = st.sidebar.radio("Player vs Player Data",
+    options=["Show", "Hide"])
+show_overall_PR_data = st.sidebar.radio("PR data",
+    options=["Show", "Hide"])
+show_overall_luck_data = st.sidebar.radio("Luck data",
+    options=["Show", "Hide"])
