@@ -510,6 +510,120 @@ def display_matchtype_standings_with_points(match_type_id):
         if conn:
             conn.close()
 
+def display_matchtype_standings_withh2h(match_type_id):
+    """
+    Fetch and display standings with points for a specific match type, applying head-to-head tiebreakers.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Fetch player stats
+        query = """
+            SELECT
+                p.PlayerID,
+                p.Name,
+                p.Nickname,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+                        ELSE 0 
+                    END) AS Wins,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1
+                        ELSE 0 
+                    END) AS Losses,
+                COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
+                AVG(CASE 
+                        WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                        WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR
+                        ELSE NULL 
+                    END) AS AveragePR,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+                        ELSE 0 
+                    END) AS PRWins,
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 2
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 2
+                        ELSE 0 
+                    END) +
+                SUM(CASE 
+                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+                        ELSE 0 
+                    END) AS Points
+            FROM
+                Players p
+            LEFT JOIN Fixtures f 
+                ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+            LEFT JOIN MatchResults mr 
+                ON (f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID)
+            WHERE
+                f.MatchTypeID = %s
+            GROUP BY
+                p.PlayerID, p.Name, p.Nickname
+        """
+        cursor.execute(query, (match_type_id,))
+        player_stats = cursor.fetchall()
+
+        if not player_stats:
+            st.subheader("No matches found for this match type.")
+            return
+
+        # Convert to DataFrame
+        df = pd.DataFrame(
+            player_stats,
+            columns=["PlayerID", "Name", "Nickname", "Wins", "Losses", "GamesPlayed", "AveragePR", "PRWins", "Points"]
+        )
+
+        # Function to calculate head-to-head wins
+        def get_head_to_head_wins(player_id, tied_group):
+            head_to_head_query = """
+                SELECT
+                    mr.Player1ID, mr.Player2ID,
+                    SUM(CASE WHEN mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points THEN 1 ELSE 0 END) +
+                    SUM(CASE WHEN mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points THEN 1 ELSE 0 END) AS HeadToHeadWins
+                FROM MatchResults mr
+                WHERE (mr.Player1ID IN %s AND mr.Player2ID IN %s)
+                    AND mr.MatchTypeID = %s
+                GROUP BY mr.Player1ID, mr.Player2ID
+            """
+            player_ids = tuple(tied_group)
+            cursor.execute(head_to_head_query, (player_id, player_id, player_ids, player_ids, match_type_id))
+            results = cursor.fetchall()
+            return sum(row[2] for row in results) if results else 0
+
+        # Sort players using the multi-level sorting
+        df.sort_values(by=["Points", "Wins"], ascending=[False, False], inplace=True)
+
+        # Process head-to-head sorting for tied players
+        final_sorted_list = []
+        tied_groups = df.groupby(["Points", "Wins"])
+        for (points, wins), group in tied_groups:
+            if len(group) > 1:
+                group["HeadToHeadWins"] = group["PlayerID"].apply(lambda pid: get_head_to_head_wins(pid, group["PlayerID"].tolist()))
+                group.sort_values(by=["HeadToHeadWins", "AveragePR"], ascending=[False, True], inplace=True)
+            final_sorted_list.append(group)
+        df = pd.concat(final_sorted_list)
+
+        # Reset index and add position
+        df.insert(0, "Position", range(1, len(df) + 1))
+        df.drop(columns=["PlayerID"], inplace=True)
+
+        # Display in Streamlit
+        st.dataframe(df)
+
+    except Exception as e:
+        st.error(f"Error displaying match type standings: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+
+    
 def display_matchtype_standings_full_details_styled(match_type_id):
     """
     Fetch and display standings with points for a specific match type.
