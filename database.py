@@ -170,7 +170,7 @@ def display_series_standings_with_points_and_details(series_id):
         if conn:
             conn.close()
 
-def get_remaining_fixtures_by_series(series_id):
+def get_remaining_fixtures_by_series_overview(series_id):
     """
     Retrieves remaining fixtures (Player1 vs Player2) for a specific series.
 
