@@ -186,9 +186,9 @@ elif series_choice == "2025 - Series 1":
     with tabs[0]:
         st.header("Overview")
         pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4dot1.pdf"
-        st.markdown("**The 2025 Round Robin leagues kicked-off with Series 1, taking place 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
+        st.markdown("**The 2025 Round Robin leagues kicked-off with Series 1, which ran 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
         st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.1.pdf]({pdf_url})", unsafe_allow_html=True)
-        st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
+        #st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
         
         #Call function to show series table with current_series_id
         #display_series_table_completedonly(current_series_id)
@@ -196,6 +196,7 @@ elif series_choice == "2025 - Series 1":
         #display_sorting_series_table(current_series_id)
         display_series_standings_with_points_and_details(current_series_id)
         smccc(current_series_id)
+        list_remaining_fixtures_by_series(current_series_id)
         #show_matches_completed_by_series(current_series_id)
 
     # League tabs - dynamically call league_tab() with appropriate matchtype_id
