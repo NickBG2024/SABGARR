@@ -61,7 +61,7 @@ def league_tab(matchtype_id,league_title):
 
 #2025 - SERIES 2 LEAGUE DATA DISPLAY        
 if series_choice == "2025 - Series 2":
-    st.write("No data to display yet...")
+    st.write("Loading data for the 2025 - S2 series...")
 
     #Initialisation variables:
     current_series_id = 6
