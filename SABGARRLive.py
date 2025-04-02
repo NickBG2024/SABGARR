@@ -25,7 +25,7 @@ st.sidebar.markdown("Select the Series to display:")
 series_choice = st.sidebar.radio(
     "Select a series:",  
     ["2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],  
-    index=1  # Sets "Current Series" as the default selection
+    index=0  # Sets "Current Series" as the default selection
 )
 
 def league_tab(matchtype_id,league_title):
@@ -73,9 +73,9 @@ if series_choice == "2025 - Series 2":
     # Fetch match count for yesterday
     match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), current_series_id)
     
-    # Calculate days left until end of series 2 (July 3, 2025)
+    # Calculate days left until end of series 2 (30 June, 2025)
     #today = date.today()
-    end_date = date(2025, 7, 3)
+    end_date = date(2025, 6, 30)
     days_left = (end_date - today).days
     
     if total_fixtures !=0:
@@ -94,7 +94,7 @@ if series_choice == "2025 - Series 2":
     #standings = get_sorting_standings()
 
     # Define tab names
-    tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"]
+    tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League","Guppy Group 1","Guppy Group 2"]
 
     # Define corresponding matchtype IDs (adjust these based on your database)
     matchtype_ids = {
@@ -103,7 +103,9 @@ if series_choice == "2025 - Series 2":
         "C-League": 32,
         "D-League": 33,
         "E-League": 34,
-        "F-League": 35
+        "F-League": 35,
+        "Guppy Group 2": 36,
+        "Guppy Group 2": 37
     }
     
     # Create tabs
@@ -113,9 +115,9 @@ if series_choice == "2025 - Series 2":
     with tabs[0]:
         st.header("Overview")
         pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4dot1.pdf"
-        st.markdown("**The 2025 Round Robin leagues continues with Series 2, taking place 2 Apr 2025 - 3 July 2025, with ? players competing in seven leagues (A-G). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
-        st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.1.pdf]({pdf_url})", unsafe_allow_html=True)
-        st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
+        st.markdown("**The 2025 Round Robin leagues continues with Series 2, taking place 2 Apr 2025 - 30 June 2025, with ? players competing in seven leagues (A-G). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
+        st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v5.1.pdf]({pdf_url})", unsafe_allow_html=True)
+        st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
         
         #Call function to show series table with current_series_id
         #display_series_table_completedonly(current_series_id)
