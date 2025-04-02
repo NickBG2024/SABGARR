@@ -104,7 +104,7 @@ if series_choice == "2025 - Series 2":
         "D-League": 33,
         "E-League": 34,
         "F-League": 35,
-        "Guppy Group 2": 36,
+        "Guppy Group 1": 36,
         "Guppy Group 2": 37
     }
     
