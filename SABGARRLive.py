@@ -90,7 +90,7 @@ if series_choice == "2025 - Series 2":
     col1, col2 = st.columns(2)
     col1.title("Round Robin Leagues!")
     col2.metric("Series 2 progress:",metric_value,match_count_yesterday)
-    col2.write("Deadline: 3 July 2025")
+    col2.write("Deadline: 30 June 2025")
     #standings = get_sorting_standings()
 
     # Define tab names
