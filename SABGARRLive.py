@@ -197,7 +197,7 @@ elif series_choice == "2025 - Series 1":
         #display_sorting_series_table(current_series_id)
         display_series_standings_with_points_and_details(current_series_id)
         smccc(current_series_id)
-        list_remaining_fixtures_by_series(current_series_id)
+        #list_remaining_fixtures_by_series(current_series_id)
         #show_matches_completed_by_series(current_series_id)
 
     # League tabs - dynamically call league_tab() with appropriate matchtype_id
