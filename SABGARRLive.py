@@ -115,7 +115,7 @@ if series_choice == "2025 - Series 2":
     # Overview tab
     with tabs[0]:
         st.header("Overview")
-        pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v5dot1.pdf"
+        pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/04/SABGA-Round-Robin-Leagues-2025-rules-etc-v5dot1.pdf"
         st.markdown("**The 2025 Round Robin leagues continues with Series 2, taking place 2 Apr 2025 - 30 June 2025, with 74 players competing in eight leagues (A-G). The top four leagues have ten players each, with matches played to 11 points. The next two leagues, E and F, have twelve players each, and play to 9 points. There are also two 'Guppy' groups for new players.**")
         st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v5.1.pdf]({pdf_url})", unsafe_allow_html=True)
         st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
