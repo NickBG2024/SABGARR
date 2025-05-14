@@ -150,7 +150,7 @@ elif series_choice == "2025 - Series 1":
     # Calculate days left until end of series 1 (April 1, 2025)
     #today = date.today()
     end_date = date(2025, 4, 1)
-    days_left = (end_date - today).days
+    days_left = 0
     
     if total_fixtures !=0:
         percentage = (matches_played / total_fixtures) * 100
