@@ -107,7 +107,7 @@ def display_series_standings_with_points_and_details(series_id):
             GROUP BY
                 p.PlayerID, p.Name, p.Nickname
             ORDER BY
-                Points DESC;
+                Points DESC, GamesPlayed DESC;
         """
 
         cursor.execute(standings_query)
