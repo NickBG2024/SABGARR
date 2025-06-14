@@ -4,7 +4,7 @@ import re
 import random
 import streamlit as st
 import pandas as pd
-from database import get_averagePR_by_matchtype, display_matchtype_standings_withh2h, list_remaining_fixtures_by_series, display_matchtype_standings_full_details_styled, get_fixturescount_by_matchtype, get_matchcount_by_matchtype, display_series_standings_with_points_and_details, display_series_standings_with_points, display_matchtype_standings_with_points_and_details, display_matchtype_standings_with_points, get_matchcount_by_date_and_series, smccc, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import get_averagePR_by_matchtype, list_remaining_fixtures_by_series, display_matchtype_standings_full_details_styled, get_fixturescount_by_matchtype, get_matchcount_by_matchtype, display_series_standings_with_points_and_details, display_series_standings_with_points, display_matchtype_standings_with_points_and_details, display_matchtype_standings_with_points, get_matchcount_by_date_and_series, smccc, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone, date
 
 # Add a header image at the top of the page
@@ -25,10 +25,11 @@ st.sidebar.markdown("Select the Series to display:")
 series_choice = st.sidebar.radio(
     "Select a series:",  
     ["2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],  
-    index=1  # Sets "Current Series" as the default selection
+    index=0  # Sets "Current Series" as the default selection
 )
 
 def league_tab(matchtype_id,league_title):
+    st.write(f"Loading {league_title} data...") 
     with st.spinner(f"Loading {league_title} data..."):
         league_matches_played = get_matchcount_by_matchtype(matchtype_id)
         league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
@@ -52,8 +53,7 @@ def league_tab(matchtype_id,league_title):
         col4.metric("Average PR:", ave_pr)
         #Call function to show group table with match_type_id
         #display_matchtype_standings_with_points_and_details(matchtype_id)
-        #display_matchtype_standings_full_details_styled(matchtype_id)
-        display_matchtype_standings_withh2h(matchtype_id)
+        display_matchtype_standings_full_details_styled(matchtype_id)                                                  
         #display_group_metrics(match_type_id)
         #display_group_table(match_type_id)
         display_match_grid(matchtype_id)        
@@ -62,7 +62,7 @@ def league_tab(matchtype_id,league_title):
 
 #2025 - SERIES 2 LEAGUE DATA DISPLAY        
 if series_choice == "2025 - Series 2":
-    st.write("No data to display yet...")
+    st.write("Loading data for the 2025 - S2 series...")
 
     #Initialisation variables:
     current_series_id = 6
@@ -74,9 +74,9 @@ if series_choice == "2025 - Series 2":
     # Fetch match count for yesterday
     match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), current_series_id)
     
-    # Calculate days left until end of series 2 (July 3, 2025)
+    # Calculate days left until end of series 2 (30 June, 2025)
     #today = date.today()
-    end_date = date(2025, 7, 3)
+    end_date = date(2025, 6, 30)
     days_left = (end_date - today).days
     
     if total_fixtures !=0:
@@ -91,11 +91,11 @@ if series_choice == "2025 - Series 2":
     col1, col2 = st.columns(2)
     col1.title("Round Robin Leagues!")
     col2.metric("Series 2 progress:",metric_value,match_count_yesterday)
-    col2.write("Deadline: 3 July 2025")
+    col2.write("Deadline: 30 June 2025")
     #standings = get_sorting_standings()
 
     # Define tab names
-    tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League"]
+    tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League","Guppy Group 1","Guppy Group 2"]
 
     # Define corresponding matchtype IDs (adjust these based on your database)
     matchtype_ids = {
@@ -104,7 +104,9 @@ if series_choice == "2025 - Series 2":
         "C-League": 32,
         "D-League": 33,
         "E-League": 34,
-        "F-League": 35
+        "F-League": 35,
+        "Guppy Group 1": 36,
+        "Guppy Group 2": 37
     }
     
     # Create tabs
@@ -113,10 +115,10 @@ if series_choice == "2025 - Series 2":
     # Overview tab
     with tabs[0]:
         st.header("Overview")
-        pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4dot1.pdf"
-        st.markdown("**The 2025 Round Robin leagues continues with Series 2, taking place 2 Apr 2025 - 3 July 2025, with ? players competing in seven leagues (A-G). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
-        st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.1.pdf]({pdf_url})", unsafe_allow_html=True)
-        st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
+        pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/04/SABGA-Round-Robin-Leagues-2025-rules-etc-v5dot1.pdf"
+        st.markdown("**The 2025 Round Robin leagues continues with Series 2, taking place 2 Apr 2025 - 30 June 2025, with 74 players competing in eight leagues (A-G). The top four leagues have ten players each, with matches played to 11 points. The next two leagues, E and F, have twelve players each, and play to 9 points. There are also two 'Guppy' groups for new players.**")
+        st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v5.1.pdf]({pdf_url})", unsafe_allow_html=True)
+        st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
         
         #Call function to show series table with current_series_id
         #display_series_table_completedonly(current_series_id)
@@ -148,7 +150,7 @@ elif series_choice == "2025 - Series 1":
     # Calculate days left until end of series 1 (April 1, 2025)
     #today = date.today()
     end_date = date(2025, 4, 1)
-    days_left = (end_date - today).days
+    days_left = 0
     
     if total_fixtures !=0:
         percentage = (matches_played / total_fixtures) * 100
@@ -185,9 +187,9 @@ elif series_choice == "2025 - Series 1":
     with tabs[0]:
         st.header("Overview")
         pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/01/SABGA-Round-Robin-Leagues-2025-rules-etc-v4dot1.pdf"
-        st.markdown("**The 2025 Round Robin leagues kicked-off with Series 1, taking place 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
+        st.markdown("**The 2025 Round Robin leagues kicked-off with Series 1, which ran 11 Jan 2025 - April 2025, with 64 players competing in six leagues (A-F). The top four leagues have ten players each, with matches played to 11 points. The bottom two leagues, E and F, have twelve players each, and play to 9 points.**")
         st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.1.pdf]({pdf_url})", unsafe_allow_html=True)
-        st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
+        #st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
         
         #Call function to show series table with current_series_id
         #display_series_table_completedonly(current_series_id)
@@ -196,7 +198,6 @@ elif series_choice == "2025 - Series 1":
         display_series_standings_with_points_and_details(current_series_id)
         smccc(current_series_id)
         list_remaining_fixtures_by_series(current_series_id)
-        #get_remaining_fixtures_by_series_overview(current_series_id)
         #show_matches_completed_by_series(current_series_id)
 
     # League tabs - dynamically call league_tab() with appropriate matchtype_id
@@ -233,24 +234,9 @@ elif series_choice == "2024 - Sorting League":
     #list_remaining_fixtures_by_series(series_id)
     #show_matches_completed_by_series(series_id)
 
-st.sidebar.title("TOP 10 TABLES:")
-st.sidebar.markdown("Select the Stats to display:")
-show_top10_match_PRs = st.sidebar.radio("Top 10 - Lowest PRs (single match)",
-    options=["Show", "Hide"])
-show_top10_9matchseries_PRs = st.sidebar.radio("Top 10 - Lowest Series PRs (9 match)",
-    options=["Show", "Hide"])
-show_top10_unluckiest_wins = st.sidebar.radio("Top 10 - Unluckiest wins",
-    options=["Show", "Hide"])
-show_top10_most_points_in_a_series = st.sidebar.radio("Top 10 - Most points in a Series",
-    options=["Show", "Hide"])
-
-st.sidebar.title("PLAYER STATS:")
-st.sidebar.markdown("Select the Stats to display:")
-show_player_history = st.sidebar.radio("Player Match Data",
-    options=["Show", "Hide"])
-show_player_vs_player_history = st.sidebar.radio("Player vs Player Data",
-    options=["Show", "Hide"])
-show_overall_PR_data = st.sidebar.radio("PR data",
-    options=["Show", "Hide"])
-show_overall_luck_data = st.sidebar.radio("Luck data",
-    options=["Show", "Hide"])
+#st.sidebar.title("PLAYER STATS:")
+#st.sidebar.markdown("Select the Stats to display:")
+##show_player_history = st.sidebar.checkbox("Player Match Data")
+#show_player_vs_player_history = st.sidebar.checkbox("Player vs Player Data")
+#show_overall_PR_data = st.sidebar.checkbox("PR data")
+#show_overall_luck_data = st.sidebar.checkbox("Luck data")
