@@ -19,12 +19,12 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 st.sidebar.title("LEAGUE SERIES STATS:")
-st.sidebar.markdown("Select the Series to display:")
+st.sidebar.markdown("Select the data to display:")
 
 # Create a radio button section with "Current Series" as the default
 series_choice = st.sidebar.radio(
     "Select a series:",  
-    ["2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],  
+    ["2025 - Series 2", "2025 - Series 1", "2024 - Sorting League","Show overall league/player Stats"],  
     index=0  # Sets "Current Series" as the default selection
 )
 
