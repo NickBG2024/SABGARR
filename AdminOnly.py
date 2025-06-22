@@ -35,6 +35,7 @@ from database import (
     update_match_type_in_series,
     update_fixture,
     update_player,
+    refresh_series_stats,
     generate_fixture_entries,
 )
 
@@ -70,6 +71,10 @@ st.sidebar.header("Current series: RR S2 2025 (id=5)")
 #st.sidebar.metric("Series data - players","54","3")
 st.sidebar.metric("Series data - matches",metric_value, "4")
 st.sidebar.subheader("Admin-Functions: Main")
+
+if st.sidebar.button("Refresh Series Stats"):
+    refresh_series_stats(selected_series_id)
+    
 # Checkbox to access "Generate Fixtures" functionality
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
 # Checkbox to toggle email checker on/off
