@@ -30,6 +30,15 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+def get_active_series_ids():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT SeriesID FROM Series WHERE IsActive = 1")
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [row[0] for row in rows]
+
 def refresh_series_stats(series_id):
     """
     Recalculates and stores player statistics for a given series into SeriesPlayerStats.
