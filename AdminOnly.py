@@ -72,9 +72,20 @@ st.sidebar.header("Current series: RR S2 2025 (id=5)")
 st.sidebar.metric("Series data - matches",metric_value, "4")
 st.sidebar.subheader("Admin-Functions: Main")
 
+st.sidebar.subheader("Update Series Stats")
+
+# Fetch or hardcode available series
+series_options = {
+    "2025 - Series 2": 6,
+    "2025 - Series 1": 5,
+    "2024 - Sorting League": 4
+}
+
+selected_series_label = st.sidebar.selectbox("Select a series:", list(series_options.keys()))
+selected_series_id = series_options[selected_series_label]
+
 if st.sidebar.button("Refresh Series Stats"):
-    refresh_series_stats(selected_series_id)
-    
+    refresh_series_stats(selected_series_id)    
 # Checkbox to access "Generate Fixtures" functionality
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
 # Checkbox to toggle email checker on/off
