@@ -30,6 +30,99 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+def refresh_series_stats(series_id):
+    """
+    Recalculates and stores player statistics for a given series into SeriesPlayerStats.
+    """
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # 1. Fetch MatchTypeIDs for the series
+        cursor.execute("""
+            SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
+        """, (series_id,))
+        match_type_ids = [row[0] for row in cursor.fetchall()]
+
+        if not match_type_ids:
+            st.warning("No MatchTypes linked to this series.")
+            return
+
+        match_type_ids_tuple = tuple(match_type_ids)
+
+        # 2. Get per-player stats for the series
+        query = f"""
+            SELECT
+                p.PlayerID,
+                COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
+                SUM(CASE 
+                    WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
+                    WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
+                    ELSE 0
+                END) AS Wins,
+                SUM(CASE 
+                    WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
+                    WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1
+                    ELSE 0
+                END) AS Losses,
+                AVG(CASE 
+                    WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                    WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR
+                END) AS AveragePR,
+                SUM(CASE 
+                    WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
+                    WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
+                    ELSE 0
+                END) AS PRWins,
+                AVG(CASE 
+                    WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
+                    WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck
+                END) AS AverageLuck
+            FROM Players p
+            LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+            LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
+            WHERE f.MatchTypeID IN {match_type_ids_tuple}
+            GROUP BY p.PlayerID
+        """
+
+        cursor.execute(query)
+        stats = cursor.fetchall()
+
+        # 3. Delete existing stats for the series
+        cursor.execute("DELETE FROM SeriesPlayerStats WHERE SeriesID = %s", (series_id,))
+
+        # 4. Insert new stats
+        insert_query = """
+            INSERT INTO SeriesPlayerStats
+            (SeriesID, PlayerID, GamesPlayed, Wins, Losses, WinPercentage, Points, AveragePR, PRWins, AverageLuck, LastUpdated)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """
+
+        for row in stats:
+            player_id = row[0]
+            games = row[1] or 0
+            wins = row[2] or 0
+            losses = row[3] or 0
+            avg_pr = float(row[4]) if row[4] is not None else None
+            pr_wins = row[5] or 0
+            avg_luck = float(row[6]) if row[6] is not None else None
+            win_pct = round((wins / games) * 100, 2) if games > 0 else 0
+            points = (wins * 2) + pr_wins  # Your formula from earlier
+
+            cursor.execute(insert_query, (
+                series_id, player_id, games, wins, losses, win_pct,
+                points, avg_pr, pr_wins, avg_luck
+            ))
+
+        conn.commit()
+        st.success(f"Series stats refreshed for SeriesID: {series_id}")
+
+    except Exception as e:
+        st.error(f"Error while refreshing series stats: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
 def display_series_standings_with_points_and_details(series_id):
     """
     Fetch and display standings with points for a specific series.
