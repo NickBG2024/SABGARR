@@ -42,24 +42,32 @@ def get_active_series_ids():
 def refresh_series_stats(series_id):
     """
     Recalculates and stores player statistics for a given series into SeriesPlayerStats.
+    Safe to use in cron jobs or CLI (no Streamlit dependencies).
     """
+    import traceback
+    from datetime import datetime
+
     conn = create_connection()
     cursor = conn.cursor()
 
     try:
-        # 1. Fetch MatchTypeIDs for the series
-        cursor.execute("""
-            SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
-        """, (series_id,))
+        print(f"[{datetime.now()}] Refreshing stats for SeriesID {series_id}...")
+
+        # Step 1: Get relevant MatchTypeIDs
+        cursor.execute("SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s", (series_id,))
         match_type_ids = [row[0] for row in cursor.fetchall()]
 
         if not match_type_ids:
-            st.warning("No MatchTypes linked to this series.")
+            print(f"[{datetime.now()}] No MatchTypes found for SeriesID {series_id}")
             return
 
         match_type_ids_tuple = tuple(match_type_ids)
+        if len(match_type_ids_tuple) == 1:
+            match_type_ids_clause = f"= {match_type_ids_tuple[0]}"
+        else:
+            match_type_ids_clause = f"IN {match_type_ids_tuple}"
 
-        # 2. Get per-player stats for the series
+        # Step 2: Aggregate player stats
         query = f"""
             SELECT
                 p.PlayerID,
@@ -90,17 +98,16 @@ def refresh_series_stats(series_id):
             FROM Players p
             LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
             LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
-            WHERE f.MatchTypeID IN {match_type_ids_tuple}
+            WHERE f.MatchTypeID {match_type_ids_clause}
             GROUP BY p.PlayerID
         """
-
         cursor.execute(query)
         stats = cursor.fetchall()
 
-        # 3. Delete existing stats for the series
+        # Step 3: Delete old stats
         cursor.execute("DELETE FROM SeriesPlayerStats WHERE SeriesID = %s", (series_id,))
 
-        # 4. Insert new stats
+        # Step 4: Insert updated stats
         insert_query = """
             INSERT INTO SeriesPlayerStats
             (SeriesID, PlayerID, GamesPlayed, Wins, Losses, WinPercentage, Points, AveragePR, PRWins, AverageLuck, LastUpdated)
@@ -116,7 +123,7 @@ def refresh_series_stats(series_id):
             pr_wins = row[5] or 0
             avg_luck = float(row[6]) if row[6] is not None else None
             win_pct = round((wins / games) * 100, 2) if games > 0 else 0
-            points = (wins * 2) + pr_wins  # Your formula from earlier
+            points = (wins * 2) + pr_wins
 
             cursor.execute(insert_query, (
                 series_id, player_id, games, wins, losses, win_pct,
@@ -124,10 +131,11 @@ def refresh_series_stats(series_id):
             ))
 
         conn.commit()
-        st.success(f"Series stats refreshed for SeriesID: {series_id}")
+        print(f"[{datetime.now()}] Series {series_id} stats refreshed successfully.")
 
     except Exception as e:
-        st.error(f"Error while refreshing series stats: {e}")
+        print(f"[{datetime.now()}] Error refreshing stats for Series {series_id}: {str(e)}")
+        traceback.print_exc()
     finally:
         cursor.close()
         conn.close()
