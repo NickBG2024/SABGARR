@@ -48,7 +48,7 @@ def update_completed_match_cache(series_id):
         # Step 1: Clear existing cache for this series
         cursor.execute("DELETE FROM CompletedMatchesCache WHERE SeriesID = %s", (series_id,))
 
-        # Step 2: Fetch all completed matches relevant to this series
+        # Step 2: Fetch completed matches along with MatchTypeTitle
         query = """
             SELECT 
                 s.SeriesID,
@@ -65,12 +65,14 @@ def update_completed_match_cache(series_id):
                 mr.Player1Luck,
                 mr.Player2Luck,
                 mr.Date,
-                mr.TimeCompleted
+                mr.TimeCompleted,
+                mt.MatchTypeTitle
             FROM Fixtures f
             JOIN MatchResults mr ON mr.FixtureID = f.FixtureID
             JOIN SeriesMatchTypes s ON s.MatchTypeID = f.MatchTypeID
             JOIN Players p1 ON f.Player1ID = p1.PlayerID
             JOIN Players p2 ON f.Player2ID = p2.PlayerID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
             WHERE s.SeriesID = %s
         """
 
@@ -84,14 +86,16 @@ def update_completed_match_cache(series_id):
                 Player1Points, Player2Points,
                 Player1PR, Player2PR,
                 Player1Luck, Player2Luck,
-                Winner, Date, TimeCompleted, LastUpdated
+                Winner, Date, TimeCompleted, LastUpdated,
+                MatchTypeTitle
             ) VALUES (
                 %s, %s, %s,
                 %s, %s, %s, %s,
                 %s, %s,
                 %s, %s,
                 %s, %s,
-                %s, %s, %s, %s
+                %s, %s, %s, %s,
+                %s
             )
         """
 
@@ -100,7 +104,7 @@ def update_completed_match_cache(series_id):
                 s_id, matchtype_id, fixture_id,
                 p1_id, p2_id, p1_name, p2_name,
                 p1_pts, p2_pts, p1_pr, p2_pr, p1_luck, p2_luck,
-                date, time_completed
+                date, time_completed, match_type_title
             ) = row
 
             winner = (
@@ -115,7 +119,8 @@ def update_completed_match_cache(series_id):
                 p1_pts, p2_pts,
                 p1_pr, p2_pr,
                 p1_luck, p2_luck,
-                winner, date, time_completed, datetime.datetime.now()
+                winner, date, time_completed, datetime.datetime.now(),
+                match_type_title
             ))
 
         conn.commit()
