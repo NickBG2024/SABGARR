@@ -39,6 +39,94 @@ def get_active_series_ids():
     conn.close()
     return [row[0] for row in rows]
 
+def update_completed_match_cache(series_id):
+    import datetime
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Step 1: Clear existing cache for this series
+        cursor.execute("DELETE FROM CompletedMatchesCache WHERE SeriesID = %s", (series_id,))
+
+        # Step 2: Fetch all completed matches relevant to this series
+        query = """
+            SELECT 
+                s.SeriesID,
+                f.MatchTypeID,
+                f.FixtureID,
+                f.Player1ID,
+                f.Player2ID,
+                p1.Name AS Player1Name,
+                p2.Name AS Player2Name,
+                mr.Player1Points,
+                mr.Player2Points,
+                mr.Player1PR,
+                mr.Player2PR,
+                mr.Player1Luck,
+                mr.Player2Luck,
+                mr.Date,
+                mr.TimeCompleted
+            FROM Fixtures f
+            JOIN MatchResults mr ON mr.FixtureID = f.FixtureID
+            JOIN SeriesMatchTypes s ON s.MatchTypeID = f.MatchTypeID
+            JOIN Players p1 ON f.Player1ID = p1.PlayerID
+            JOIN Players p2 ON f.Player2ID = p2.PlayerID
+            WHERE s.SeriesID = %s
+        """
+
+        cursor.execute(query, (series_id,))
+        matches = cursor.fetchall()
+
+        insert_query = """
+            INSERT INTO CompletedMatchesCache (
+                SeriesID, MatchTypeID, FixtureID,
+                Player1ID, Player2ID, Player1Name, Player2Name,
+                Player1Points, Player2Points,
+                Player1PR, Player2PR,
+                Player1Luck, Player2Luck,
+                Winner, Date, TimeCompleted, LastUpdated
+            ) VALUES (
+                %s, %s, %s,
+                %s, %s, %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s, %s, %s
+            )
+        """
+
+        for row in matches:
+            (
+                s_id, matchtype_id, fixture_id,
+                p1_id, p2_id, p1_name, p2_name,
+                p1_pts, p2_pts, p1_pr, p2_pr, p1_luck, p2_luck,
+                date, time_completed
+            ) = row
+
+            winner = (
+                p1_name if p1_pts > p2_pts else
+                p2_name if p2_pts > p1_pts else
+                "Draw"
+            )
+
+            cursor.execute(insert_query, (
+                s_id, matchtype_id, fixture_id,
+                p1_id, p2_id, p1_name, p2_name,
+                p1_pts, p2_pts,
+                p1_pr, p2_pr,
+                p1_luck, p2_luck,
+                winner, date, time_completed, datetime.datetime.now()
+            ))
+
+        conn.commit()
+        print(f"✅ Completed match cache refreshed for Series {series_id}.")
+
+    except Exception as e:
+        print(f"❌ Error in match cache refresh: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
 def refresh_series_stats(series_id):
     """
     Recalculates and stores player statistics for a given series into SeriesPlayerStats.
