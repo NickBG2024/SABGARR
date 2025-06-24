@@ -2145,7 +2145,88 @@ def smccc(series_id):
     finally:
         if conn:
             conn.close()
-        
+
+def get_series_completed_matches_detailed(series_id):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT 
+                Date,
+                MatchTypeTitle,
+                Player1Name,
+                Player2Name,
+                Player1Points,
+                Player2Points,
+                Player1PR,
+                Player1Luck,
+                Player2PR,
+                Player2Luck
+            FROM CompletedMatchesCache
+            WHERE SeriesID = %s
+            ORDER BY Date DESC, TimeCompleted DESC
+        """, (series_id,))
+        results = cursor.fetchall()
+
+        data = []
+        for row in results:
+            (
+                match_date, match_type_title,
+                p1_name, p2_name,
+                p1_points, p2_points,
+                p1_pr, p1_luck, p2_pr, p2_luck
+            ) = row
+
+            match_date = match_date.strftime("%Y-%m-%d") if match_date else "?"
+
+            if p1_points > p2_points:
+                winner_info = p1_name
+                loser_info = p2_name
+                score = f"{p1_points}-{p2_points}"
+                winner_pr = f"{p1_pr:.2f}" if p1_pr is not None else "-"
+                winner_luck = f"{p1_luck:.2f}" if p1_luck is not None else "-"
+                loser_pr = f"{p2_pr:.2f}" if p2_pr is not None else "-"
+                loser_luck = f"{p2_luck:.2f}" if p2_luck is not None else "-"
+            else:
+                winner_info = p2_name
+                loser_info = p1_name
+                score = f"{p2_points}-{p1_points}"
+                winner_pr = f"{p2_pr:.2f}" if p2_pr is not None else "-"
+                winner_luck = f"{p2_luck:.2f}" if p2_luck is not None else "-"
+                loser_pr = f"{p1_pr:.2f}" if p1_pr is not None else "-"
+                loser_luck = f"{p1_luck:.2f}" if p1_luck is not None else "-"
+
+            result_line = f"{winner_info} beat {loser_info}"
+
+            data.append([
+                match_date,
+                match_type_title,
+                result_line,
+                score,
+                winner_pr,
+                winner_luck,
+                loser_pr,
+                loser_luck
+            ])
+
+        return pd.DataFrame(data, columns=[
+            "Date Completed", "Match Type", "Result", "Score",
+            "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+        ])
+
+    except Exception as e:
+        st.error(f"Error loading completed matches from cache: {e}")
+        return pd.DataFrame(columns=[
+            "Date Completed", "Match Type", "Result", "Score",
+            "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+        ])
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 def show_matches_completed_by_series(series_id):
     # Connect to the database
     conn = create_connection()
