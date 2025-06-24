@@ -220,6 +220,7 @@ def refresh_series_stats(series_id):
 
         conn.commit()
         print(f"[{datetime.now()}] Series {series_id} stats refreshed successfully.")
+        update_completed_match_cache(series_id)
 
     except Exception as e:
         print(f"[{datetime.now()}] Error refreshing stats for Series {series_id}: {str(e)}")
@@ -227,6 +228,22 @@ def refresh_series_stats(series_id):
     finally:
         cursor.close()
         conn.close()
+
+def get_completed_matches_for_series(series_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT Player1Name, Player2Name, Player1Points, Player2Points,
+               Player1PR, Player2PR, Winner, Date
+        FROM CompletedMatchesCache
+        WHERE SeriesID = %s
+        ORDER BY Date DESC
+    """, (series_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return pd.DataFrame(rows, columns=[
+        "Player 1", "Player 2", "P1 Points", "P2 Points", "P1 PR", "P2 PR", "Winner", "Date"
+    ])
 
 def fetch_series_standings(series_id):
     """
