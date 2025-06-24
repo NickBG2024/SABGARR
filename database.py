@@ -180,7 +180,8 @@ def fetch_series_standings(series_id):
                 wins = int(row[3] or 0)
                 losses = int(row[4] or 0)
                 points = int(row[5] or 0)
-                win_pct = f"{row[6]:.2f}%" if row[6] is not None else "0.00%"
+                win_pct_val = safe_float(row[6])
+                win_pct = f"{win_pct_val:.2f}%" if win_pct_val is not None else "0.00%"
                 avg_pr = safe_float(row[7])
                 pr_wins = int(row[8] or 0)
                 avg_luck = safe_float(row[9])
