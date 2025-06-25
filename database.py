@@ -30,6 +30,77 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+def show_cached_matches_completed(match_type_id):
+    """
+    Display completed matches using the MatchTypeCompletedCache.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT 
+                Date,
+                Player1Name, Player2Name,
+                Player1Points, Player2Points,
+                Player1PR, Player2PR,
+                Player1Luck, Player2Luck,
+                Winner
+            FROM MatchTypeCompletedCache
+            WHERE MatchTypeID = %s
+            ORDER BY Date DESC
+        """, (match_type_id,))
+        results = cursor.fetchall()
+        conn.close()
+
+        if not results:
+            st.warning("No completed matches found for this match type.")
+            return
+
+        # Format display data
+        data = []
+        for row in results:
+            match_date = row[0].strftime("%Y-%m-%d")
+            p1_name, p2_name = row[1], row[2]
+            p1_pts, p2_pts = row[3], row[4]
+            p1_pr, p2_pr = row[5], row[6]
+            p1_luck, p2_luck = row[7], row[8]
+            winner = row[9]
+
+            # Determine result
+            if p1_pts > p2_pts:
+                result_str = f"{p1_name} beat {p2_name}"
+                score = f"{p1_pts}-{p2_pts}"
+                winner_pr, winner_luck = p1_pr, p1_luck
+                loser_pr, loser_luck = p2_pr, p2_luck
+            elif p2_pts > p1_pts:
+                result_str = f"{p2_name} beat {p1_name}"
+                score = f"{p2_pts}-{p1_pts}"
+                winner_pr, winner_luck = p2_pr, p2_luck
+                loser_pr, loser_luck = p1_pr, p1_luck
+            else:
+                result_str = f"{p1_name} drew with {p2_name}"
+                score = f"{p1_pts}-{p2_pts}"
+                winner_pr = winner_luck = loser_pr = loser_luck = "-"
+
+            data.append([
+                match_date, result_str, score,
+                f"{winner_pr:.2f}" if isinstance(winner_pr, (float, int)) else "-",
+                f"{winner_luck:.2f}" if isinstance(winner_luck, (float, int)) else "-",
+                f"{loser_pr:.2f}" if isinstance(loser_pr, (float, int)) else "-",
+                f"{loser_luck:.2f}" if isinstance(loser_luck, (float, int)) else "-"
+            ])
+
+        # Display as DataFrame
+        df = pd.DataFrame(data, columns=[
+            "Date Completed", "Result", "Score",
+            "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+        ])
+        st.subheader("Completed Matches:")
+        st.dataframe(df, hide_index=True)
+
+    except Exception as e:
+        st.error(f"Error loading cached matches: {e}")
+
 def get_active_series_ids():
     conn = create_connection()
     cursor = conn.cursor()
