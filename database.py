@@ -506,143 +506,73 @@ def fetch_series_standings(series_id):
 
 def display_series_standings_with_points_and_details(series_id):
     """
-    Fetch and display standings with points for a specific series.
+    Display series standings using cached stats from SeriesPlayerStats.
     """
     try:
         conn = create_connection()
         cursor = conn.cursor()
 
-        # Step 1: Fetch all MatchTypeIDs associated with the given SeriesID
-        match_type_query = """
-            SELECT MatchTypeID
-            FROM SeriesMatchTypes
-            WHERE SeriesID = %s;
+        query = """
+            SELECT 
+                p.Name, p.Nickname,
+                s.GamesPlayed, s.Wins, s.Losses, s.Points,
+                s.WinPercentage, s.PRWins, s.AveragePR, s.AverageLuck
+            FROM SeriesPlayerStats s
+            JOIN Players p ON s.PlayerID = p.PlayerID
+            WHERE s.SeriesID = %s
+            ORDER BY s.Points DESC, s.Wins DESC, s.AveragePR ASC
         """
-        cursor.execute(match_type_query, (series_id,))
-        match_type_ids = cursor.fetchall()
+        cursor.execute(query, (series_id,))
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
 
-        if not match_type_ids:
-            st.subheader("No match types found for this series.")
+        if not rows:
+            st.subheader("No stats available for this series.")
             return
 
-        # Flatten the MatchTypeIDs into a tuple for the SQL IN clause
-        match_type_ids = tuple(mt[0] for mt in match_type_ids)
+        formatted = []
+        for row in rows:
+            name_nickname = f"{row[0]} ({row[1]})"
+            played = int(row[2] or 0)
+            wins = int(row[3] or 0)
+            losses = int(row[4] or 0)
+            points = int(row[5] or 0)
+            win_pct = float(row[6]) if row[6] is not None else 0.0
+            pr_wins = int(row[7] or 0)
+            avg_pr = float(row[8]) if row[8] is not None else None
+            avg_luck = float(row[9]) if row[9] is not None else None
+            points_pct = (points / (played * 3)) * 100 if played > 0 else 0.0
 
-        # Step 2: Fetch player stats across all related match types
-        standings_query = f"""
-            SELECT
-                p.PlayerID,
-                p.Name,
-                p.Nickname,
-                SUM(CASE 
-                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
-                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
-                        ELSE 0 
-                    END) AS Wins,
-                SUM(CASE 
-                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
-                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1
-                        ELSE 0 
-                    END) AS Losses,
-                COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
-                AVG(CASE 
-                        WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
-                        WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR
-                        ELSE NULL 
-                    END) AS AveragePR,
-                SUM(CASE 
-                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
-                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
-                        ELSE 0 
-                    END) AS PRWins,
-                AVG(CASE 
-                        WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
-                        WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck
-                        ELSE NULL 
-                    END) AS AverageLuck,
-                (SUM(CASE 
-                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
-                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
-                        ELSE 0 
-                    END) * 2) +
-                SUM(CASE 
-                        WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
-                        WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
-                        ELSE 0 
-                    END) AS Points
-            FROM
-                Players p
-            LEFT JOIN Fixtures f 
-                ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
-            LEFT JOIN MatchResults mr 
-                ON (f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID)
-            WHERE
-                f.MatchTypeID IN {match_type_ids}
-            GROUP BY
-                p.PlayerID, p.Name, p.Nickname
-            ORDER BY
-                Points DESC, GamesPlayed DESC;
-        """
+            formatted.append([
+                name_nickname, played, points, points_pct, wins,
+                pr_wins, losses, win_pct, avg_pr, avg_luck
+            ])
 
-        cursor.execute(standings_query)
-        player_stats = cursor.fetchall()
+        df = pd.DataFrame(formatted, columns=[
+            "Name (Nickname)", "Played", "Points", "Points%", "Wins",
+            "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"
+        ])
 
-        if not player_stats:
-            st.subheader("No matches found for this series.")
-            return
+        numeric_cols = ["Played", "Points", "Points%", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
+        df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
 
-        # Step 3: Format and display the standings
-        formatted_stats = []
-        for stat in player_stats:
-            try:
-                name_with_nickname = f"{stat[1]} ({stat[2]})"
-                played = int(stat[3] or 0) + int(stat[4] or 0)  # Wins + Losses
-                wins = int(stat[3] or 0)
-                losses = int(stat[4] or 0)
-                points = int(stat[9] or 0)
-                points_percentage = f"{(points/(played * 3)) * 100:.2f}%" if played > 0 else "0.00%"
-                win_percentage = f"{(wins / played) * 100:.2f}%" if played > 0 else "0.00%"
-                avg_pr = safe_float(stat[6])  # Convert to float
-                pr_wins = int(stat[7] or 0)
-                avg_luck = safe_float(stat[8])  # Convert to float
-                formatted_stats.append([
-                    name_with_nickname, played, points, points_percentage, wins, pr_wins, losses, win_percentage, avg_pr, avg_luck
-                ])
-            except IndexError as ie:
-                st.warning(f"Skipping malformed row: {stat}. Error: {ie}")
-            except Exception as e:
-                st.error(f"Unexpected error while processing data: {e}")
+        df.insert(0, "Position", range(1, len(df) + 1))
 
-        if formatted_stats:
-            df = pd.DataFrame(
-                formatted_stats,
-                columns=["Name (Nickname)", "Played", "Points", "Points%", "Wins", "PR wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
-            )
+        styled = df.style.set_properties(
+            **{"font-weight": "bold"}, subset=["Position"]
+        ).format({
+            "Points%": "{:.2f}%",
+            "Win%": "{:.2f}%",
+            "Avg PR": "{:.2f}",
+            "Avg Luck": "{:.2f}"
+        })
 
-            # Convert numerical columns to proper types for sorting
-            numeric_cols = ["Played", "Points", "Wins", "PR wins", "Losses", "Avg PR", "Avg Luck"]
-            df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
-
-            styled_df = df.style.set_properties(
-                **{"font-weight": "bold"}, subset=["Points"]
-            ).format(
-                {"Avg PR": "{:.2f}", "Avg Luck": "{:.2f}"}  # Example formatting
-            )
-            
-            st.subheader("Series Standings with Points:")
-            #st.dataframe(df)
-            st.dataframe(styled_df)
-        else:
-            st.subheader("No valid matches to display.")
+        st.subheader("Series Standings with Points:")
+        st.dataframe(styled, hide_index=True)
 
     except Exception as e:
         st.error(f"Error displaying series standings: {e}")
-    finally:
-        # Ensure resources are properly closed
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
 
 def get_remaining_fixtures_by_series_overview(series_id):
     """
@@ -1146,18 +1076,16 @@ def display_cached_matchtype_standings(match_type_id):
             "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"
         ])
 
-        # Ensure numeric columns are float or int for sorting
         numeric_cols = ["Played", "Points", "Points%", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
         df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
 
         df.insert(0, "Position", range(1, len(df) + 1))
 
-        # Display with nice formatting
         styled = df.style.set_properties(
             **{"font-weight": "bold"}, subset=["Position"]
         ).format({
-            "Points%": "{:.2f}",
-            "Win%": "{:.2f}",
+            "Points%": "{:.2f}%",
+            "Win%": "{:.2f}%",
             "Avg PR": "{:.2f}",
             "Avg Luck": "{:.2f}"
         })
