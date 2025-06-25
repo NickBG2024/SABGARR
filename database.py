@@ -1090,7 +1090,7 @@ def display_cached_matchtype_standings(match_type_id):
             "Avg Luck": "{:.2f}"
         })
 
-        st.subheader("Match Type Standings:")
+        st.subheader("League Standings:")
         st.dataframe(styled, hide_index=True)
 
     except Exception as e:
