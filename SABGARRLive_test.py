@@ -129,7 +129,7 @@ if series_choice == "2025 - Series 2":
         #fetch_series_standings(current_series_id)
         #display_series_standings_with_points_and_details(current_series_id)
         #get_completed_matches_for_series(current_series_id)
-        get_series_completed_matches_detailed(series_id)
+        get_series_completed_matches_detailed(current_series_id)
         smccc(current_series_id)
         #show_matches_completed_by_series(current_series_id)
 
