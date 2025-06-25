@@ -75,39 +75,50 @@ st.sidebar.subheader("Admin-Functions: Main")
 
 st.sidebar.subheader("Update Series Stats")
 
-# Fetch or hardcode available series
-series_options = {
-    "2025 - Series 2": 6,
-    "2025 - Series 1": 5,
-    "2024 - Sorting League": 4
-}
+# Fetch series from DB
+try:
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT SeriesID, SeriesTitle FROM Series ORDER BY SeriesID DESC")
+    series_rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
 
-selected_series_label = st.sidebar.selectbox("Select a series:", list(series_options.keys()))
-selected_series_id = series_options[selected_series_label]
+    # Build dropdown
+    series_dict = {title: sid for sid, title in series_rows}
+    selected_series_label = st.sidebar.selectbox("Select a series:", list(series_dict.keys()))
+    selected_series_id = series_dict[selected_series_label]
 
-if st.sidebar.button("Refresh Series Stats"):
-    refresh_series_stats(selected_series_id)    
+    if st.sidebar.button("Refresh Series Stats"):
+        refresh_series_stats(selected_series_id)
+        st.sidebar.success(f"Refreshed: {selected_series_label}")
+
+except Exception as e:
+    st.sidebar.error(f"Error loading series list: {e}")
+
 
 st.sidebar.subheader("Update Match Type Stats")
 
-# Hardcoded or dynamically fetched match types
-matchtype_options = {
-    "2025 A League": 4,
-    "2025 B League": 5,
-    "2025 C League": 6,
-    "2025 D League": 7,
-    "2025 E League": 8,
-    "2025 F League": 9,
-    "2025 G League": 10,
-    "2025 H League": 11
-}
+# Fetch match types from DB
+try:
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT MatchTypeID, MatchTypeTitle FROM MatchType ORDER BY MatchTypeTitle")
+    matchtype_rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
 
-selected_matchtype_label = st.sidebar.selectbox("Select a match type:", list(matchtype_options.keys()))
-selected_matchtype_id = matchtype_options[selected_matchtype_label]
+    # Build dropdown
+    matchtype_dict = {title: mtid for mtid, title in matchtype_rows}
+    selected_label = st.sidebar.selectbox("Select a match type:", list(matchtype_dict.keys()))
+    selected_id = matchtype_dict[selected_label]
 
-if st.sidebar.button("Refresh MatchType Stats"):
-    refresh_matchtype_stats(selected_matchtype_id)
-    st.sidebar.success(f"Stats refreshed for: {selected_matchtype_label}")
+    if st.sidebar.button("Refresh MatchType Stats"):
+        refresh_matchtype_stats(selected_id)
+        st.sidebar.success(f"Refreshed: {selected_label}")
+
+except Exception as e:
+    st.sidebar.error(f"Error loading match types: {e}")
 
 # Checkbox to access "Generate Fixtures" functionality
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
