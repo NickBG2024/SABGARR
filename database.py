@@ -1025,7 +1025,76 @@ def display_matchtype_standings_withh2h(match_type_id):
         cursor.close()
         conn.close()
 
+def display_cached_matchtype_standings(match_type_id):
+    """
+    Display standings using precomputed data from MatchTypePlayerStats.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
 
+        query = """
+            SELECT 
+                p.Name, p.Nickname,
+                s.GamesPlayed, s.Wins, s.Losses, s.Points,
+                s.WinPercentage, s.PRWins, s.AveragePR, s.AverageLuck
+            FROM MatchTypePlayerStats s
+            JOIN Players p ON s.PlayerID = p.PlayerID
+            WHERE s.MatchTypeID = %s
+            ORDER BY s.Points DESC, s.Wins DESC, s.AveragePR ASC
+        """
+        cursor.execute(query, (match_type_id,))
+        rows = cursor.fetchall()
+
+        if not rows:
+            st.subheader("No cached stats available for this match type.")
+            return
+
+        formatted = []
+        for row in rows:
+            name_nickname = f"{row[0]} ({row[1]})"
+            played = int(row[2] or 0)
+            wins = int(row[3] or 0)
+            losses = int(row[4] or 0)
+            points = int(row[5] or 0)
+            points_pct = f"{(points / (played * 3)) * 100:.2f}%" if played > 0 else "0.00%"
+            win_pct = f"{row[6]:.2f}%" if row[6] is not None else "0.00%"
+            pr_wins = int(row[7] or 0)
+            avg_pr = float(row[8]) if row[8] is not None else None
+            avg_luck = float(row[9]) if row[9] is not None else None
+
+            formatted.append([
+                name_nickname, played, points, points_pct, wins,
+                pr_wins, losses, win_pct, avg_pr, avg_luck
+            ])
+
+        df = pd.DataFrame(formatted, columns=[
+            "Name (Nickname)", "Played", "Points", "Points%", "Wins",
+            "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"
+        ])
+
+        # Convert numeric fields
+        numeric_cols = ["Played", "Points", "Wins", "PR Wins", "Losses", "Avg PR", "Avg Luck"]
+        df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
+
+        df.insert(0, "Position", range(1, len(df) + 1))
+
+        styled = df.style.set_properties(
+            **{"font-weight": "bold"}, subset=["Position"]
+        ).format({
+            "Avg PR": "{:.2f}", "Avg Luck": "{:.2f}"
+        })
+
+        st.subheader("Match Type Standings:")
+        st.dataframe(df, hide_index=True)
+
+    except Exception as e:
+        st.error(f"Error loading cached standings: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
     
 def display_matchtype_standings_full_details_styled(match_type_id):
     """
