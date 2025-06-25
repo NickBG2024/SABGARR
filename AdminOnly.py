@@ -36,6 +36,7 @@ from database import (
     update_fixture,
     update_player,
     refresh_series_stats,
+    refresh_matchtype_stats,
     generate_fixture_entries,
 )
 
@@ -86,6 +87,28 @@ selected_series_id = series_options[selected_series_label]
 
 if st.sidebar.button("Refresh Series Stats"):
     refresh_series_stats(selected_series_id)    
+
+st.sidebar.subheader("Update Match Type Stats")
+
+# Hardcoded or dynamically fetched match types
+matchtype_options = {
+    "2025 A League": 4,
+    "2025 B League": 5,
+    "2025 C League": 6,
+    "2025 D League": 7,
+    "2025 E League": 8,
+    "2025 F League": 9,
+    "2025 G League": 10,
+    "2025 H League": 11
+}
+
+selected_matchtype_label = st.sidebar.selectbox("Select a match type:", list(matchtype_options.keys()))
+selected_matchtype_id = matchtype_options[selected_matchtype_label]
+
+if st.sidebar.button("Refresh MatchType Stats"):
+    refresh_matchtype_stats(selected_matchtype_id)
+    st.sidebar.success(f"Stats refreshed for: {selected_matchtype_label}")
+
 # Checkbox to access "Generate Fixtures" functionality
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
 # Checkbox to toggle email checker on/off
