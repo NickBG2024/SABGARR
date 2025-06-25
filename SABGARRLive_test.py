@@ -24,12 +24,11 @@ st.sidebar.markdown("Select the data to display:")
 # Create a radio button section with "Current Series" as the default
 series_choice = st.sidebar.radio(
     "Select a series:",  
-    ["2025 - Series 2", "2025 - Series 1", "2024 - Sorting League","Show overall league/player Stats"],  
-    index=0  # Sets "Current Series" as the default selection
+    ["2025 - Series 3 (coming soon)", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League","Show overall league/player Stats"],  
+    index=1  # Sets "Current Series" as the default selection
 )
 
 def league_tab(matchtype_id,league_title):
-    st.write(f"Loading {league_title} data...") 
     with st.spinner(f"Loading {league_title} data..."):
         league_matches_played = get_matchcount_by_matchtype(matchtype_id)
         league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
@@ -54,7 +53,7 @@ def league_tab(matchtype_id,league_title):
         #Call function to show group table with match_type_id
         #display_matchtype_standings_with_points_and_details(matchtype_id)
         display_cached_matchtype_standings(matchtype_id)
-        display_matchtype_standings_full_details_styled(matchtype_id)                                                  
+        #display_matchtype_standings_full_details_styled(matchtype_id)                                                  
         #display_group_metrics(match_type_id)
         #display_group_table(match_type_id)
         display_match_grid(matchtype_id)        
@@ -77,7 +76,6 @@ if series_choice == "2025 - Series 2":
     match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), current_series_id)
     
     # Calculate days left until end of series 2 (30 June, 2025)
-    #today = date.today()
     end_date = date(2025, 6, 30)
     days_left = (end_date - today).days
     
@@ -94,7 +92,6 @@ if series_choice == "2025 - Series 2":
     col1.title("Round Robin Leagues!")
     col2.metric("Series 2 progress:",metric_value,match_count_yesterday)
     col2.write("Deadline: 30 June 2025")
-    #standings = get_sorting_standings()
 
     # Define tab names
     tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League","Guppy Group 1","Guppy Group 2"]
@@ -230,13 +227,11 @@ elif series_choice == "2024 - Sorting League":
 
     st.header("Player Standings - ordered by PR")
     st.write("Standings to sort players into Round Robin Leagues (A-F) for 2025 RR League: Series 1.")
-    # Example series id
-    series_id = 4
-    #Call function to show series table with series_id
-    #display_series_table_completedonly(series_id)
-    #display_series_table(series_id)
-    display_sorting_series_table(series_id)
-    smccc(series_id)
+
+    #display_series_table_completedonly(seriesid)
+    #display_series_table(seriesid)
+    display_sorting_series_table(seriesid)
+    smccc(seriesid)
     #list_remaining_fixtures_by_series(series_id)
     #show_matches_completed_by_series(series_id)
 
