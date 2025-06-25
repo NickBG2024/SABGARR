@@ -1116,6 +1116,8 @@ def display_cached_matchtype_standings(match_type_id):
         """
         cursor.execute(query, (match_type_id,))
         rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
 
         if not rows:
             st.subheader("No cached stats available for this match type.")
@@ -1128,11 +1130,11 @@ def display_cached_matchtype_standings(match_type_id):
             wins = int(row[3] or 0)
             losses = int(row[4] or 0)
             points = int(row[5] or 0)
-            points_pct = f"{(points / (played * 3)) * 100:.2f}%" if played > 0 else "0.00%"
-            win_pct = f"{row[6]:.2f}%" if row[6] is not None else "0.00%"
+            win_pct = float(row[6]) if row[6] is not None else 0.0
             pr_wins = int(row[7] or 0)
             avg_pr = float(row[8]) if row[8] is not None else None
             avg_luck = float(row[9]) if row[9] is not None else None
+            points_pct = (points / (played * 3)) * 100 if played > 0 else 0.0
 
             formatted.append([
                 name_nickname, played, points, points_pct, wins,
@@ -1144,29 +1146,28 @@ def display_cached_matchtype_standings(match_type_id):
             "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"
         ])
 
-        # Convert numeric fields
-        numeric_cols = ["Played", "Points", "Wins", "PR Wins", "Losses", "Avg PR", "Avg Luck"]
+        # Ensure numeric columns are float or int for sorting
+        numeric_cols = ["Played", "Points", "Points%", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
         df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
 
         df.insert(0, "Position", range(1, len(df) + 1))
 
+        # Display with nice formatting
         styled = df.style.set_properties(
             **{"font-weight": "bold"}, subset=["Position"]
         ).format({
-            "Avg PR": "{:.2f}", "Avg Luck": "{:.2f}"
+            "Points%": "{:.2f}",
+            "Win%": "{:.2f}",
+            "Avg PR": "{:.2f}",
+            "Avg Luck": "{:.2f}"
         })
 
         st.subheader("Match Type Standings:")
-        st.dataframe(df, hide_index=True)
+        st.dataframe(styled, hide_index=True)
 
     except Exception as e:
         st.error(f"Error loading cached standings: {e}")
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-    
+
 def display_matchtype_standings_full_details_styled(match_type_id):
     """
     Fetch and display standings with points for a specific match type.
