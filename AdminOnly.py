@@ -75,10 +75,6 @@ st.sidebar.header("Current series: RR S2 2025 (id=5)")
 st.sidebar.metric("Series data - matches",metric_value, "4")
 st.sidebar.subheader("Admin-Functions: Main")
 
-if st.sidebar.button("Refresh Remaining Fixtures (Series)"):
-    refresh_remaining_fixtures_for_series(selected_series_id)
-    st.sidebar.success(f"Remaining fixtures refreshed for: {selected_series_label}")
-
 st.sidebar.subheader("Update Series Stats")
 
 # Fetch series from DB
@@ -97,6 +93,10 @@ try:
     if st.sidebar.button("Refresh Series Stats"):
         refresh_series_stats(selected_series_id)
         st.sidebar.success(f"Refreshed: {selected_series_label}")
+        
+    if st.sidebar.button("Refresh Remaining Series Fixtures"):
+    refresh_remaining_fixtures_for_series(selected_series_id)
+    st.sidebar.success(f"Remaining fixtures refreshed for: {selected_series_label}")
 
 except Exception as e:
     st.sidebar.error(f"Error loading series list: {e}")
