@@ -30,6 +30,51 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+def update_remaining_fixtures_by_series(series_id):
+    import datetime
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Step 1: Clear existing cache entries for the series
+        cursor.execute("DELETE FROM SeriesRemainingFixturesCache WHERE SeriesID = %s", (series_id,))
+
+        # Step 2: Fetch all incomplete fixtures for the series
+        query = """
+            SELECT 
+                %s AS SeriesID,
+                f.MatchTypeID,
+                mt.MatchTypeTitle,
+                p1.Name AS Player1Name,
+                p2.Name AS Player2Name
+            FROM Fixtures f
+            JOIN SeriesMatchTypes smt ON f.MatchTypeID = smt.MatchTypeID
+            JOIN Players p1 ON f.Player1ID = p1.PlayerID
+            JOIN Players p2 ON f.Player2ID = p2.PlayerID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            WHERE smt.SeriesID = %s AND f.Completed = 0
+        """
+        cursor.execute(query, (series_id, series_id))
+        remaining = cursor.fetchall()
+
+        # Step 3: Insert into cache
+        insert_query = """
+            INSERT INTO SeriesRemainingFixturesCache (
+                SeriesID, MatchTypeID, MatchTypeTitle, Player1Name, Player2Name, LastUpdated
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        for row in remaining:
+            cursor.execute(insert_query, (*row, datetime.datetime.now()))
+
+        conn.commit()
+        print(f"✅ Remaining fixtures cached for SeriesID {series_id}.")
+
+    except Exception as e:
+        print(f"❌ Error updating SeriesRemainingFixturesCache for SeriesID {series_id}: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
 def show_cached_remaining_fixtures_by_series(series_id):
     """
     Display cached remaining fixtures for a given series using SeriesRemainingFixturesCache.
