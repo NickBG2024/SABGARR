@@ -30,7 +30,7 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
-def update_remaining_fixtures_by_series(series_id):
+def update_remaining_fixtures_for_series(series_id):
     import datetime
     conn = create_connection()
     cursor = conn.cursor()
