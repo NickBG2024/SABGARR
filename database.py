@@ -97,19 +97,32 @@ def show_cached_matches_completed(match_type_id):
             match_date,
             f"{winner} beat {loser}",
             score,
-            f"{winner_pr:.2f}" if winner_pr is not None else "-",
-            f"{winner_luck:.2f}" if winner_luck is not None else "-",
-            f"{loser_pr:.2f}" if loser_pr is not None else "-",
-            f"{loser_luck:.2f}" if loser_luck is not None else "-"
+            round(winner_pr, 2) if winner_pr is not None else None,
+            round(winner_luck, 2) if winner_luck is not None else None,
+            round(loser_pr, 2) if loser_pr is not None else None,
+            round(loser_luck, 2) if loser_luck is not None else None,
         ])
 
+    # Display results
+    st.subheader("Completed Matches:")
+    
+    # Create DataFrame
     df = pd.DataFrame(data, columns=[
-        "Date Completed", "Result", "Score",
+        "Date Completed", "Result", "Score", 
         "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
     ])
+    
+    # Display DataFrame
+    if not df.empty:
+        st.dataframe(df.style.format({
+            "Winner PR": "{:.2f}",
+            "Winner Luck": "{:.2f}",
+            "Loser PR": "{:.2f}",
+            "Loser Luck": "{:.2f}"
+        }), hide_index=True)
 
-    st.subheader("Completed Matches:")
-    st.dataframe(df, hide_index=True)
+    else:
+        st.subheader("No completed matches found.")
 
 def get_active_series_ids():
     conn = create_connection()
