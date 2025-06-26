@@ -31,75 +31,85 @@ def safe_float(value):
         return "-"
 
 def show_cached_matches_completed(match_type_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    query = """
+        SELECT 
+            Date,
+            Player1Name,
+            Player1ID,
+            Player2Name,
+            Player2ID,
+            Player1Points,
+            Player2Points,
+            Player1PR,
+            Player1Luck,
+            Player2PR,
+            Player2Luck
+        FROM MatchTypeCompletedCache
+        WHERE MatchTypeID = %s
+        ORDER BY Date DESC
     """
-    Display completed matches using the MatchTypeCompletedCache.
-    """
+    cursor.execute(query, (match_type_id,))
+    rows = cursor.fetchall()
+    conn.close()
+
+    if not rows:
+        st.warning("No completed matches found for this match type.")
+        return
+
+    # Fetch nicknames for player ID mapping
+    nickname_lookup = {}
     try:
         conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT 
-                Date,
-                Player1Name, Player2Name,
-                Player1Points, Player2Points,
-                Player1PR, Player2PR,
-                Player1Luck, Player2Luck,
-                Winner
-            FROM MatchTypeCompletedCache
-            WHERE MatchTypeID = %s
-            ORDER BY Date DESC
-        """, (match_type_id,))
-        results = cursor.fetchall()
+        cur = conn.cursor()
+        cur.execute("SELECT PlayerID, Nickname FROM Players")
+        for pid, nick in cur.fetchall():
+            nickname_lookup[pid] = nick
+    finally:
+        cur.close()
         conn.close()
 
-        if not results:
-            st.warning("No completed matches found for this match type.")
-            return
+    data = []
+    for row in rows:
+        date, p1_name, p1_id, p2_name, p2_id, p1_pts, p2_pts, p1_pr, p1_luck, p2_pr, p2_luck = row
+        match_date = date.strftime("%Y-%m-%d") if hasattr(date, "strftime") else str(date)
 
-        # Format display data
-        data = []
-        for row in results:
-            match_date = row[0].strftime("%Y-%m-%d")
-            p1_name, p2_name = row[1], row[2]
-            p1_pts, p2_pts = row[3], row[4]
-            p1_pr, p2_pr = row[5], row[6]
-            p1_luck, p2_luck = row[7], row[8]
-            winner = row[9]
+        p1_nick = nickname_lookup.get(p1_id, "")
+        p2_nick = nickname_lookup.get(p2_id, "")
 
-            # Determine result
-            if p1_pts > p2_pts:
-                result_str = f"{p1_name} beat {p2_name}"
-                score = f"{p1_pts}-{p2_pts}"
-                winner_pr, winner_luck = p1_pr, p1_luck
-                loser_pr, loser_luck = p2_pr, p2_luck
-            elif p2_pts > p1_pts:
-                result_str = f"{p2_name} beat {p1_name}"
-                score = f"{p2_pts}-{p1_pts}"
-                winner_pr, winner_luck = p2_pr, p2_luck
-                loser_pr, loser_luck = p1_pr, p1_luck
-            else:
-                result_str = f"{p1_name} drew with {p2_name}"
-                score = f"{p1_pts}-{p2_pts}"
-                winner_pr = winner_luck = loser_pr = loser_luck = "-"
+        p1_full = f"{p1_name} ({p1_nick})"
+        p2_full = f"{p2_name} ({p2_nick})"
 
-            data.append([
-                match_date, result_str, score,
-                f"{winner_pr:.2f}" if isinstance(winner_pr, (float, int)) else "-",
-                f"{winner_luck:.2f}" if isinstance(winner_luck, (float, int)) else "-",
-                f"{loser_pr:.2f}" if isinstance(loser_pr, (float, int)) else "-",
-                f"{loser_luck:.2f}" if isinstance(loser_luck, (float, int)) else "-"
-            ])
+        if p1_pts > p2_pts:
+            winner, loser = p1_full, p2_full
+            score = f"{p1_pts}-{p2_pts}"
+            winner_pr, winner_luck = p1_pr, p1_luck
+            loser_pr, loser_luck = p2_pr, p2_luck
+        else:
+            winner, loser = p2_full, p1_full
+            score = f"{p2_pts}-{p1_pts}"
+            winner_pr, winner_luck = p2_pr, p2_luck
+            loser_pr, loser_luck = p1_pr, p1_luck
 
-        # Display as DataFrame
-        df = pd.DataFrame(data, columns=[
-            "Date Completed", "Result", "Score",
-            "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+        data.append([
+            match_date,
+            f"{winner} beat {loser}",
+            score,
+            f"{winner_pr:.2f}" if winner_pr is not None else "-",
+            f"{winner_luck:.2f}" if winner_luck is not None else "-",
+            f"{loser_pr:.2f}" if loser_pr is not None else "-",
+            f"{loser_luck:.2f}" if loser_luck is not None else "-"
         ])
-        st.subheader("Completed Matches:")
-        st.dataframe(df, hide_index=True)
 
-    except Exception as e:
-        st.error(f"Error loading cached matches: {e}")
+    df = pd.DataFrame(data, columns=[
+        "Date Completed", "Result", "Score",
+        "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+    ])
+
+    st.subheader("Completed Matches:")
+    st.dataframe(df, hide_index=True)
 
 def get_active_series_ids():
     conn = create_connection()
