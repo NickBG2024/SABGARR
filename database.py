@@ -221,6 +221,27 @@ def refresh_matchtype_stats(match_type_id):
                 winner, date, time_completed, datetime.datetime.now()
             ))
 
+        # Step 3: Refresh MatchTypeRemainingFixtures
+        cursor.execute("DELETE FROM MatchTypeRemainingFixtures WHERE MatchTypeID = %s", (match_type_id,))
+
+        fixture_query = """
+            SELECT p1.Name, p2.Name
+            FROM Fixtures f
+            JOIN Players p1 ON f.Player1ID = p1.PlayerID
+            JOIN Players p2 ON f.Player2ID = p2.PlayerID
+            WHERE f.MatchTypeID = %s AND f.Completed = 0
+        """
+        cursor.execute(fixture_query, (match_type_id,))
+        remaining_rows = cursor.fetchall()
+
+        insert_remaining = """
+            INSERT INTO MatchTypeRemainingFixtures (
+                MatchTypeID, Player1Name, Player2Name, LastUpdated
+            ) VALUES (%s, %s, %s, NOW())
+        """
+        for row in remaining_rows:
+            cursor.execute(insert_remaining, (match_type_id, row[0], row[1]))
+
         conn.commit()
         print(f"✅ MatchType stats and completed cache updated for MatchTypeID {match_type_id}.")
 
@@ -229,6 +250,38 @@ def refresh_matchtype_stats(match_type_id):
     finally:
         cursor.close()
         conn.close()
+
+def list_cached_remaining_fixtures(match_type_id):
+    """
+    Display remaining fixtures for a given match type using cached data.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT Player1Name, Player2Name
+            FROM MatchTypeRemainingFixtures
+            WHERE MatchTypeID = %s
+            ORDER BY Player1Name, Player2Name
+        """
+        cursor.execute(query, (match_type_id,))
+        rows = cursor.fetchall()
+
+        if rows:
+            st.subheader("Remaining Fixtures:")
+            for player1, player2 in rows:
+                st.write(f"- **{player1}** vs **{player2}**")
+        else:
+            st.write("No remaining fixtures for this match type.")
+
+    except Exception as e:
+        st.error(f"Error loading cached remaining fixtures: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def update_completed_match_cache(series_id):
     import datetime
