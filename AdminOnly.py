@@ -85,9 +85,8 @@ try:
     cursor.close()
     conn.close()
 
-    # Build dropdown
     series_dict = {title: sid for sid, title in series_rows}
-    selected_series_label = st.sidebar.selectbox("Select a series:", list(series_dict.keys()))
+    selected_series_label = st.sidebar.selectbox("Select a series:", list(series_dict.keys()), key="series_select")
     selected_series_id = series_dict[selected_series_label]
 
     if st.sidebar.button("Refresh Series Stats"):
@@ -97,9 +96,9 @@ try:
 except Exception as e:
     st.sidebar.error(f"Error loading series list: {e}")
 
+# Match Type Section
 st.sidebar.subheader("Update Match Type Stats")
 
-# Fetch match types from DB
 try:
     conn = create_connection()
     cursor = conn.cursor()
@@ -108,30 +107,8 @@ try:
     cursor.close()
     conn.close()
 
-    # Build dropdown
     matchtype_dict = {title: mtid for mtid, title in matchtype_rows}
-    selected_label = st.sidebar.selectbox("Select a match type:", list(matchtype_dict.keys()))
-    selected_id = matchtype_dict[selected_label]
-
-    if st.sidebar.button("Refresh MatchType Stats"):
-        refresh_matchtype_stats(selected_id)
-        st.sidebar.success(f"Refreshed: {selected_label}")
-
-except Exception as e:
-    st.sidebar.error(f"Error loading match types: {e}")
-
-# Fetch match types from DB
-try:
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT MatchTypeID, MatchTypeTitle FROM MatchType ORDER BY MatchTypeTitle")
-    matchtype_rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    # Build dropdown
-    matchtype_dict = {title: mtid for mtid, title in matchtype_rows}
-    selected_label = st.sidebar.selectbox("Select a match type:", list(matchtype_dict.keys()))
+    selected_label = st.sidebar.selectbox("Select a match type:", list(matchtype_dict.keys()), key="matchtype_select")
     selected_id = matchtype_dict[selected_label]
 
     if st.sidebar.button("Refresh MatchType Stats"):
@@ -158,7 +135,7 @@ try:
 
 except Exception as e:
     st.sidebar.error(f"Error loading match types: {e}")
-
+    
 # Checkbox to access "Generate Fixtures" functionality
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
 # Checkbox to toggle email checker on/off
