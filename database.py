@@ -34,43 +34,48 @@ def update_remaining_fixtures_for_series(series_id):
     import datetime
     conn = create_connection()
     cursor = conn.cursor()
-
     try:
-        # Step 1: Clear existing cache entries for the series
+        print(f"🔄 Updating remaining fixtures for SeriesID {series_id}...")
+
         cursor.execute("DELETE FROM SeriesRemainingFixturesCache WHERE SeriesID = %s", (series_id,))
+        print("🧹 Cleared existing cache.")
 
-        # Step 2: Fetch all incomplete fixtures for the series
-        query = """
-            SELECT 
-                %s AS SeriesID,
-                f.MatchTypeID,
-                mt.MatchTypeTitle,
-                p1.Name AS Player1Name,
-                p2.Name AS Player2Name
-            FROM Fixtures f
-            JOIN SeriesMatchTypes smt ON f.MatchTypeID = smt.MatchTypeID
-            JOIN Players p1 ON f.Player1ID = p1.PlayerID
-            JOIN Players p2 ON f.Player2ID = p2.PlayerID
-            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
-            WHERE smt.SeriesID = %s AND f.Completed = 0
-        """
-        cursor.execute(query, (series_id, series_id))
-        remaining = cursor.fetchall()
+        cursor.execute("SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s", (series_id,))
+        matchtypes = cursor.fetchall()
+        print(f"🔎 Found {len(matchtypes)} match type(s) for series {series_id}.")
 
-        # Step 3: Insert into cache
+        if not matchtypes:
+            print(f"⚠️ No match types found for SeriesID {series_id}")
+            return
+
         insert_query = """
             INSERT INTO SeriesRemainingFixturesCache (
-                SeriesID, MatchTypeID, MatchTypeTitle, Player1Name, Player2Name, LastUpdated
-            ) VALUES (%s, %s, %s, %s, %s, %s)
+                SeriesID, MatchTypeID, Player1Name, Player2Name, LastUpdated
+            ) VALUES (%s, %s, %s, %s, %s)
         """
-        for row in remaining:
-            cursor.execute(insert_query, (*row, datetime.datetime.now()))
+
+        total_inserted = 0
+        for (matchtype_id,) in matchtypes:
+            cursor.execute("""
+                SELECT p1.Name, p2.Name
+                FROM Fixtures f
+                JOIN Players p1 ON f.Player1ID = p1.PlayerID
+                JOIN Players p2 ON f.Player2ID = p2.PlayerID
+                WHERE f.MatchTypeID = %s AND f.Completed = 0
+            """, (matchtype_id,))
+            rows = cursor.fetchall()
+            print(f"→ MatchTypeID {matchtype_id}: {len(rows)} unplayed fixtures")
+
+            for row in rows:
+                cursor.execute(insert_query, (series_id, matchtype_id, row[0], row[1], datetime.datetime.now()))
+                total_inserted += 1
+                print(f"✅ Inserted: {row[0]} vs {row[1]}")
 
         conn.commit()
-        print(f"✅ Remaining fixtures cached for SeriesID {series_id}.")
+        print(f"🎉 Inserted {total_inserted} remaining fixtures for series {series_id}.")
 
     except Exception as e:
-        print(f"❌ Error updating SeriesRemainingFixturesCache for SeriesID {series_id}: {e}")
+        print(f"❌ Error updating remaining fixtures for Series {series_id}: {e}")
     finally:
         cursor.close()
         conn.close()
