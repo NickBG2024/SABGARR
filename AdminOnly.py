@@ -38,7 +38,7 @@ from database import (
     update_player,
     refresh_series_stats,
     refresh_matchtype_stats,
-    refresh_remaining_fixtures_for_series,
+    update_remaining_fixtures_for_series,
     generate_fixture_entries,
 )
 
@@ -94,9 +94,9 @@ try:
         refresh_series_stats(selected_series_id)
         st.sidebar.success(f"Refreshed: {selected_series_label}")
         
-    if st.sidebar.button("Refresh Remaining Series Fixtures"):
-        refresh_remaining_fixtures_for_series(selected_series_id)
-        st.sidebar.success(f"Remaining fixtures refreshed for: {selected_series_label}")
+    if st.sidebar.button("Update Remaining Series Fixtures"):
+        update_remaining_fixtures_for_series(selected_series_id)
+        st.sidebar.success(f"Remaining fixtures updated for: {selected_series_label}")
 
 except Exception as e:
     st.sidebar.error(f"Error loading series list: {e}")
