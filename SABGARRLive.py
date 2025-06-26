@@ -4,7 +4,7 @@ import re
 import random
 import streamlit as st
 import pandas as pd
-from database import display_cached_matchtype_standings, get_averagePR_by_matchtype, list_remaining_fixtures_by_series, display_matchtype_standings_full_details_styled, get_fixturescount_by_matchtype, get_matchcount_by_matchtype, display_series_standings_with_points_and_details, display_series_standings_with_points, display_matchtype_standings_with_points_and_details, display_matchtype_standings_with_points, get_matchcount_by_date_and_series, smccc, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import fetch_cached_series_standings, show_cached_remaining_fixtures_by_series, get_series_completed_matches_detailed, display_match_grid, list_cached_remaining_fixtures, show_cached_matches_completed, display_cached_matchtype_standings, get_averagePR_by_matchtype, list_remaining_fixtures_by_series, display_matchtype_standings_full_details_styled, get_fixturescount_by_matchtype, get_matchcount_by_matchtype, display_series_standings_with_points_and_details, display_series_standings_with_points, display_matchtype_standings_with_points_and_details, display_matchtype_standings_with_points, get_matchcount_by_date_and_series, smccc, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone, date
 
 # Add a header image at the top of the page
@@ -51,15 +51,11 @@ def league_tab(matchtype_id,league_title):
         col2.metric("Games remaining:", games_left)
         col3.metric("Days left:", days_left)
         col4.metric("Average PR:", ave_pr)
-        #Call function to show group table with match_type_id
-        #display_matchtype_standings_with_points_and_details(matchtype_id)
+
         display_cached_matchtype_standings(matchtype_id)
-        #display_matchtype_standings_full_details_styled(matchtype_id)                                                  
-        #display_group_metrics(match_type_id)
-        #display_group_table(match_type_id)
-        display_match_grid(matchtype_id)        
-        list_remaining_fixtures(matchtype_id)
-        show_matches_completed(matchtype_id)
+        display_match_grid(matchtype_id)       
+        list_cached_remaining_fixtures(matchtype_id)
+        show_cached_matches_completed(matchtype_id)
 
 #2025 - SERIES 2 LEAGUE DATA DISPLAY        
 if series_choice == "2025 - Series 2":
@@ -121,13 +117,9 @@ if series_choice == "2025 - Series 2":
         st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v5.1.pdf]({pdf_url})", unsafe_allow_html=True)
         st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
         
-        #Call function to show series table with current_series_id
-        #display_series_table_completedonly(current_series_id)
-        #display_series_table(current_series_id)
-        #display_sorting_series_table(current_series_id)
-        display_series_standings_with_points_and_details(current_series_id)
-        smccc(current_series_id)
-        #show_matches_completed_by_series(current_series_id)
+        fetch_cached_series_standings(current_series_id)
+        show_cached_remaining_fixtures_by_series(current_series_id)
+        get_series_completed_matches_detailed(current_series_id)
 
     # League tabs - dynamically call league_tab() with appropriate matchtype_id
     for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
@@ -192,14 +184,9 @@ elif series_choice == "2025 - Series 1":
         st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2025 - rules etc v4.1.pdf]({pdf_url})", unsafe_allow_html=True)
         #st.write("This tab will offer an overview of sorts, recent results, player averages, rules, links to other standings, resources?")
         
-        #Call function to show series table with current_series_id
-        #display_series_table_completedonly(current_series_id)
-        #display_series_table(current_series_id)
-        #display_sorting_series_table(current_series_id)
-        display_series_standings_with_points_and_details(current_series_id)
-        smccc(current_series_id)
-        list_remaining_fixtures_by_series(current_series_id)
-        #show_matches_completed_by_series(current_series_id)
+        fetch_cached_series_standings(current_series_id)
+        show_cached_remaining_fixtures_by_series(current_series_id)
+        get_series_completed_matches_detailed(current_series_id)
 
     # League tabs - dynamically call league_tab() with appropriate matchtype_id
     for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
