@@ -96,9 +96,13 @@ try:
 except Exception as e:
     st.sidebar.error(f"Error loading series list: {e}")
 
-# Match Type Section
+
+# --------------------------
+# Match Type Stats Controls
+# --------------------------
 st.sidebar.subheader("Update Match Type Stats")
 
+# Dropdown to refresh individual match types
 try:
     conn = create_connection()
     cursor = conn.cursor()
@@ -111,30 +115,32 @@ try:
     selected_label = st.sidebar.selectbox("Select a match type:", list(matchtype_dict.keys()), key="matchtype_select")
     selected_id = matchtype_dict[selected_label]
 
-    if st.sidebar.button("Refresh MatchType Stats"):
+    if st.sidebar.button("Refresh Selected MatchType"):
         refresh_matchtype_stats(selected_id)
         st.sidebar.success(f"Refreshed: {selected_label}")
 
-    if st.sidebar.button("Refresh All Active MatchTypes"):
-        try:
-            conn = create_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT MatchTypeID, MatchTypeTitle FROM MatchType WHERE Active = 1 ORDER BY MatchTypeTitle")
-            active_matchtypes = cursor.fetchall()
-            cursor.close()
-            conn.close()
-
-            for mt_id, mt_title in active_matchtypes:
-                refresh_matchtype_stats(mt_id)
-                st.sidebar.write(f"✓ {mt_title} refreshed")
-
-            st.sidebar.success("All active match types refreshed.")
-
-        except Exception as e:
-            st.sidebar.error(f"Error refreshing all match types: {e}")
-
 except Exception as e:
     st.sidebar.error(f"Error loading match types: {e}")
+
+
+# Button to refresh ALL active match types
+if st.sidebar.button("Refresh All Active MatchTypes"):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT MatchTypeID, MatchTypeTitle FROM MatchType WHERE Active = 1 ORDER BY MatchTypeTitle")
+        active_matchtypes = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        for mt_id, mt_title in active_matchtypes:
+            refresh_matchtype_stats(mt_id)
+            st.sidebar.write(f"✓ {mt_title} refreshed")
+
+        st.sidebar.success("All active match types refreshed.")
+
+    except Exception as e:
+        st.sidebar.error(f"Error refreshing all match types: {e}")
     
 # Checkbox to access "Generate Fixtures" functionality
 generate_fixtures = st.sidebar.checkbox("Generate Fixtures")
