@@ -2676,10 +2676,10 @@ def show_matches_completed(match_type_id):
             match_date,
             f"{winner_info} beat {loser_info}",
             score,
-            f"{winner_pr:.2f}",  # Winner PR rounded to 2 decimals
-            f"{winner_luck:.2f}",  # Winner Luck rounded to 2 decimals
-            f"{loser_pr:.2f}",  # Loser PR rounded to 2 decimals
-            f"{loser_luck:.2f}",  # Loser Luck rounded to 2 decimals
+            round(winner_pr, 2) if winner_pr is not None else None,
+            round(winner_luck, 2) if winner_luck is not None else None,
+            round(loser_pr, 2) if loser_pr is not None else None,
+            round(loser_luck, 2) if loser_luck is not None else None,
         ])
 
     # Display results
@@ -2693,7 +2693,13 @@ def show_matches_completed(match_type_id):
     
     # Display DataFrame
     if not df.empty:
-        st.dataframe(df, hide_index=True)
+        st.dataframe(df.style.format({
+            "Winner PR": "{:.2f}",
+            "Winner Luck": "{:.2f}",
+            "Loser PR": "{:.2f}",
+            "Loser Luck": "{:.2f}"
+        }), hide_index=True)
+
     else:
         st.subheader("No completed matches found.")
     
