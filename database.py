@@ -2011,6 +2011,51 @@ def is_duplicate_player(player_name, heroes_nickname, email):
     conn.close()
     return duplicate_count > 0
 
+def refresh_remaining_fixtures_for_series(series_id):
+    import datetime
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        print(f"🔄 Refreshing remaining fixtures for SeriesID {series_id}...")
+
+        # Step 1: Clear existing cache
+        cursor.execute("DELETE FROM SeriesRemainingFixturesCache WHERE SeriesID = %s", (series_id,))
+
+        # Step 2: Find all MatchTypes in this series
+        cursor.execute("SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s", (series_id,))
+        matchtypes = cursor.fetchall()
+        if not matchtypes:
+            print(f"⚠️ No match types for SeriesID {series_id}")
+            return
+
+        insert_query = """
+            INSERT INTO SeriesRemainingFixturesCache (
+                SeriesID, MatchTypeID, Player1Name, Player2Name, LastUpdated
+            ) VALUES (%s, %s, %s, %s, %s)
+        """
+        
+        for (matchtype_id,) in matchtypes:
+            cursor.execute("""
+                SELECT p1.Name, p2.Name
+                FROM Fixtures f
+                JOIN Players p1 ON f.Player1ID = p1.PlayerID
+                JOIN Players p2 ON f.Player2ID = p2.PlayerID
+                WHERE f.MatchTypeID = %s AND f.Completed = 0
+            """, (matchtype_id,))
+            rows = cursor.fetchall()
+            for row in rows:
+                cursor.execute(insert_query, (series_id, matchtype_id, row[0], row[1], datetime.datetime.now()))
+
+        conn.commit()
+        print(f"✅ Series {series_id} remaining fixtures cache updated.")
+
+    except Exception as e:
+        print(f"❌ Error updating remaining fixtures for Series {series_id}: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
 def get_remaining_fixtures_by_series(series_id):
     """
     Retrieves remaining fixtures (Player1 vs Player2) for a specific series.
