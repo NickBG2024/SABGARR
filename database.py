@@ -31,35 +31,49 @@ def safe_float(value):
         return "-"
 
 def show_cached_remaining_fixtures_by_series(series_id):
-    conn = create_connection()
-    cursor = conn.cursor()
-
+    """
+    Display cached remaining fixtures for a given series using SeriesRemainingFixturesCache.
+    Groups fixtures by MatchTypeTitle.
+    """
     try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
         query = """
-            SELECT MatchTypeID, Player1Name, Player2Name
-            FROM SeriesRemainingFixturesCache
-            WHERE SeriesID = %s
-            ORDER BY MatchTypeID, Player1Name
+            SELECT 
+                srf.MatchTypeID,
+                mt.MatchTypeTitle,
+                srf.Player1Name,
+                srf.Player2Name
+            FROM SeriesRemainingFixturesCache srf
+            JOIN MatchType mt ON srf.MatchTypeID = mt.MatchTypeID
+            WHERE srf.SeriesID = %s
+            ORDER BY mt.MatchTypeTitle, srf.Player1Name, srf.Player2Name
         """
         cursor.execute(query, (series_id,))
         rows = cursor.fetchall()
-
-        if not rows:
-            st.info("No remaining fixtures for this series.")
-            return
-
-        grouped = {}
-        for matchtype_id, p1, p2 in rows:
-            grouped.setdefault(matchtype_id, []).append((p1, p2))
-
-        for matchtype_id, matches in grouped.items():
-            st.markdown(f"**Match Type {matchtype_id}**")
-            for p1, p2 in matches:
-                st.write(f"- **{p1}** vs **{p2}**")
-
-    finally:
         cursor.close()
         conn.close()
+
+        if not rows:
+            st.subheader("No remaining fixtures for this series.")
+            return
+
+        st.subheader("Remaining Fixtures (by Match Type):")
+
+        # Group fixtures by match type
+        from collections import defaultdict
+        grouped = defaultdict(list)
+        for matchtype_id, matchtype_title, p1, p2 in rows:
+            grouped[matchtype_title].append((p1, p2))
+
+        for matchtype_title, matches in grouped.items():
+            st.markdown(f"**{matchtype_title}**")
+            for p1, p2 in matches:
+                st.write(f"- {p1} vs {p2} ({matchtype_title})")
+
+    except Exception as e:
+        st.error(f"Error displaying cached remaining fixtures: {e}")
 
 def show_cached_matches_completed(match_type_id):
     conn = create_connection()
