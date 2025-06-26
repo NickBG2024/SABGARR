@@ -30,6 +30,37 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+def show_cached_remaining_fixtures_by_series(series_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = """
+            SELECT MatchTypeID, Player1Name, Player2Name
+            FROM SeriesRemainingFixturesCache
+            WHERE SeriesID = %s
+            ORDER BY MatchTypeID, Player1Name
+        """
+        cursor.execute(query, (series_id,))
+        rows = cursor.fetchall()
+
+        if not rows:
+            st.info("No remaining fixtures for this series.")
+            return
+
+        grouped = {}
+        for matchtype_id, p1, p2 in rows:
+            grouped.setdefault(matchtype_id, []).append((p1, p2))
+
+        for matchtype_id, matches in grouped.items():
+            st.markdown(f"**Match Type {matchtype_id}**")
+            for p1, p2 in matches:
+                st.write(f"- **{p1}** vs **{p2}**")
+
+    finally:
+        cursor.close()
+        conn.close()
+
 def show_cached_matches_completed(match_type_id):
     conn = create_connection()
     cursor = conn.cursor()
