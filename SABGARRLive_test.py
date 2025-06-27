@@ -59,7 +59,25 @@ def league_tab(matchtype_id,league_title):
 def show_stats_and_analysis():
     st.title("Statistics, Lists and Analysis")
     st.write("The idea is to have loads of statistics, lists and analysis! Some will refer to overall performances, series-specific data, player-specific (improvement, movements, etc) and some between players (head-to-head)") 
-    tab1, tab2, tab3 = st.tabs(["Best PR performances", "Best average PR across a Series", "Best PR over a year","Best Series to Series PR improvement (%)","Wins with 'toughest' luck differential","Best points % per Series","Longest win streaks"])
+    # Create tabs in a section
+    tab1, tab2, tab3 = st.tabs(["Player Stats", "League Stats", "Overall Stats"])
+
+    # Content for each tab
+    with tab1:    
+        st.header("Player Statistics")
+        st.write("Stats and data related to players.")
+        tab4, tab5, tab6, tab7 = st.tabs(["Player stats - summary page","Player vs Player comparison","Player PR changes","Player match record"])
+    with tab2:
+        # Create tabs for League Stats
+        st.header("Player Statistics")
+        st.write("Stats and data related to leagues.")
+        tab8, tab9, tab10, tab11 = st.tabs(["League Stats - summary page", "League PR avg. changes", "League movements","League something"])
+    with tab3:
+        # Create tabs for Overall Stats
+        st.header("Overall Statistics")
+        st.write("Summary and general stats and tables")
+        tab12, tab13, tab14, tab15, tab16, tab17, tab18 = st.tabs(["Best PR performances", "Best average PR across a Series", "Best PR over a year","Best Series to Series PR improvement (%)","Wins with 'toughest' luck differential","Best points % per Series","Longest win streaks"])
+
 
 #2025 - SERIES 2 LEAGUE DATA DISPLAY        
 if series_choice == "2025 - Series 2":
