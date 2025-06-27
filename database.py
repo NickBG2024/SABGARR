@@ -159,16 +159,16 @@ def show_player_summary_tab():
 
         # === Series Participation ===
         cursor.execute("""
-            SELECT DISTINCT s.SeriesTitle, 
+            SELECT s.SeriesTitle, 
                 AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR
-                         WHEN mr.Player2ID = %s THEN mr.Player2PR END) AS SeriesAvgPR
+                         WHEN mr.Player2ID = %s THEN mr.Player2PR ELSE NULL END) AS SeriesAvgPR
             FROM Series s
             JOIN SeriesMatchTypes smt ON s.SeriesID = smt.SeriesID
             JOIN Fixtures f ON f.MatchTypeID = smt.MatchTypeID
             JOIN MatchResults mr ON mr.FixtureID = f.FixtureID
             WHERE f.Completed = 1 AND (f.Player1ID = %s OR f.Player2ID = %s)
-            GROUP BY s.SeriesID
-            ORDER BY s.SeriesID DESC
+            GROUP BY s.SeriesTitle
+            ORDER BY s.SeriesTitle DESC
         """, (player_id, player_id, player_id, player_id))
         series_rows = cursor.fetchall()
 
