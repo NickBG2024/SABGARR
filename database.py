@@ -33,30 +33,34 @@ def safe_float(value):
 def show_player_summary_tab():
     """
     Displays Player Summary tab:
-    - Searchable active player selector
-    - Total matches, wins, losses, win %, PR wins, PR win %, average PR, last 10 PR, average luck, last 10 luck
-    - Table of Series participated in with Series average PR
+    - Select a player
+    - Displays total matches, wins, losses, win %, PR wins, PR win %, average PR, last 10 PR, average luck, last 10 luck
+    - Shows luckiest and unluckiest games
+    - Plots PR trend over time
+    - Shows Series participation
     """
+    import plotly.express as px
+
     st.header("👤 Player Statistics - Summary Page")
-    st.caption("Summary of a selected active player's stats, performance, and series participation.")
+    st.caption("Summary of a selected player's stats, performance, and series participation.")
 
     try:
         conn = create_connection()
         cursor = conn.cursor()
 
-        # Fetch all players alphabetically
+        # === Fetch players ===
         cursor.execute("SELECT PlayerID, Name, Nickname FROM Players ORDER BY Name")
         players = cursor.fetchall()
-
         player_options = {f"{name} ({nickname})": pid for pid, name, nickname in players}
+
         selected_player = st.selectbox(
-            "Select a player to view summary stats:",
+            "Select a player:",
             list(player_options.keys()),
             key="player_summary_select"
         )
         player_id = player_options[selected_player]
 
-        # === Fetch overall match data ===
+        # === Fetch player-specific match data ===
         cursor.execute("""
             SELECT
                 COUNT(*) AS TotalMatches,
@@ -65,36 +69,38 @@ def show_player_summary_tab():
                 SUM(CASE WHEN (Player1ID = %s AND Player1Points < Player2Points) OR
                               (Player2ID = %s AND Player2Points < Player1Points) THEN 1 ELSE 0 END) AS Losses
             FROM MatchResults
-        """, (player_id, player_id, player_id, player_id))
+            WHERE Player1ID = %s OR Player2ID = %s
+        """, (player_id, player_id, player_id, player_id, player_id, player_id))
         total_matches, wins, losses = cursor.fetchone()
         total_matches = int(total_matches or 0)
         wins = int(wins or 0)
         losses = int(losses or 0)
         win_pct = (wins / total_matches) * 100 if total_matches else 0.0
 
-        # === Fetch PR wins ===
+        # === PR wins and PR win % ===
         cursor.execute("""
             SELECT
                 SUM(CASE WHEN (Player1ID = %s AND Player1PR < Player2PR) OR
                               (Player2ID = %s AND Player2PR < Player1PR) THEN 1 ELSE 0 END) AS PRWins
             FROM MatchResults
-        """, (player_id, player_id))
-        pr_wins = cursor.fetchone()[0] or 0
-        pr_wins = int(pr_wins)
+            WHERE Player1ID = %s OR Player2ID = %s
+        """, (player_id, player_id, player_id, player_id))
+        pr_wins = int(cursor.fetchone()[0] or 0)
         pr_win_pct = (pr_wins / total_matches) * 100 if total_matches else 0.0
 
-        # === Fetch overall average PR & Luck ===
+        # === Avg PR and Luck overall ===
         cursor.execute("""
             SELECT
-                AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR ELSE NULL END) AS AvgPR,
-                AVG(CASE WHEN Player1ID = %s THEN Player1Luck WHEN Player2ID = %s THEN Player2Luck ELSE NULL END) AS AvgLuck
+                AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR END) AS AvgPR,
+                AVG(CASE WHEN Player1ID = %s THEN Player1Luck WHEN Player2ID = %s THEN Player2Luck END) AS AvgLuck
             FROM MatchResults
-        """, (player_id, player_id, player_id, player_id))
+            WHERE Player1ID = %s OR Player2ID = %s
+        """, (player_id, player_id, player_id, player_id, player_id, player_id))
         avg_pr, avg_luck = cursor.fetchone()
         avg_pr = float(avg_pr) if avg_pr is not None else None
         avg_luck = float(avg_luck) if avg_luck is not None else None
 
-        # === Fetch last 10 matches PR & Luck averages ===
+        # === Last 10 matches PR and Luck ===
         cursor.execute("""
             SELECT
                 CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END AS PR,
@@ -110,11 +116,52 @@ def show_player_summary_tab():
         last_10_pr = round(sum(valid_pr) / len(valid_pr), 2) if valid_pr else None
         last_10_luck = round(sum(valid_luck) / len(valid_luck), 2) if valid_luck else None
 
-        # === Fetch Series participation and Series average PR ===
+        # === Luckiest and Unluckiest Games ===
+        cursor.execute("""
+            SELECT Date, 
+                CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END AS Luck,
+                CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END AS PR
+            FROM MatchResults
+            WHERE Player1ID = %s OR Player2ID = %s
+            ORDER BY Luck DESC
+            LIMIT 1
+        """, (player_id, player_id, player_id, player_id))
+        luckiest = cursor.fetchone()
+        luckiest_str = f"{luckiest[0]} | Luck: {luckiest[1]:.2f} | PR: {luckiest[2]:.2f}" if luckiest else "-"
+
+        cursor.execute("""
+            SELECT Date, 
+                CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END AS Luck,
+                CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END AS PR
+            FROM MatchResults
+            WHERE Player1ID = %s OR Player2ID = %s
+            ORDER BY Luck ASC
+            LIMIT 1
+        """, (player_id, player_id, player_id, player_id))
+        unluckiest = cursor.fetchone()
+        unluckiest_str = f"{unluckiest[0]} | Luck: {unluckiest[1]:.2f} | PR: {unluckiest[2]:.2f}" if unluckiest else "-"
+
+        # === PR over time graph ===
+        cursor.execute("""
+            SELECT Date,
+                CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END AS PR
+            FROM MatchResults
+            WHERE (Player1ID = %s OR Player2ID = %s) AND Date IS NOT NULL
+            ORDER BY Date ASC
+        """, (player_id, player_id, player_id))
+        pr_data = cursor.fetchall()
+        if pr_data:
+            pr_df = pd.DataFrame(pr_data, columns=["Date", "PR"])
+            fig = px.scatter(pr_df, x="Date", y="PR", title="PR Over Time", trendline="ols")
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No PR data available for graph.")
+
+        # === Series Participation ===
         cursor.execute("""
             SELECT DISTINCT s.SeriesTitle, 
                 AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR
-                         WHEN mr.Player2ID = %s THEN mr.Player2PR ELSE NULL END) AS SeriesAvgPR
+                         WHEN mr.Player2ID = %s THEN mr.Player2PR END) AS SeriesAvgPR
             FROM Series s
             JOIN SeriesMatchTypes smt ON s.SeriesID = smt.SeriesID
             JOIN Fixtures f ON f.MatchTypeID = smt.MatchTypeID
@@ -140,11 +187,13 @@ def show_player_summary_tab():
         col7.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr is not None else "-")
         col8.metric("Last 10 Avg PR", f"{last_10_pr:.2f}" if last_10_pr is not None else "-")
 
-        col9, col10 = st.columns(2)
+        col9, col10, col11 = st.columns(3)
         col9.metric("Avg Luck", f"{avg_luck:.2f}" if avg_luck is not None else "-")
         col10.metric("Last 10 Avg Luck", f"{last_10_luck:.2f}" if last_10_luck is not None else "-")
+        col11.metric("Luckiest Game", luckiest_str)
+        col11.metric("Unluckiest Game", unluckiest_str)
 
-        # === Display Series Participation Table ===
+        # === Series Participation Table ===
         if series_rows:
             st.subheader("📜 Series Participation and PR Averages")
             df_series = pd.DataFrame(series_rows, columns=["Series", "Average PR"])
