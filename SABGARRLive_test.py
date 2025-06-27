@@ -18,13 +18,13 @@ st.sidebar.markdown(
     </div>
     """, unsafe_allow_html=True
 )
-st.sidebar.title("LEAGUE SERIES STATS:")
+st.sidebar.title("LEAGUE STATS:")
 st.sidebar.markdown("Select the data to display:")
 
 # Create a radio button section with "Current Series" as the default
 series_choice = st.sidebar.radio(
     "Select a series:",  
-    ["2025 - Series 3 (coming soon)", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League","Show overall league/player Stats"],  
+    ["2025 - Series 3 (coming soon)", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League","- View Stats and Analysis -"],  
     index=1  # Sets "Current Series" as the default selection
 )
 
@@ -218,9 +218,7 @@ elif series_choice == "2024 - Sorting League":
     #list_remaining_fixtures_by_series(series_id)
     #show_matches_completed_by_series(series_id)
 
-#st.sidebar.title("PLAYER STATS:")
-#st.sidebar.markdown("Select the Stats to display:")
-##show_player_history = st.sidebar.checkbox("Player Match Data")
-#show_player_vs_player_history = st.sidebar.checkbox("Player vs Player Data")
-#show_overall_PR_data = st.sidebar.checkbox("PR data")
-#show_overall_luck_data = st.sidebar.checkbox("Luck data")
+
+#View Stats and Analysis      
+elif series_choice == "- View Stats and Analysis -":
+    st.write("Here now")    
