@@ -78,6 +78,66 @@ def show_stats_and_analysis():
         st.write("Summary and general stats and tables")
         tab12, tab13, tab14, tab15, tab16, tab17, tab18 = st.tabs(["Best PR performances", "Best average PR across a Series", "Best PR over a year","Best Series to Series PR improvement (%)","Wins with 'toughest' luck differential","Best points % per Series","Longest win streaks"])
 
+    with tab4:
+    st.subheader("📊 Player Stats - Summary")
+    st.write("Top PR, win rates, points % per player across selected periods.")
+
+    with tab5:
+        st.subheader("🤝 Player vs Player Comparison")
+        st.write("Head-to-head records, PR comparisons, luck swings.")
+    
+    with tab6:
+        st.subheader("📈 Player PR Changes")
+        st.write("Track PR improvements or regressions across series/leagues.")
+    
+    with tab7:
+        st.subheader("🏅 Player Match Record")
+        st.write("Full match history by player, with results, PRs, luck, etc.")
+
+    with tab8:
+        st.subheader("📊 League Stats - Summary Page")
+        st.write("Overview of league standings, match completions, PR averages, and points %.")
+    
+    with tab9:
+        st.subheader("📈 League PR Average Changes")
+        st.write("Track how league-wide PR averages improve or change over time.")
+    
+    with tab10:
+        st.subheader("📊 League Movements")
+        st.write("Promotions, relegations, and player movement analysis within leagues.")
+    
+    with tab11:
+        st.subheader("🛠️ League Experimental Analysis")
+        st.write("Placeholder for additional league-level insights (TBD).")
+
+    with tab12:
+        st.subheader("⭐ Best PR Performances")
+        st.write("List of the best individual match PRs recorded across all leagues and series.")
+    
+    with tab13:
+        st.subheader("🏆 Best Average PR Across a Series")
+        st.write("Players with the lowest average PR in completed series.")
+    
+    with tab14:
+        st.subheader("📅 Best PR Over a Year")
+        st.write("Top PR performers over the course of a calendar year.")
+    
+    with tab15:
+        st.subheader("🔼 Best Series-to-Series PR Improvement (%)")
+        st.write("Players with the highest percentage improvement in PR between consecutive series.")
+    
+    with tab16:
+        st.subheader("🎲 Wins with Toughest Luck Differential")
+        st.write("Matches where players won despite significant negative luck swings.")
+    
+    with tab17:
+        st.subheader("📈 Best Points % Per Series")
+        st.write("Players with the highest points % (points earned / points possible) in each series.")
+    
+    with tab18:
+        st.subheader("🏅 Longest Win Streaks")
+        st.write("Players with the longest consecutive match win streaks.")
+
 
 #2025 - SERIES 2 LEAGUE DATA DISPLAY        
 if series_choice == "2025 - Series 2":
