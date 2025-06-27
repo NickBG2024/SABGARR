@@ -119,8 +119,11 @@ def show_player_summary_tab():
         pr_data = cursor.fetchall()
         if pr_data:
             df_pr = pd.DataFrame(pr_data, columns=["Date", "PR"])
+            df_pr["Date"] = pd.to_datetime(df_pr["Date"])  # <-- added to fix datetime.date error
             fig = px.scatter(df_pr, x="Date", y="PR", title="PR Over Time", trendline="ols")
             st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No PR data available for graph.")
 
         # === Luckiest / Unluckiest Games
         def fetch_luckiest(order: str):
