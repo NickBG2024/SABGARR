@@ -79,8 +79,8 @@ def show_stats_and_analysis():
         tab12, tab13, tab14, tab15, tab16, tab17, tab18 = st.tabs(["Best PR performances", "Best average PR across a Series", "Best PR over a year","Best Series to Series PR improvement (%)","Wins with 'toughest' luck differential","Best points % per Series","Longest win streaks"])
 
     with tab4:
-    st.subheader("📊 Player Stats - Summary")
-    st.write("Top PR, win rates, points % per player across selected periods.")
+        st.subheader("📊 Player Stats - Summary")
+        st.write("Top PR, win rates, points % per player across selected periods.")
 
     with tab5:
         st.subheader("🤝 Player vs Player Comparison")
