@@ -181,13 +181,13 @@ def show_player_summary_tab():
 
         # === Display Metrics ===
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Total Matches", int(total_matches))
-        col2.metric("Wins", int(wins))
-        col3.metric("Losses", int(losses))
+        col1.metric("Total Matches", total_matches)
+        col2.metric("Wins", wins)
+        col3.metric("Losses", losses)
         col4.metric("Win %", f"{win_pct:.2f}%")
 
         col5, col6, col7, col8 = st.columns(4)
-        col5.metric("PR Wins", int(pr_wins))
+        col5.metric("PR Wins", pr_wins)
         col6.metric("PR Win %", f"{pr_win_pct:.2f}%")
         col7.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr is not None else "-")
         col8.metric("Last 10 Avg PR", f"{last_10_pr:.2f}" if last_10_pr is not None else "-")
@@ -207,7 +207,7 @@ def show_player_summary_tab():
             df_series["Wins"] = df_series["Wins"].astype(int)
             df_series["Losses"] = df_series["Losses"].astype(int)
             df_series["PR Wins"] = df_series["PR Wins"].astype(int)
-            df_series["Average PR"] = df_series["Average PR"].round(2)
+            df_series["Average PR"] = df_series["Average PR"].astype(float).round(2)
             st.dataframe(df_series, hide_index=True)
         else:
             st.info("This player has not participated in any completed series.")
