@@ -193,6 +193,50 @@ def show_player_summary_tab():
     except Exception as e:
         st.error(f"Error loading player stats: {e}")
 
+def update_remaining_fixtures_by_series(series_id):
+    import datetime
+    conn = create_connection()
+    cursor = conn.cursor()
+    try:
+        print(f"[{datetime.datetime.now()}] Updating SeriesRemainingFixturesCache for SeriesID {series_id}...")
+
+        cursor.execute("DELETE FROM SeriesRemainingFixturesCache WHERE SeriesID = %s", (series_id,))
+
+        cursor.execute("SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s", (series_id,))
+        matchtypes = cursor.fetchall()
+
+        if not matchtypes:
+            print(f"No match types found for SeriesID {series_id}.")
+            return
+
+        insert_query = """
+            INSERT INTO SeriesRemainingFixturesCache (
+                SeriesID, MatchTypeID, Player1Name, Player2Name, LastUpdated
+            ) VALUES (%s, %s, %s, %s, NOW())
+        """
+
+        for (matchtype_id,) in matchtypes:
+            cursor.execute("""
+                SELECT p1.Name, p2.Name
+                FROM Fixtures f
+                JOIN Players p1 ON f.Player1ID = p1.PlayerID
+                JOIN Players p2 ON f.Player2ID = p2.PlayerID
+                WHERE f.MatchTypeID = %s AND f.Completed = 0
+            """, (matchtype_id,))
+            fixtures = cursor.fetchall()
+
+            for row in fixtures:
+                cursor.execute(insert_query, (series_id, matchtype_id, row[0], row[1]))
+
+        conn.commit()
+        print(f"✅ SeriesRemainingFixturesCache updated for SeriesID {series_id}.")
+
+    except Exception as e:
+        print(f"❌ Error in update_remaining_fixtures_by_series: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
 def update_remaining_fixtures_for_series(series_id):
     import datetime
     conn = create_connection()
