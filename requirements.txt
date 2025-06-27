@@ -8,3 +8,4 @@ streamlit-aggrid==0.3.3
 matplotlib
 seaborn
 plotly
+statsmodels>=0.13
