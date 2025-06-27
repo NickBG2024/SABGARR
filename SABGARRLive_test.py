@@ -58,7 +58,7 @@ def league_tab(matchtype_id,league_title):
 
 def show_stats_and_analysis():
     st.title("Statistics, Lists and Analysis")
-    st.write("The idea is to have loads of statistics, lists and analysis! Some will refer to overall performances, series-specific data, player-specific (improvement, movements, etc) and some between players (head-to-head)" 
+    st.write("The idea is to have loads of statistics, lists and analysis! Some will refer to overall performances, series-specific data, player-specific (improvement, movements, etc) and some between players (head-to-head)") 
     tab1, tab2, tab3 = st.tabs(["Best PR performances", "Best average PR across a Series", "Best PR over a year","Best Series to Series PR improvement (%)","Wins with 'toughest' luck differential","Best points % per Series","Longest win streaks"])
 
 #2025 - SERIES 2 LEAGUE DATA DISPLAY        
