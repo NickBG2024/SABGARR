@@ -48,7 +48,7 @@ def show_player_summary_tab():
         cursor = conn.cursor()
 
         # Fetch all active players
-        cursor.execute("SELECT PlayerID, Name, Nickname FROM Players WHERE Active = 1 ORDER BY Name")
+        cursor.execute("SELECT PlayerID, Name, Nickname FROM Players ORDER BY Name")
         players = cursor.fetchall()
 
         player_options = {f"{name} ({nickname})": pid for pid, name, nickname in players}
