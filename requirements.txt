@@ -9,3 +9,4 @@ matplotlib
 seaborn
 plotly
 statsmodels>=0.13
+scipy>=1.13
