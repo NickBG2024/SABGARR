@@ -30,6 +30,127 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+def show_player_summary_tab():
+    """
+    Displays Player Summary tab:
+    - Searchable active player selector
+    - Total matches, wins, losses, win %, PR wins, PR win %, average PR, last 10 PR, average luck, last 10 luck
+    - Table of Series participated in with Series average PR
+    """
+    import streamlit as st
+    import pandas as pd
+
+    st.header("👤 Player Statistics - Summary Page")
+    st.caption("Summary of a selected active player's stats, performance, and series participation.")
+
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Fetch all active players
+        cursor.execute("SELECT PlayerID, Name, Nickname FROM Players WHERE Active = 1 ORDER BY Name")
+        players = cursor.fetchall()
+
+        player_options = {f"{name} ({nickname})": pid for pid, name, nickname in players}
+        selected_player = st.selectbox(
+            "Select a player to view summary stats:",
+            list(player_options.keys()),
+            key="player_summary_select"
+        )
+        player_id = player_options[selected_player]
+
+        # === Fetch overall match data ===
+        cursor.execute("""
+            SELECT
+                COUNT(*) AS TotalMatches,
+                SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
+                              (Player2ID = %s AND Player2Points > Player1Points) THEN 1 ELSE 0 END) AS Wins,
+                SUM(CASE WHEN (Player1ID = %s AND Player1Points < Player2Points) OR
+                              (Player2ID = %s AND Player2Points < Player1Points) THEN 1 ELSE 0 END) AS Losses
+            FROM MatchResults
+        """, (player_id, player_id, player_id, player_id))
+        total_matches, wins, losses = cursor.fetchone()
+        win_pct = (wins / total_matches) * 100 if total_matches else 0
+
+        # === Fetch PR wins ===
+        cursor.execute("""
+            SELECT
+                SUM(CASE WHEN (Player1ID = %s AND Player1PR < Player2PR) OR
+                              (Player2ID = %s AND Player2PR < Player1PR) THEN 1 ELSE 0 END) AS PRWins
+            FROM MatchResults
+        """, (player_id, player_id))
+        pr_wins = cursor.fetchone()[0] or 0
+        pr_win_pct = (pr_wins / total_matches) * 100 if total_matches else 0
+
+        # === Fetch overall average PR & Luck ===
+        cursor.execute("""
+            SELECT
+                AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR ELSE NULL END) AS AvgPR,
+                AVG(CASE WHEN Player1ID = %s THEN Player1Luck WHEN Player2ID = %s THEN Player2Luck ELSE NULL END) AS AvgLuck
+            FROM MatchResults
+        """, (player_id, player_id, player_id, player_id))
+        avg_pr, avg_luck = cursor.fetchone()
+
+        # === Fetch last 10 matches PR & Luck averages ===
+        cursor.execute("""
+            SELECT
+                CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END AS PR,
+                CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END AS Luck
+            FROM MatchResults
+            WHERE Player1ID = %s OR Player2ID = %s
+            ORDER BY Date DESC, MatchResultID DESC
+            LIMIT 10
+        """, (player_id, player_id, player_id, player_id))
+        last_10 = cursor.fetchall()
+        last_10_pr = round(sum([row[0] for row in last_10 if row[0] is not None]) / len(last_10), 2) if last_10 else None
+        last_10_luck = round(sum([row[1] for row in last_10 if row[1] is not None]) / len(last_10), 2) if last_10 else None
+
+        # === Fetch Series participation and Series average PR ===
+        cursor.execute("""
+            SELECT DISTINCT s.SeriesTitle, 
+                AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR
+                         WHEN mr.Player2ID = %s THEN mr.Player2PR ELSE NULL END) AS SeriesAvgPR
+            FROM Series s
+            JOIN SeriesMatchTypes smt ON s.SeriesID = smt.SeriesID
+            JOIN Fixtures f ON f.MatchTypeID = smt.MatchTypeID
+            JOIN MatchResults mr ON mr.FixtureID = f.FixtureID
+            WHERE f.Completed = 1 AND (f.Player1ID = %s OR f.Player2ID = %s)
+            GROUP BY s.SeriesID
+            ORDER BY s.SeriesID DESC
+        """, (player_id, player_id, player_id, player_id))
+        series_rows = cursor.fetchall()
+
+        conn.close()
+
+        # === Display Metrics ===
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Total Matches", total_matches or 0)
+        col2.metric("Wins", wins or 0)
+        col3.metric("Losses", losses or 0)
+        col4.metric("Win %", f"{win_pct:.2f}%")
+
+        col5, col6, col7, col8 = st.columns(4)
+        col5.metric("PR Wins", pr_wins or 0)
+        col6.metric("PR Win %", f"{pr_win_pct:.2f}%")
+        col7.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr else "-")
+        col8.metric("Last 10 Avg PR", f"{last_10_pr:.2f}" if last_10_pr else "-")
+
+        col9, col10 = st.columns(2)
+        col9.metric("Avg Luck", f"{avg_luck:.2f}" if avg_luck else "-")
+        col10.metric("Last 10 Avg Luck", f"{last_10_luck:.2f}" if last_10_luck else "-")
+
+        # === Display Series Participation Table ===
+        if series_rows:
+            st.subheader("📜 Series Participation and PR Averages")
+            df_series = pd.DataFrame(series_rows, columns=["Series", "Average PR"])
+            df_series["Average PR"] = df_series["Average PR"].round(2)
+            st.dataframe(df_series, hide_index=True)
+        else:
+            st.info("This player has not participated in any completed series.")
+
+    except Exception as e:
+        st.error(f"Error loading player stats: {e}")
+
 def update_remaining_fixtures_for_series(series_id):
     import datetime
     conn = create_connection()
