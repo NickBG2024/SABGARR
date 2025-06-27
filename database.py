@@ -32,9 +32,10 @@ def safe_float(value):
 
 def show_player_summary_tab():
     """
-    Displays Player Summary tab with correct type handling for Plotly trendlines.
+    Displays Player Summary tab with robust type handling for Plotly trendlines.
     """
     import plotly.express as px
+    import pandas as pd
 
     st.header("👤 Player Statistics - Summary Page")
     st.caption("Summary of a selected player's stats, performance, and series participation.")
@@ -90,16 +91,17 @@ def show_player_summary_tab():
 
         # Last 10 matches PR and Luck
         cursor.execute("""
-            SELECT CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END,
-                   CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END
+            SELECT
+                CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END,
+                CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END
             FROM MatchResults
             WHERE Player1ID = %s OR Player2ID = %s
             ORDER BY Date DESC, MatchResultID DESC
             LIMIT 10
         """, (player_id, player_id, player_id, player_id))
         last_10 = cursor.fetchall()
-        valid_pr = [float(row[0]) for row in last_10 if isinstance(row[0], (float, int))]
-        valid_luck = [float(row[1]) for row in last_10 if isinstance(row[1], (float, int))]
+        valid_pr = [float(row[0]) for row in last_10 if isinstance(row[0], (int, float))]
+        valid_luck = [float(row[1]) for row in last_10 if isinstance(row[1], (int, float))]
         last_10_pr = round(sum(valid_pr) / len(valid_pr), 2) if valid_pr else None
         last_10_luck = round(sum(valid_luck) / len(valid_luck), 2) if valid_luck else None
 
@@ -116,8 +118,8 @@ def show_player_summary_tab():
         luckiest = cursor.fetchone()
         if luckiest:
             date_str = luckiest[0].strftime("%Y-%m-%d") if hasattr(luckiest[0], "strftime") else str(luckiest[0])
-            luck_val = float(luckiest[1]) if isinstance(luckiest[1], (float, int)) else "-"
-            pr_val = float(luckiest[2]) if isinstance(luckiest[2], (float, int)) else "-"
+            luck_val = round(float(luckiest[1]), 2) if isinstance(luckiest[1], (int, float)) else "-"
+            pr_val = round(float(luckiest[2]), 2) if isinstance(luckiest[2], (int, float)) else "-"
             luckiest_str = f"{date_str} | Luck: {luck_val} | PR: {pr_val}"
         else:
             luckiest_str = "-"
@@ -135,13 +137,13 @@ def show_player_summary_tab():
         unluckiest = cursor.fetchone()
         if unluckiest:
             date_str = unluckiest[0].strftime("%Y-%m-%d") if hasattr(unluckiest[0], "strftime") else str(unluckiest[0])
-            luck_val = float(unluckiest[1]) if isinstance(unluckiest[1], (float, int)) else "-"
-            pr_val = float(unluckiest[2]) if isinstance(unluckiest[2], (float, int)) else "-"
+            luck_val = round(float(unluckiest[1]), 2) if isinstance(unluckiest[1], (int, float)) else "-"
+            pr_val = round(float(unluckiest[2]), 2) if isinstance(unluckiest[2], (int, float)) else "-"
             unluckiest_str = f"{date_str} | Luck: {luck_val} | PR: {pr_val}"
         else:
             unluckiest_str = "-"
 
-        # PR over time (use datetime)
+        # PR over time
         cursor.execute("""
             SELECT Date,
                    CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
@@ -151,17 +153,20 @@ def show_player_summary_tab():
         """, (player_id, player_id, player_id))
         pr_data = cursor.fetchall()
         if pr_data:
-            import pandas as pd
             pr_df = pd.DataFrame([
                 {"Date": row[0], "PR": row[1]}
-                for row in pr_data if row[1] is not None
+                for row in pr_data
+                if row[0] is not None and isinstance(row[1], (int, float))
             ])
-            fig = px.scatter(pr_df, x="Date", y="PR", title="PR Over Time", trendline="ols")
-            st.plotly_chart(fig, use_container_width=True)
+            if not pr_df.empty:
+                fig = px.scatter(pr_df, x="Date", y="PR", title="PR Over Time", trendline="ols")
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("No PR data available for graph.")
         else:
             st.info("No PR data available for graph.")
 
-        # Display Metrics
+        # Display metrics
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Total Matches", total_matches)
         col2.metric("Wins", wins)
@@ -171,18 +176,16 @@ def show_player_summary_tab():
         col5, col6, col7, col8 = st.columns(4)
         col5.metric("PR Wins", pr_wins)
         col6.metric("PR Win %", f"{pr_win_pct:.2f}%")
-        col7.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr else "-")
-        col8.metric("Last 10 Avg PR", f"{last_10_pr:.2f}" if last_10_pr else "-")
+        col7.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr is not None else "-")
+        col8.metric("Last 10 Avg PR", f"{last_10_pr:.2f}" if last_10_pr is not None else "-")
 
         col9, col10 = st.columns(2)
-        col9.metric("Avg Luck", f"{avg_luck:.2f}" if avg_luck else "-")
-        col10.metric("Last 10 Avg Luck", f"{last_10_luck:.2f}" if last_10_luck else "-")
+        col9.metric("Avg Luck", f"{avg_luck:.2f}" if avg_luck is not None else "-")
+        col10.metric("Last 10 Avg Luck", f"{last_10_luck:.2f}" if last_10_luck is not None else "-")
 
         st.subheader("🎲 Luckiest and Unluckiest Games")
         st.write(f"**Luckiest:** {luckiest_str}")
         st.write(f"**Unluckiest:** {unluckiest_str}")
-
-        # Series Participation Table can remain unchanged
 
         cursor.close()
         conn.close()
