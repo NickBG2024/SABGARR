@@ -35,7 +35,7 @@ def show_player_summary_tab():
     Displays Player Summary tab:
     - Select a player
     - Displays total matches, wins, losses, win %, PR wins, PR win %, average PR, last 10 PR, average luck, last 10 luck
-    - Shows luckiest and unluckiest games
+    - Shows luckiest and unluckiest games in a table
     - Plots PR trend over time
     - Shows Series participation
     """
@@ -116,7 +116,7 @@ def show_player_summary_tab():
         last_10_pr = round(sum(valid_pr) / len(valid_pr), 2) if valid_pr else None
         last_10_luck = round(sum(valid_luck) / len(valid_luck), 2) if valid_luck else None
 
-        # === Luckiest and Unluckiest Games ===
+        # === Luckiest and Unluckiest Games for Table ===
         cursor.execute("""
             SELECT Date, 
                 CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END AS Luck,
@@ -127,7 +127,6 @@ def show_player_summary_tab():
             LIMIT 1
         """, (player_id, player_id, player_id, player_id))
         luckiest = cursor.fetchone()
-        luckiest_str = f"{luckiest[0]} | Luck: {luckiest[1]:.2f} | PR: {luckiest[2]:.2f}" if luckiest else "-"
 
         cursor.execute("""
             SELECT Date, 
@@ -139,7 +138,15 @@ def show_player_summary_tab():
             LIMIT 1
         """, (player_id, player_id, player_id, player_id))
         unluckiest = cursor.fetchone()
-        unluckiest_str = f"{unluckiest[0]} | Luck: {unluckiest[1]:.2f} | PR: {unluckiest[2]:.2f}" if unluckiest else "-"
+
+        # Create DataFrame for table
+        if luckiest and unluckiest:
+            df_luck = pd.DataFrame([
+                {"Type": "Luckiest", "Date": str(luckiest[0]), "Luck": round(float(luckiest[1]), 2), "PR": round(float(luckiest[2]), 2)},
+                {"Type": "Unluckiest", "Date": str(unluckiest[0]), "Luck": round(float(unluckiest[1]), 2), "PR": round(float(unluckiest[2]), 2)}
+            ])
+            st.subheader("🎲 Luckiest and Unluckiest Games")
+            st.dataframe(df_luck, hide_index=True)
 
         # === PR over time graph ===
         cursor.execute("""
@@ -152,6 +159,7 @@ def show_player_summary_tab():
         pr_data = cursor.fetchall()
         if pr_data:
             pr_df = pd.DataFrame(pr_data, columns=["Date", "PR"])
+            pr_df["Date"] = pd.to_datetime(pr_df["Date"])
             fig = px.scatter(pr_df, x="Date", y="PR", title="PR Over Time", trendline="ols")
             st.plotly_chart(fig, use_container_width=True)
         else:
@@ -187,11 +195,9 @@ def show_player_summary_tab():
         col7.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr is not None else "-")
         col8.metric("Last 10 Avg PR", f"{last_10_pr:.2f}" if last_10_pr is not None else "-")
 
-        col9, col10, col11 = st.columns(3)
+        col9, col10 = st.columns(2)
         col9.metric("Avg Luck", f"{avg_luck:.2f}" if avg_luck is not None else "-")
         col10.metric("Last 10 Avg Luck", f"{last_10_luck:.2f}" if last_10_luck is not None else "-")
-        col11.metric("Luckiest Game", luckiest_str)
-        col11.metric("Unluckiest Game", unluckiest_str)
 
         # === Series Participation Table ===
         if series_rows:
