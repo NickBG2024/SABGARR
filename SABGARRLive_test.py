@@ -24,7 +24,7 @@ st.sidebar.markdown("Select the data to display:")
 # Create a radio button section with "Current Series" as the default
 series_choice = st.sidebar.radio(
     "Select a series:",  
-    ["2025 - Series 3 (coming soon)", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League","- View Stats and Analysis -"],  
+    ["2025 - Series 3 (coming soon)", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League","View Stats, Lists and Analysis"],  
     index=1  # Sets "Current Series" as the default selection
 )
 
@@ -56,6 +56,10 @@ def league_tab(matchtype_id,league_title):
         list_cached_remaining_fixtures(matchtype_id)
         show_cached_matches_completed(matchtype_id)
 
+def show_stats_and_analysis():
+    st.title("Statistics, Lists and Analysis")
+    st.write("The idea is to have loads of statistics, lists and analysis! Some will refer to overall performances, series-specific data, player-specific (improvement, movements, etc) and some between players (head-to-head)" 
+    tab1, tab2, tab3 = st.tabs(["Best PR performances", "Best average PR across a Series", "Best PR over a year","Best Series to Series PR improvement (%)","Wins with 'toughest' luck differential","Best points % per Series","Longest win streaks"])
 
 #2025 - SERIES 2 LEAGUE DATA DISPLAY        
 if series_choice == "2025 - Series 2":
@@ -218,7 +222,6 @@ elif series_choice == "2024 - Sorting League":
     #list_remaining_fixtures_by_series(series_id)
     #show_matches_completed_by_series(series_id)
 
-
 #View Stats and Analysis      
-elif series_choice == "- View Stats and Analysis -":
-    st.write("Here now")    
+elif series_choice == "View Stats, Lists and Analysis":
+    show_stats_and_analysis()
