@@ -113,9 +113,10 @@ def show_player_summary_tab():
                    CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
             FROM MatchResults
             WHERE Player1ID = %s OR Player2ID = %s
-            ORDER BY Luck DESC
+            ORDER BY 
+                CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END DESC
             LIMIT 1
-        """, (player_id, player_id, player_id, player_id))
+        """, (player_id, player_id, player_id, player_id, player_id))
         luckiest = cursor.fetchone()
         if luckiest:
             date_str = luckiest[0].strftime('%Y-%m-%d') if hasattr(luckiest[0], 'strftime') else str(luckiest[0])
@@ -130,9 +131,10 @@ def show_player_summary_tab():
                    CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
             FROM MatchResults
             WHERE Player1ID = %s OR Player2ID = %s
-            ORDER BY Luck ASC
+            ORDER BY 
+                CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END ASC
             LIMIT 1
-        """, (player_id, player_id, player_id, player_id))
+        """, (player_id, player_id, player_id, player_id, player_id))
         unluckiest = cursor.fetchone()
         if unluckiest:
             date_str = unluckiest[0].strftime('%Y-%m-%d') if hasattr(unluckiest[0], 'strftime') else str(unluckiest[0])
