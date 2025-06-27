@@ -37,9 +37,6 @@ def show_player_summary_tab():
     - Total matches, wins, losses, win %, PR wins, PR win %, average PR, last 10 PR, average luck, last 10 luck
     - Table of Series participated in with Series average PR
     """
-    import streamlit as st
-    import pandas as pd
-
     st.header("👤 Player Statistics - Summary Page")
     st.caption("Summary of a selected active player's stats, performance, and series participation.")
 
@@ -47,7 +44,7 @@ def show_player_summary_tab():
         conn = create_connection()
         cursor = conn.cursor()
 
-        # Fetch all active players
+        # Fetch all players alphabetically
         cursor.execute("SELECT PlayerID, Name, Nickname FROM Players ORDER BY Name")
         players = cursor.fetchall()
 
@@ -70,7 +67,10 @@ def show_player_summary_tab():
             FROM MatchResults
         """, (player_id, player_id, player_id, player_id))
         total_matches, wins, losses = cursor.fetchone()
-        win_pct = (wins / total_matches) * 100 if total_matches else 0
+        total_matches = int(total_matches or 0)
+        wins = int(wins or 0)
+        losses = int(losses or 0)
+        win_pct = (wins / total_matches) * 100 if total_matches else 0.0
 
         # === Fetch PR wins ===
         cursor.execute("""
@@ -80,7 +80,8 @@ def show_player_summary_tab():
             FROM MatchResults
         """, (player_id, player_id))
         pr_wins = cursor.fetchone()[0] or 0
-        pr_win_pct = (pr_wins / total_matches) * 100 if total_matches else 0
+        pr_wins = int(pr_wins)
+        pr_win_pct = (pr_wins / total_matches) * 100 if total_matches else 0.0
 
         # === Fetch overall average PR & Luck ===
         cursor.execute("""
@@ -90,6 +91,8 @@ def show_player_summary_tab():
             FROM MatchResults
         """, (player_id, player_id, player_id, player_id))
         avg_pr, avg_luck = cursor.fetchone()
+        avg_pr = float(avg_pr) if avg_pr is not None else None
+        avg_luck = float(avg_luck) if avg_luck is not None else None
 
         # === Fetch last 10 matches PR & Luck averages ===
         cursor.execute("""
@@ -102,8 +105,10 @@ def show_player_summary_tab():
             LIMIT 10
         """, (player_id, player_id, player_id, player_id))
         last_10 = cursor.fetchall()
-        last_10_pr = round(sum([row[0] for row in last_10 if row[0] is not None]) / len(last_10), 2) if last_10 else None
-        last_10_luck = round(sum([row[1] for row in last_10 if row[1] is not None]) / len(last_10), 2) if last_10 else None
+        valid_pr = [float(row[0]) for row in last_10 if row[0] is not None]
+        valid_luck = [float(row[1]) for row in last_10 if row[1] is not None]
+        last_10_pr = round(sum(valid_pr) / len(valid_pr), 2) if valid_pr else None
+        last_10_luck = round(sum(valid_luck) / len(valid_luck), 2) if valid_luck else None
 
         # === Fetch Series participation and Series average PR ===
         cursor.execute("""
@@ -124,20 +129,20 @@ def show_player_summary_tab():
 
         # === Display Metrics ===
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Total Matches", total_matches or 0)
-        col2.metric("Wins", wins or 0)
-        col3.metric("Losses", losses or 0)
+        col1.metric("Total Matches", total_matches)
+        col2.metric("Wins", wins)
+        col3.metric("Losses", losses)
         col4.metric("Win %", f"{win_pct:.2f}%")
 
         col5, col6, col7, col8 = st.columns(4)
-        col5.metric("PR Wins", pr_wins or 0)
+        col5.metric("PR Wins", pr_wins)
         col6.metric("PR Win %", f"{pr_win_pct:.2f}%")
-        col7.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr else "-")
-        col8.metric("Last 10 Avg PR", f"{last_10_pr:.2f}" if last_10_pr else "-")
+        col7.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr is not None else "-")
+        col8.metric("Last 10 Avg PR", f"{last_10_pr:.2f}" if last_10_pr is not None else "-")
 
         col9, col10 = st.columns(2)
-        col9.metric("Avg Luck", f"{avg_luck:.2f}" if avg_luck else "-")
-        col10.metric("Last 10 Avg Luck", f"{last_10_luck:.2f}" if last_10_luck else "-")
+        col9.metric("Avg Luck", f"{avg_luck:.2f}" if avg_luck is not None else "-")
+        col10.metric("Last 10 Avg Luck", f"{last_10_luck:.2f}" if last_10_luck is not None else "-")
 
         # === Display Series Participation Table ===
         if series_rows:
