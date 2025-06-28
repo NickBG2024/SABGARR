@@ -38,7 +38,7 @@ from database import (
     update_player,
     refresh_series_stats,
     refresh_matchtype_stats,
-    update_remaining_fixtures_for_series,
+    update_remaining_fixtures_by_series,
     generate_fixture_entries,
 )
 
