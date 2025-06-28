@@ -267,8 +267,6 @@ def show_cached_remaining_fixtures_by_series(series_id):
             return
 
 
-        st.subheader("Remaining Fixtures (by Match Type):")
-
         from collections import defaultdict
         
         grouped = defaultdict(list)
@@ -283,23 +281,35 @@ def show_cached_remaining_fixtures_by_series(series_id):
         
         for matchtype_title, matches in grouped.items():
             match_count = len(matches)
-            st.markdown(f"**{matchtype_title} ({match_count})**")
+            st.markdown(f"**{matchtype_title} ({match_count}):**")
             for p1, p2 in matches:
                 st.write(f"- {p1} vs {p2}")
 
-        
-        st.subheader("Remaining Fixtures (by Match Type):")
-
-        # Group fixtures by match type
-        from collections import defaultdict
         grouped = defaultdict(list)
         for matchtype_id, matchtype_title, p1, p2 in rows:
             grouped[matchtype_title].append((p1, p2))
-
+        
+        # Calculate total remaining matches
+        total_remaining = sum(len(matches) for matches in grouped.values())
+        
+        # Build formatted output string
+        output_lines = []
+        output_lines.append(f"*Remaining Fixtures (by Match Type) ({total_remaining}):*\n")
+        
         for matchtype_title, matches in grouped.items():
-            st.markdown(f"**{matchtype_title}**")
+            match_count = len(matches)
+            output_lines.append(f"*{matchtype_title} ({match_count}):*")
             for p1, p2 in matches:
-                st.write(f"- {p1} vs {p2} ({matchtype_title})")
+                output_lines.append(f"{p1} vs {p2}")
+            output_lines.append("")  # Blank line between groups
+        
+        # Join into single text block for easy copying
+        formatted_output = "\n".join(output_lines)
+        
+        # Display in a text_area for easy copying
+        st.text_area("Copy-paste-friendly fixtures:", formatted_output, height=400)
+     
+   
 
     except Exception as e:
         st.error(f"Error displaying cached remaining fixtures: {e}")
