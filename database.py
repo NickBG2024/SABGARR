@@ -237,56 +237,6 @@ def update_remaining_fixtures_by_series(series_id):
         cursor.close()
         conn.close()
 
-def update_remaining_fixtures_for_series(series_id):
-    import datetime
-    conn = create_connection()
-    cursor = conn.cursor()
-    try:
-        print(f"🔄 Updating remaining fixtures for SeriesID {series_id}...")
-
-        cursor.execute("DELETE FROM SeriesRemainingFixturesCache WHERE SeriesID = %s", (series_id,))
-        print("🧹 Cleared existing cache.")
-
-        cursor.execute("SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s", (series_id,))
-        matchtypes = cursor.fetchall()
-        print(f"🔎 Found {len(matchtypes)} match type(s) for series {series_id}.")
-
-        if not matchtypes:
-            print(f"⚠️ No match types found for SeriesID {series_id}")
-            return
-
-        insert_query = """
-            INSERT INTO SeriesRemainingFixturesCache (
-                SeriesID, MatchTypeID, Player1Name, Player2Name, LastUpdated
-            ) VALUES (%s, %s, %s, %s, %s)
-        """
-
-        total_inserted = 0
-        for (matchtype_id,) in matchtypes:
-            cursor.execute("""
-                SELECT p1.Name, p2.Name
-                FROM Fixtures f
-                JOIN Players p1 ON f.Player1ID = p1.PlayerID
-                JOIN Players p2 ON f.Player2ID = p2.PlayerID
-                WHERE f.MatchTypeID = %s AND f.Completed = 0
-            """, (matchtype_id,))
-            rows = cursor.fetchall()
-            print(f"→ MatchTypeID {matchtype_id}: {len(rows)} unplayed fixtures")
-
-            for row in rows:
-                cursor.execute(insert_query, (series_id, matchtype_id, row[0], row[1], datetime.datetime.now()))
-                total_inserted += 1
-                print(f"✅ Inserted: {row[0]} vs {row[1]}")
-
-        conn.commit()
-        print(f"🎉 Inserted {total_inserted} remaining fixtures for series {series_id}.")
-
-    except Exception as e:
-        print(f"❌ Error updating remaining fixtures for Series {series_id}: {e}")
-    finally:
-        cursor.close()
-        conn.close()
-
 def show_cached_remaining_fixtures_by_series(series_id):
     """
     Display cached remaining fixtures for a given series using SeriesRemainingFixturesCache.
