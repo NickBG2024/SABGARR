@@ -95,7 +95,7 @@ try:
         st.sidebar.success(f"Refreshed: {selected_series_label}")
         
     if st.sidebar.button("Update Remaining Series Fixtures"):
-        update_remaining_fixtures_for_series(selected_series_id)
+        update_remaining_fixtures_by_series(selected_series_id)
         st.sidebar.success(f"Remaining fixtures updated for: {selected_series_label}")
 
 except Exception as e:
