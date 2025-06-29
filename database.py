@@ -308,6 +308,10 @@ def show_cached_remaining_fixtures_by_series(series_id):
         st.error(f"Error displaying cached remaining fixtures: {e}")
 
 def show_cached_matches_completed(match_type_id):
+    """
+    Displays completed matches for a given MatchTypeID using the MatchTypeCompletedCache table.
+    Uses the Winner field to determine match orientation accurately.
+    """
     conn = create_connection()
     cursor = conn.cursor()
 
@@ -323,7 +327,8 @@ def show_cached_matches_completed(match_type_id):
             Player1PR,
             Player1Luck,
             Player2PR,
-            Player2Luck
+            Player2Luck,
+            Winner
         FROM MatchTypeCompletedCache
         WHERE MatchTypeID = %s
         ORDER BY Date DESC
@@ -336,7 +341,7 @@ def show_cached_matches_completed(match_type_id):
         st.warning("No completed matches found for this match type.")
         return
 
-    # Fetch nicknames for player ID mapping
+    # Fetch nicknames once
     nickname_lookup = {}
     try:
         conn = create_connection()
@@ -350,56 +355,65 @@ def show_cached_matches_completed(match_type_id):
 
     data = []
     for row in rows:
-        date, p1_name, p1_id, p2_name, p2_id, p1_pts, p2_pts, p1_pr, p1_luck, p2_pr, p2_luck = row
-        match_date = date.strftime("%Y-%m-%d") if hasattr(date, "strftime") else str(date)
+        (date, p1_name, p1_id, p2_name, p2_id,
+         p1_pts, p2_pts, p1_pr, p1_luck, p2_pr, p2_luck, winner_name) = row
 
+        match_date = date.strftime("%Y-%m-%d") if hasattr(date, "strftime") else str(date)
         p1_nick = nickname_lookup.get(p1_id, "")
         p2_nick = nickname_lookup.get(p2_id, "")
-
         p1_full = f"{p1_name} ({p1_nick})"
         p2_full = f"{p2_name} ({p2_nick})"
 
-        if p1_pts > p2_pts:
-            winner, loser = p1_full, p2_full
+        # Use Winner field reliably
+        if winner_name == p1_name:
+            winner = p1_full
+            loser = p2_full
             score = f"{p1_pts}-{p2_pts}"
             winner_pr, winner_luck = p1_pr, p1_luck
             loser_pr, loser_luck = p2_pr, p2_luck
-        else:
-            winner, loser = p2_full, p1_full
+        elif winner_name == p2_name:
+            winner = p2_full
+            loser = p1_full
             score = f"{p2_pts}-{p1_pts}"
             winner_pr, winner_luck = p2_pr, p2_luck
             loser_pr, loser_luck = p1_pr, p1_luck
+        else:
+            # Defensive fallback if Winner is NULL
+            winner = p1_full
+            loser = p2_full
+            score = f"{p1_pts}-{p2_pts}"
+            winner_pr, winner_luck = p1_pr, p1_luck
+            loser_pr, loser_luck = p2_pr, p2_luck
 
         data.append([
             match_date,
             f"{winner} beat {loser}",
             score,
-            round(winner_pr, 2) if winner_pr is not None else None,
-            round(winner_luck, 2) if winner_luck is not None else None,
-            round(loser_pr, 2) if loser_pr is not None else None,
-            round(loser_luck, 2) if loser_luck is not None else None,
+            round(winner_pr, 2) if winner_pr is not None else "-",
+            round(winner_luck, 2) if winner_luck is not None else "-",
+            round(loser_pr, 2) if loser_pr is not None else "-",
+            round(loser_luck, 2) if loser_luck is not None else "-"
         ])
 
-    # Display results
     st.subheader("Completed Matches:")
-    
-    # Create DataFrame
+
     df = pd.DataFrame(data, columns=[
-        "Date Completed", "Result", "Score", 
+        "Date Completed", "Result", "Score",
         "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
     ])
-    
-    # Display DataFrame
-    if not df.empty:
-        st.dataframe(df.style.format({
-            "Winner PR": "{:.2f}",
-            "Winner Luck": "{:.2f}",
-            "Loser PR": "{:.2f}",
-            "Loser Luck": "{:.2f}"
-        }), hide_index=True)
 
+    if not df.empty:
+        st.dataframe(
+            df.style.format({
+                "Winner PR": "{:.2f}",
+                "Winner Luck": "{:.2f}",
+                "Loser PR": "{:.2f}",
+                "Loser Luck": "{:.2f}"
+            }),
+            hide_index=True
+        )
     else:
-        st.subheader("No completed matches found.")
+        st.info("No completed matches found for this match type.")
 
 def get_active_series_ids():
     conn = create_connection()
