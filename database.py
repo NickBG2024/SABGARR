@@ -266,25 +266,8 @@ def show_cached_remaining_fixtures_by_series(series_id):
             st.subheader("No remaining fixtures for this series.")
             return
 
-
         from collections import defaultdict
         
-        grouped = defaultdict(list)
-        for matchtype_id, matchtype_title, p1, p2 in rows:
-            grouped[matchtype_title].append((p1, p2))
-        
-        # Calculate total remaining matches
-        total_remaining = sum(len(matches) for matches in grouped.values())
-        
-        # Display header with total count
-        st.subheader(f"Remaining Fixtures (by Match Type) ({total_remaining})")
-        
-        for matchtype_title, matches in grouped.items():
-            match_count = len(matches)
-            st.markdown(f"**{matchtype_title} ({match_count}):**")
-            for p1, p2 in matches:
-                st.write(f"- {p1} vs {p2}")
-
         grouped = defaultdict(list)
         for matchtype_id, matchtype_title, p1, p2 in rows:
             grouped[matchtype_title].append((p1, p2))
@@ -303,11 +286,21 @@ def show_cached_remaining_fixtures_by_series(series_id):
                 output_lines.append(f"{p1} vs {p2}")
             output_lines.append("")  # Blank line between groups
         
-        # Join into single text block for easy copying
         formatted_output = "\n".join(output_lines)
         
-        # Display in a text_area for easy copying
-        st.text_area("Copy-paste-friendly fixtures:", formatted_output, height=400)
+        # Display in text area
+        st.text_area("Copy-paste-friendly fixtures:", formatted_output, height=400, key="fixtures_output")
+        
+        # Add a copy to clipboard button using streamlit-copy-paste pattern
+        import streamlit.components.v1 as components
+        
+        copy_button_code = f"""
+        <button onclick="navigator.clipboard.writeText(`{formatted_output}`); alert('Copied to clipboard!');">
+        Copy to Clipboard
+        </button>
+        """
+        
+        components.html(copy_button_code, height=50)
      
    
 
