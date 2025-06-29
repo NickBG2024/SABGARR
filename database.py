@@ -700,25 +700,21 @@ def update_completed_match_cache(series_id):
         conn.close()
 
 def refresh_series_stats(series_id):
-    """
-    Recalculates and stores player statistics for a given series into SeriesPlayerStats.
-    Safe to use in cron jobs or CLI (no Streamlit dependencies).
-    """
+    import pymysql
     import traceback
-    from datetime import datetime
 
     conn = create_connection()
     cursor = conn.cursor()
 
     try:
-        print(f"[{datetime.now()}] Refreshing stats for SeriesID {series_id}...")
+        print(f"Refreshing SeriesPlayerStats for SeriesID {series_id}...")
 
-        # Step 1: Get relevant MatchTypeIDs
+        # Retrieve MatchTypeIDs for this series
         cursor.execute("SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s", (series_id,))
         match_type_ids = [row[0] for row in cursor.fetchall()]
 
         if not match_type_ids:
-            print(f"[{datetime.now()}] No MatchTypes found for SeriesID {series_id}")
+            print(f"No MatchTypes found for SeriesID {series_id}.")
             return
 
         match_type_ids_tuple = tuple(match_type_ids)
@@ -727,47 +723,57 @@ def refresh_series_stats(series_id):
         else:
             match_type_ids_clause = f"IN {match_type_ids_tuple}"
 
-        # Step 2: Aggregate player stats
+        # Build query using MatchResults as source
         query = f"""
             SELECT
                 p.PlayerID,
-                COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
-                SUM(CASE 
-                    WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points > mr.Player2Points THEN 1
-                    WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points > mr.Player1Points THEN 1
-                    ELSE 0
-                END) AS Wins,
-                SUM(CASE 
-                    WHEN mr.Player1ID = p.PlayerID AND mr.Player1Points < mr.Player2Points THEN 1
-                    WHEN mr.Player2ID = p.PlayerID AND mr.Player2Points < mr.Player1Points THEN 1
-                    ELSE 0
-                END) AS Losses,
-                AVG(CASE 
-                    WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
-                    WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR
-                END) AS AveragePR,
-                SUM(CASE 
-                    WHEN mr.Player1ID = p.PlayerID AND mr.Player1PR < mr.Player2PR THEN 1
-                    WHEN mr.Player2ID = p.PlayerID AND mr.Player2PR < mr.Player1PR THEN 1
-                    ELSE 0
-                END) AS PRWins,
-                AVG(CASE 
-                    WHEN mr.Player1ID = p.PlayerID THEN mr.Player1Luck
-                    WHEN mr.Player2ID = p.PlayerID THEN mr.Player2Luck
-                END) AS AverageLuck
+                COUNT(mr.MatchResultID) AS GamesPlayed,
+                SUM(
+                    CASE 
+                        WHEN (p.PlayerID = mr.Player1ID AND mr.Player1Points > mr.Player2Points) OR
+                             (p.PlayerID = mr.Player2ID AND mr.Player2Points > mr.Player1Points)
+                        THEN 1 ELSE 0
+                    END
+                ) AS Wins,
+                SUM(
+                    CASE 
+                        WHEN (p.PlayerID = mr.Player1ID AND mr.Player1Points < mr.Player2Points) OR
+                             (p.PlayerID = mr.Player2ID AND mr.Player2Points < mr.Player1Points)
+                        THEN 1 ELSE 0
+                    END
+                ) AS Losses,
+                AVG(
+                    CASE
+                        WHEN p.PlayerID = mr.Player1ID THEN mr.Player1PR
+                        WHEN p.PlayerID = mr.Player2ID THEN mr.Player2PR
+                    END
+                ) AS AveragePR,
+                SUM(
+                    CASE
+                        WHEN (p.PlayerID = mr.Player1ID AND mr.Player1PR < mr.Player2PR) OR
+                             (p.PlayerID = mr.Player2ID AND mr.Player2PR < mr.Player1PR)
+                        THEN 1 ELSE 0
+                    END
+                ) AS PRWins,
+                AVG(
+                    CASE
+                        WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
+                        WHEN p.PlayerID = mr.Player2ID THEN mr.Player2Luck
+                    END
+                ) AS AverageLuck
             FROM Players p
-            LEFT JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
-            LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
-            WHERE f.MatchTypeID {match_type_ids_clause}
+            JOIN MatchResults mr ON (p.PlayerID = mr.Player1ID OR p.PlayerID = mr.Player2ID)
+            WHERE mr.MatchTypeID {match_type_ids_clause}
             GROUP BY p.PlayerID
         """
+
         cursor.execute(query)
         stats = cursor.fetchall()
 
-        # Step 3: Delete old stats
+        # Clear existing cache
         cursor.execute("DELETE FROM SeriesPlayerStats WHERE SeriesID = %s", (series_id,))
 
-        # Step 4: Insert updated stats
+        # Insert refreshed stats
         insert_query = """
             INSERT INTO SeriesPlayerStats
             (SeriesID, PlayerID, GamesPlayed, Wins, Losses, WinPercentage, Points, AveragePR, PRWins, AverageLuck, LastUpdated)
@@ -791,12 +797,12 @@ def refresh_series_stats(series_id):
             ))
 
         conn.commit()
-        print(f"[{datetime.now()}] Series {series_id} stats refreshed successfully.")
-        update_completed_match_cache(series_id)
+        print(f"✅ SeriesPlayerStats refreshed successfully for SeriesID {series_id}.")
 
     except Exception as e:
-        print(f"[{datetime.now()}] Error refreshing stats for Series {series_id}: {str(e)}")
+        print(f"❌ Error refreshing SeriesPlayerStats for SeriesID {series_id}: {str(e)}")
         traceback.print_exc()
+
     finally:
         cursor.close()
         conn.close()
