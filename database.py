@@ -431,6 +431,91 @@ def refresh_matchtype_stats(match_type_id):
     try:
         print(f"Refreshing MatchType stats for MatchTypeID {match_type_id}...")
 
+        cursor.execute("DELETE FROM MatchTypePlayerStats WHERE MatchTypeID = %s", (match_type_id,))
+
+        standings_query = """
+            SELECT
+                p.PlayerID,
+                COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
+                SUM(CASE WHEN (p.PlayerID = mr.Player1ID AND mr.Player1Points > mr.Player2Points)
+                          OR (p.PlayerID = mr.Player2ID AND mr.Player2Points > mr.Player1Points)
+                         THEN 1 ELSE 0 END) AS Wins,
+                SUM(CASE WHEN (p.PlayerID = mr.Player1ID AND mr.Player1Points < mr.Player2Points)
+                          OR (p.PlayerID = mr.Player2ID AND mr.Player2Points < mr.Player1Points)
+                         THEN 1 ELSE 0 END) AS Losses,
+                AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1PR
+                         WHEN p.PlayerID = mr.Player2ID THEN mr.Player2PR ELSE NULL END) AS AvgPR,
+                AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
+                         WHEN p.PlayerID = mr.Player2ID THEN mr.Player2Luck ELSE NULL END) AS AvgLuck,
+                SUM(CASE WHEN (p.PlayerID = mr.Player1ID AND mr.Player1PR < mr.Player2PR)
+                          OR (p.PlayerID = mr.Player2ID AND mr.Player2PR < mr.Player1PR)
+                         THEN 1 ELSE 0 END) AS PRWins
+            FROM Players p
+            JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+            LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
+            WHERE f.MatchTypeID = %s
+            GROUP BY p.PlayerID
+        """
+        cursor.execute(standings_query, (match_type_id,))
+        player_stats = cursor.fetchall()
+
+        # Gather players in this MatchType for H2H calculations
+        player_ids = [row[0] for row in player_stats]
+
+        for row in player_stats:
+            player_id, games, wins, losses, avg_pr, avg_luck, pr_wins = row
+            points = (wins * 2) + (pr_wins or 0)
+            win_pct = (wins / games) * 100 if games > 0 else 0
+
+            # Calculate HeadToHeadScore for this player
+            h2h_score = 0
+            for opponent_id in player_ids:
+                if opponent_id == player_id:
+                    continue
+                cursor.execute("""
+                    SELECT Player1ID, Player2ID, Player1Points, Player2Points
+                    FROM MatchResults
+                    WHERE MatchTypeID = %s
+                      AND ((Player1ID = %s AND Player2ID = %s) OR (Player1ID = %s AND Player2ID = %s))
+                """, (match_type_id, player_id, opponent_id, opponent_id, player_id))
+                matches = cursor.fetchall()
+                for m in matches:
+                    p1_id, p2_id, p1_pts, p2_pts = m
+                    if p1_id == player_id and p1_pts > p2_pts:
+                        h2h_score += 1
+                    elif p2_id == player_id and p2_pts > p1_pts:
+                        h2h_score += 1
+                    elif p1_id == player_id and p1_pts < p2_pts:
+                        h2h_score -= 1
+                    elif p2_id == player_id and p2_pts < p1_pts:
+                        h2h_score -= 1
+
+            cursor.execute("""
+                INSERT INTO MatchTypePlayerStats (
+                    MatchTypeID, PlayerID, GamesPlayed, Wins, Losses, Points,
+                    WinPercentage, PRWins, AveragePR, AverageLuck, HeadToHeadScore
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                match_type_id, player_id, games, wins, losses, points,
+                win_pct, pr_wins, avg_pr, avg_luck, h2h_score
+            ))
+
+        conn.commit()
+        print(f"✅ MatchType stats and caches updated with HeadToHeadScore for MatchTypeID {match_type_id}.")
+
+    except Exception as e:
+        print(f"❌ Error in refresh_matchtype_stats({match_type_id}): {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+def refresh_matchtype_stats2(match_type_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        print(f"Refreshing MatchType stats for MatchTypeID {match_type_id}...")
+
         # Step 1: Refresh MatchTypePlayerStats
         cursor.execute("DELETE FROM MatchTypePlayerStats WHERE MatchTypeID = %s", (match_type_id,))
 
