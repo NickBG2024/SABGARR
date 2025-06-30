@@ -431,19 +431,18 @@ def get_active_series_ids():
     return [row[0] for row in rows]
 
 def refresh_matchtype_stats(match_type_id):
+    import datetime
     conn = create_connection()
     cursor = conn.cursor()
 
     try:
-        print(f"In function in database: Refreshing MatchType stats for MatchTypeID {match_type_id}...")
-        log_debug(f"==== Starting refresh for MatchTypeID {match_type_id} ====")
+        print(f"⚡ Refreshing MatchType stats for MatchTypeID {match_type_id}...")
 
-        # Clear previous cache
+        # Clear existing stats
         cursor.execute("DELETE FROM MatchTypePlayerStats WHERE MatchTypeID = %s", (match_type_id,))
-        log_debug(f"Cleared MatchTypePlayerStats for MatchTypeID {match_type_id}")
 
-        # Retrieve player stats, including players with fixtures but no results
-        standings_query = """
+        # Step 1: Calculate base stats for all players with Fixtures in this MatchType
+        base_query = """
             SELECT
                 p.PlayerID,
                 COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
@@ -466,74 +465,90 @@ def refresh_matchtype_stats(match_type_id):
             WHERE f.MatchTypeID = %s
             GROUP BY p.PlayerID
         """
-        cursor.execute(standings_query, (match_type_id,))
+        cursor.execute(base_query, (match_type_id,))
         player_stats = cursor.fetchall()
-        log_debug(f"Retrieved player stats rows: {len(player_stats)}")
 
-        # Collect all players for HeadToHead calculation
-        player_ids = [row[0] for row in player_stats]
-
+        # Build a dict to hold interim stats for easier cluster processing
+        stats_dict = {}
         for row in player_stats:
             player_id, games, wins, losses, avg_pr, avg_luck, pr_wins = row
             points = (wins * 2) + (pr_wins or 0)
             win_pct = (wins / games) * 100 if games > 0 else 0
+            stats_dict[player_id] = {
+                "GamesPlayed": games,
+                "Wins": wins,
+                "Losses": losses,
+                "AvgPR": avg_pr,
+                "AvgLuck": avg_luck,
+                "PRWins": pr_wins,
+                "Points": points,
+                "WinPct": win_pct,
+                "HeadToHeadScore": 0  # default, will update for clusters
+            }
 
-            # === Calculate HeadToHeadScore ===
-            h2h_score = 0
-            for opponent_id in player_ids:
-                if opponent_id == player_id:
-                    continue
+        print(f"✅ Calculated base stats for {len(stats_dict)} players.")
 
-                cursor.execute("""
-                    SELECT Player1ID, Player2ID, Player1Points, Player2Points
-                    FROM MatchResults
-                    WHERE MatchTypeID = %s
-                      AND ((Player1ID = %s AND Player2ID = %s) OR (Player1ID = %s AND Player2ID = %s))
-                """, (match_type_id, player_id, opponent_id, opponent_id, player_id))
-                matches = cursor.fetchall()
-                log_debug(f"Player {player_id} vs Opponent {opponent_id} | Matches found: {len(matches)}")
+        # Step 2: Identify clusters tied on Points, Wins, PRWins
+        from collections import defaultdict
+        clusters = defaultdict(list)
+        for pid, stats in stats_dict.items():
+            key = (stats["Points"], stats["Wins"], stats["PRWins"])
+            clusters[key].append(pid)
 
+        # Step 3: For each cluster with more than one player, compute H2H among them
+        for key, player_ids in clusters.items():
+            if len(player_ids) < 2:
+                continue  # skip non-tied players
 
-                for m in matches:
-                    p1_id, p2_id, p1_pts, p2_pts = m
-                    log_debug(f"Match detail: P1={p1_id} ({p1_pts}) vs P2={p2_id} ({p2_pts})")
+            print(f"🔍 Computing H2H for tied cluster: Points={key[0]}, Wins={key[1]}, PRWins={key[2]} | Players={player_ids}")
 
-                    # Determine 'self' and 'opponent' points regardless of ordering
-                     if p1_id == player_id and p1_pts > p2_pts:
-                        h2h_score += 1
-                        log_debug(f"Player {player_id} beat {opponent_id}, H2H now {h2h_score}")
-                    elif p2_id == player_id and p2_pts > p1_pts:
-                        h2h_score += 1
-                        log_debug(f"Player {player_id} beat {opponent_id}, H2H now {h2h_score}")
-                    elif p1_id == player_id and p1_pts < p2_pts:
-                        h2h_score -= 1
-                        log_debug(f"Player {player_id} lost to {opponent_id}, H2H now {h2h_score}")
-                    elif p2_id == player_id and p2_pts < p1_pts:
-                        h2h_score -= 1
-                        log_debug(f"Player {player_id} lost to {opponent_id}, H2H now {h2h_score}")
+            for player_id in player_ids:
+                h2h_score = 0
+                for opponent_id in player_ids:
+                    if player_id == opponent_id:
+                        continue
 
-            # Insert into cache
-            cursor.execute("""
-                INSERT INTO MatchTypePlayerStats (
-                    MatchTypeID, PlayerID, GamesPlayed, Wins, Losses, Points,
-                    WinPercentage, PRWins, AveragePR, AverageLuck, HeadToHeadScore
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                match_type_id, player_id, games, wins, losses, points,
-                win_pct, pr_wins, avg_pr, avg_luck, h2h_score
+                    cursor.execute("""
+                        SELECT Player1ID, Player2ID, Player1Points, Player2Points
+                        FROM MatchResults
+                        WHERE MatchTypeID = %s
+                          AND ((Player1ID = %s AND Player2ID = %s) OR (Player1ID = %s AND Player2ID = %s))
+                    """, (match_type_id, player_id, opponent_id, opponent_id, player_id))
+                    matches = cursor.fetchall()
+
+                    for m in matches:
+                        p1_id, p2_id, p1_pts, p2_pts = m
+                        if p1_id == player_id and p1_pts > p2_pts:
+                            h2h_score += 1
+                        elif p2_id == player_id and p2_pts > p1_pts:
+                            h2h_score += 1
+                        elif p1_id == player_id and p1_pts < p2_pts:
+                            h2h_score -= 1
+                        elif p2_id == player_id and p2_pts < p1_pts:
+                            h2h_score -= 1
+
+                stats_dict[player_id]["HeadToHeadScore"] = h2h_score
+                print(f"🧮 Player {player_id} H2H Score: {h2h_score}")
+
+        # Step 4: Insert updated stats into MatchTypePlayerStats
+        insert_query = """
+            INSERT INTO MatchTypePlayerStats (
+                MatchTypeID, PlayerID, GamesPlayed, Wins, Losses, Points,
+                WinPercentage, PRWins, AveragePR, AverageLuck, HeadToHeadScore
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        for player_id, s in stats_dict.items():
+            cursor.execute(insert_query, (
+                match_type_id, player_id, s["GamesPlayed"], s["Wins"], s["Losses"], s["Points"],
+                s["WinPct"], s["PRWins"], s["AvgPR"], s["AvgLuck"], s["HeadToHeadScore"]
             ))
-            log_debug(f"Inserted for PlayerID {player_id}: Points={points}, Wins={wins}, PRWins={pr_wins}, H2H={h2h_score}, AvgPR={avg_pr}")
-
 
         conn.commit()
-        print(f"✅ MatchTypePlayerStats updated with HeadToHeadScore for MatchTypeID {match_type_id}.")
-        log_debug(f"✅ Completed refresh for MatchTypeID {match_type_id}")
-
+        print(f"✅ MatchTypePlayerStats updated with proper H2H tiebreaks for MatchTypeID {match_type_id}.")
 
     except Exception as e:
-        log_debug(f"❌ Error in refresh_matchtype_stats({match_type_id}): {e}")
         print(f"❌ Error in refresh_matchtype_stats({match_type_id}): {e}")
-        
     finally:
         cursor.close()
         conn.close()
