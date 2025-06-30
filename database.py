@@ -1715,6 +1715,90 @@ def display_matchtype_standings_withh2h(match_type_id):
 
 def display_cached_matchtype_standings(match_type_id):
     """
+    Display standings using precomputed data from MatchTypePlayerStats,
+    with proper multi-level sorting: Points, Wins, PRWins, HeadToHeadScore, AveragePR.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT 
+                p.Name, p.Nickname,
+                s.GamesPlayed, s.Wins, s.Losses, s.Points,
+                s.WinPercentage, s.PRWins, s.AveragePR, s.AverageLuck,
+                s.HeadToHeadScore
+            FROM MatchTypePlayerStats s
+            JOIN Players p ON s.PlayerID = p.PlayerID
+            WHERE s.MatchTypeID = %s
+        """
+        cursor.execute(query, (match_type_id,))
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        if not rows:
+            st.subheader("No cached stats available for this match type.")
+            return
+
+        formatted = []
+        for row in rows:
+            name_nickname = f"{row[0]} ({row[1]})"
+            played = int(row[2] or 0)
+            wins = int(row[3] or 0)
+            losses = int(row[4] or 0)
+            points = int(row[5] or 0)
+            win_pct = float(row[6]) if row[6] is not None else 0.0
+            pr_wins = int(row[7] or 0)
+            avg_pr = float(row[8]) if row[8] is not None else 0.0
+            avg_luck = float(row[9]) if row[9] is not None else 0.0
+            head_to_head = int(row[10] or 0)
+            points_pct = (points / (played * 3)) * 100 if played > 0 else 0.0
+
+            formatted.append([
+                name_nickname, played, points, points_pct, wins,
+                pr_wins, head_to_head, losses, win_pct, avg_pr, avg_luck
+            ])
+
+        df = pd.DataFrame(formatted, columns=[
+            "Name (Nickname)", "Played", "Points", "Points%", "Wins",
+            "PR Wins", "HeadToHead", "Losses", "Win%", "Avg PR", "Avg Luck"
+        ])
+
+        # Ensure numeric types for sorting
+        numeric_cols = ["Played", "Points", "Points%", "Wins", "PR Wins", "HeadToHead", "Losses", "Win%", "Avg PR", "Avg Luck"]
+        df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
+
+        # Sort by desired tie-break order
+        df.sort_values(
+            by=["Points", "Wins", "PR Wins", "HeadToHead", "Avg PR"],
+            ascending=[False, False, False, False, True],
+            inplace=True
+        )
+
+        # Add Position
+        df.insert(0, "Position", range(1, len(df) + 1))
+
+        # Drop HeadToHead from display if not desired for end users
+        df_display = df.drop(columns=["HeadToHead"])
+
+        styled = df_display.style.set_properties(
+            **{"font-weight": "bold"}, subset=["Position"]
+        ).format({
+            "Points%": "{:.2f}%",
+            "Win%": "{:.2f}%",
+            "Avg PR": "{:.2f}",
+            "Avg Luck": "{:.2f}"
+        })
+
+        st.subheader("League Standings:")
+        st.dataframe(styled, hide_index=True)
+
+    except Exception as e:
+        st.error(f"Error loading cached standings: {e}")
+
+def display_cached_matchtype_standings1(match_type_id):
+    """
     Display standings using precomputed data from MatchTypePlayerStats.
     """
     try:
