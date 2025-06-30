@@ -5,6 +5,12 @@ import streamlit as st
 import datetime
 import pandas as pd
 from decimal import Decimal
+from datetime import datetime
+
+def log_debug(message):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open("sabga_debug_log.txt", "a") as f:
+        f.write(f"[{timestamp}] {message}\n")
 
 # Create a connection to the database
 def create_connection():
@@ -429,10 +435,12 @@ def refresh_matchtype_stats(match_type_id):
     cursor = conn.cursor()
 
     try:
-        print(f"Refreshing MatchType stats for MatchTypeID {match_type_id}...")
+        print(f"In function in database: Refreshing MatchType stats for MatchTypeID {match_type_id}...")
+        log_debug(f"==== Starting refresh for MatchTypeID {match_type_id} ====")
 
         # Clear previous cache
         cursor.execute("DELETE FROM MatchTypePlayerStats WHERE MatchTypeID = %s", (match_type_id,))
+        log_debug(f"Cleared MatchTypePlayerStats for MatchTypeID {match_type_id}")
 
         # Retrieve player stats, including players with fixtures but no results
         standings_query = """
@@ -460,6 +468,7 @@ def refresh_matchtype_stats(match_type_id):
         """
         cursor.execute(standings_query, (match_type_id,))
         player_stats = cursor.fetchall()
+        log_debug(f"Retrieved player stats rows: {len(player_stats)}")
 
         # Collect all players for HeadToHead calculation
         player_ids = [row[0] for row in player_stats]
@@ -482,20 +491,26 @@ def refresh_matchtype_stats(match_type_id):
                       AND ((Player1ID = %s AND Player2ID = %s) OR (Player1ID = %s AND Player2ID = %s))
                 """, (match_type_id, player_id, opponent_id, opponent_id, player_id))
                 matches = cursor.fetchall()
+                log_debug(f"Player {player_id} vs Opponent {opponent_id} | Matches found: {len(matches)}")
+
 
                 for m in matches:
                     p1_id, p2_id, p1_pts, p2_pts = m
-                    # Determine 'self' and 'opponent' points regardless of ordering
-                    if p1_id == player_id:
-                        self_pts, opp_pts = p1_pts, p2_pts
-                    else:
-                        self_pts, opp_pts = p2_pts, p1_pts
+                    log_debug(f"Match detail: P1={p1_id} ({p1_pts}) vs P2={p2_id} ({p2_pts})")
 
-                    if self_pts > opp_pts:
+                    # Determine 'self' and 'opponent' points regardless of ordering
+                     if p1_id == player_id and p1_pts > p2_pts:
                         h2h_score += 1
-                    elif self_pts < opp_pts:
+                        log_debug(f"Player {player_id} beat {opponent_id}, H2H now {h2h_score}")
+                    elif p2_id == player_id and p2_pts > p1_pts:
+                        h2h_score += 1
+                        log_debug(f"Player {player_id} beat {opponent_id}, H2H now {h2h_score}")
+                    elif p1_id == player_id and p1_pts < p2_pts:
                         h2h_score -= 1
-                    # draws are ignored
+                        log_debug(f"Player {player_id} lost to {opponent_id}, H2H now {h2h_score}")
+                    elif p2_id == player_id and p2_pts < p1_pts:
+                        h2h_score -= 1
+                        log_debug(f"Player {player_id} lost to {opponent_id}, H2H now {h2h_score}")
 
             # Insert into cache
             cursor.execute("""
@@ -507,12 +522,18 @@ def refresh_matchtype_stats(match_type_id):
                 match_type_id, player_id, games, wins, losses, points,
                 win_pct, pr_wins, avg_pr, avg_luck, h2h_score
             ))
+            log_debug(f"Inserted for PlayerID {player_id}: Points={points}, Wins={wins}, PRWins={pr_wins}, H2H={h2h_score}, AvgPR={avg_pr}")
+
 
         conn.commit()
         print(f"✅ MatchTypePlayerStats updated with HeadToHeadScore for MatchTypeID {match_type_id}.")
+        log_debug(f"✅ Completed refresh for MatchTypeID {match_type_id}")
+
 
     except Exception as e:
+        log_debug(f"❌ Error in refresh_matchtype_stats({match_type_id}): {e}")
         print(f"❌ Error in refresh_matchtype_stats({match_type_id}): {e}")
+        
     finally:
         cursor.close()
         conn.close()
