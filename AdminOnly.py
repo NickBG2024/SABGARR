@@ -64,6 +64,65 @@ st.sidebar.markdown(
 # Retrieve the current status of the email checker
 email_checker_status = get_email_checker_status()
 
+def generate_fixtures_ui():
+    """
+    Generates the admin UI for fixture generation in Streamlit.
+    """
+    st.subheader("Generate Fixtures")
+
+    # Fetch match types and players
+    match_types = get_match_types()  # List of (MatchTypeID, MatchTypeTitle, ...)
+    players = get_players_simple()   # List of (PlayerID, Name, Nickname)
+
+    if not match_types:
+        st.warning("No match types found.")
+        return
+    if not players:
+        st.warning("No players found.")
+        return
+
+    # Create lookup for displaying match type names
+    match_type_dict = {mt[0]: mt[1] for mt in match_types}
+
+    # Match type selection
+    match_type_id = st.selectbox(
+        "Select Match Type",
+        options=list(match_type_dict.keys()),
+        format_func=lambda x: match_type_dict[x],
+        key="fixture_match_type"
+    )
+
+    # Player selections
+    selected_players = []
+    max_players = 12
+
+    for i in range(1, max_players + 1):
+        player = st.selectbox(
+            f"Select Player {i}",
+            options=[None] + players,
+            format_func=lambda x: x[1] if x else "None",
+            key=f"fixture_player_{i}"
+        )
+        if player:
+            selected_players.append(player[0])  # Append PlayerID
+
+    # Validation
+    if len(selected_players) < 3:
+        st.warning("Please select at least 3 players to generate fixtures.")
+        return
+
+    # Generate Fixtures Button
+    if st.button("Generate Fixtures"):
+        generate_fixture_entries(match_type_id, selected_players)
+        st.success("Fixtures generated successfully!")
+
+        # Cleanly clear related session state and rerun
+        keys_to_clear = [key for key in st.session_state.keys() if key.startswith("fixture_match_type") or key.startswith("fixture_player_")]
+        for key in keys_to_clear:
+            st.session_state.pop(key, None)
+
+        st.experimental_rerun()
+
 if 'form_updated' in st.session_state and st.session_state['form_updated']:
     del st.session_state['form_updated']
     st.rerun()
@@ -103,7 +162,6 @@ try:
 
 except Exception as e:
     st.sidebar.error(f"Error loading series list: {e}")
-
 
 # --------------------------
 # Match Type Stats Controls
@@ -277,58 +335,10 @@ if see_series_details:
 #-------------------------------------------------------------------------------------------------------
 # Generate Fixtures UI
 if generate_fixtures:
+    
     st.subheader("Generate Fixtures")
-
-    # Session state to manage form reset
-    if "reset_flag" not in st.session_state:
-        st.session_state.reset_flag = False
-
-    # Fetch available match types and players for dropdowns
-    match_types = get_match_types()  # Assuming get_match_types() returns a list of tuples (MatchTypeID, MatchTypeTitle, ...)
-    players = get_players_simple()  # Assuming get_players_simple() returns a list of tuples (PlayerID, Name, Nickname)
-
-    # Debugging output
-    print("Match Types:", match_types)
-    print("Players:", players)
-
-    # Convert match_types into a dictionary for easier lookup
-    match_type_dict = {mt[0]: mt[1] for mt in match_types}  # Assuming MatchTypeID is mt[0] and Title is mt[1]
-
-    # Dropdown for Match Type selection
-    match_type_id = st.selectbox(
-        "Select Match Type",
-        options=list(match_type_dict.keys()),
-        format_func=lambda x: match_type_dict[x],
-        key="match_type" if not st.session_state.reset_flag else None
-    )
-
-    # Multi-select dropdowns for selecting up to 10 players
-    selected_players = []
-    for i in range(1, 13):
-        player = st.selectbox(
-            f"Select Player {i}",
-            options=[None] + players,
-            format_func=lambda x: x[1] if x else "None",
-            key=f"player_select_{i}" if not st.session_state.reset_flag else None
-        )
-        if player:
-            selected_players.append(player[0])  # Append PlayerID
-
-    # Ensure at least 3 players are selected
-    if len(selected_players) < 3:
-        st.warning("Please select at least 3 players to generate fixtures.")
-    else:
-        # Button to generate fixtures
-        if st.button("Generate Fixtures"):
-            generate_fixture_entries(match_type_id, selected_players)
-            st.success("Fixtures generated successfully!")
-
-            # Reset session state flags to clear the form
-            for key in st.session_state.keys():
-                if key.startswith("match_type") or key.startswith("player_select_"):
-                    st.session_state[key] = None
-            st.session_state.reset_flag = True  # Trigger reset on the next render
-            
+    generate_fixtures_ui()
+    
 # Function to generate fixture entries in the database
 def generate_fixture_entries(match_type_id, player_ids):
     conn = create_connection()
