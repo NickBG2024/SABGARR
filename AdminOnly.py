@@ -50,7 +50,7 @@ st.title("SABGA Backgammon: Admin page")
 st.write("Welcome to the admin page of South African Backgammon Round Robin! This page is for admins to manage the SABGA National Round Robin.")
 
 if st.button("🔄 Run H2H Debug Test"):
-    refresh_matchtype_stats(32)  # replace 32 with your MatchTypeID
+    refresh_matchtype_stats(31)  # replace 32 with your MatchTypeID
     
 # Add an icon image to sidebar
 st.sidebar.markdown(
@@ -127,14 +127,14 @@ if 'form_updated' in st.session_state and st.session_state['form_updated']:
     del st.session_state['form_updated']
     st.rerun()
     
-matches_played = get_matchcount_by_series(6)
-total_fixtures = get_fixturescount_by_series(6)
+matches_played = get_matchcount_by_series(7)
+total_fixtures = get_fixturescount_by_series(7)
 percentage = (matches_played / total_fixtures) * 100
 metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
-st.sidebar.header("Current series: RR S2 2025 (id=5)")
-#st.sidebar.metric("Series data - players","54","3")
-st.sidebar.metric("Series data - matches",metric_value, "4")
+st.sidebar.header("Current series: RR S3 2025 (id=7)")
+#st.sidebar.metric("Series data - players","80","1")
+st.sidebar.metric("Series data - matches",metric_value, "6")
 st.sidebar.subheader("Admin-Functions: Main")
 
 st.sidebar.subheader("Update Series Stats")
