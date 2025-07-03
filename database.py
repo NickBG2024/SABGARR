@@ -38,7 +38,8 @@ def safe_float(value):
 
 def show_player_summary_tab():
     """
-    Displays Player Summary tab with robust type handling for Plotly trendlines.
+    Displays Player Summary tab with robust type handling for Plotly trendlines,
+    smoothed rolling average PR, and hover tooltips.
     """
     import plotly.express as px
     import pandas as pd
@@ -111,7 +112,7 @@ def show_player_summary_tab():
         last_10_pr = round(sum(valid_pr) / len(valid_pr), 2) if valid_pr else None
         last_10_luck = round(sum(valid_luck) / len(valid_luck), 2) if valid_luck else None
 
-        # Luckiest game
+        # Luckiest and Unluckiest game (unchanged for now)
         cursor.execute("""
             SELECT Date,
                    CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END,
@@ -122,15 +123,13 @@ def show_player_summary_tab():
             LIMIT 1
         """, (player_id, player_id, player_id, player_id, player_id))
         luckiest = cursor.fetchone()
+        luckiest_str = "-"
         if luckiest:
             date_str = luckiest[0].strftime("%Y-%m-%d") if hasattr(luckiest[0], "strftime") else str(luckiest[0])
             luck_val = round(float(luckiest[1]), 2) if isinstance(luckiest[1], (int, float)) else "-"
             pr_val = round(float(luckiest[2]), 2) if isinstance(luckiest[2], (int, float)) else "-"
             luckiest_str = f"{date_str} | Luck: {luck_val} | PR: {pr_val}"
-        else:
-            luckiest_str = "-"
 
-        # Unluckiest game
         cursor.execute("""
             SELECT Date,
                    CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END,
@@ -141,38 +140,54 @@ def show_player_summary_tab():
             LIMIT 1
         """, (player_id, player_id, player_id, player_id, player_id))
         unluckiest = cursor.fetchone()
+        unluckiest_str = "-"
         if unluckiest:
             date_str = unluckiest[0].strftime("%Y-%m-%d") if hasattr(unluckiest[0], "strftime") else str(unluckiest[0])
             luck_val = round(float(unluckiest[1]), 2) if isinstance(unluckiest[1], (int, float)) else "-"
             pr_val = round(float(unluckiest[2]), 2) if isinstance(unluckiest[2], (int, float)) else "-"
             unluckiest_str = f"{date_str} | Luck: {luck_val} | PR: {pr_val}"
-        else:
-            unluckiest_str = "-"
 
-        # PR over time
+        # PR Over Time with smoothed rolling average and hover tooltips
         cursor.execute("""
-            SELECT Date,
+            SELECT Date, MatchResultID,
                    CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
             FROM MatchResults
             WHERE (Player1ID = %s OR Player2ID = %s) AND Date IS NOT NULL
-            ORDER BY Date ASC
+            ORDER BY Date ASC, MatchResultID ASC
         """, (player_id, player_id, player_id))
         pr_data = cursor.fetchall()
         if pr_data:
             pr_df = pd.DataFrame([
-                {"Date": row[0], "PR": row[1]}
-                for row in pr_data
-                if row[0] is not None and isinstance(row[1], (int, float))
+                {"Date": pd.to_datetime(row[0]), "MatchResultID": row[1], "PR": float(row[2])}
+                for row in pr_data if row[0] is not None and isinstance(row[2], (int, float))
             ])
+
             if not pr_df.empty:
-                fig = px.scatter(pr_df, x="Date", y="PR", title="PR Over Time", trendline="ols")
+                pr_df["RollingAvgPR"] = pr_df["PR"].rolling(window=5, min_periods=1).mean()
+
+                fig = px.scatter(
+                    pr_df,
+                    x="Date",
+                    y="PR",
+                    title="PR Over Time with Rolling Average",
+                    hover_data={"Date": True, "PR": ":.2f", "MatchResultID": True}
+                )
+                fig.add_traces(
+                    px.line(
+                        pr_df,
+                        x="Date",
+                        y="RollingAvgPR"
+                    ).data
+                )
+                fig.update_traces(marker=dict(size=8, opacity=0.6))
+
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("No PR data available for graph.")
         else:
             st.info("No PR data available for graph.")
 
-        # Display metrics
+        # Metrics Display
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Total Matches", total_matches)
         col2.metric("Wins", wins)
