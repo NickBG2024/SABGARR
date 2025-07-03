@@ -208,6 +208,64 @@ def show_player_summary_tab():
         st.write(f"**Luckiest:** {luckiest_str}")
         st.write(f"**Unluckiest:** {unluckiest_str}")
 
+            # --- Add completed matches table ---
+        st.subheader("📜 Completed Matches for Selected Player")
+
+        cursor.execute("""
+            SELECT 
+                mr.Date,
+                mr.MatchResultID,
+                CASE WHEN mr.Player1ID = %s THEN p2.Name ELSE p1.Name END AS OpponentName,
+                CASE WHEN mr.Player1ID = %s THEN p2.Nickname ELSE p1.Nickname END AS OpponentNickname,
+                CASE WHEN mr.Player1ID = %s THEN mr.Player1Points ELSE mr.Player2Points END AS PlayerPoints,
+                CASE WHEN mr.Player1ID = %s THEN mr.Player2Points ELSE mr.Player1Points END AS OpponentPoints,
+                CASE WHEN mr.Player1ID = %s THEN mr.Player1PR ELSE mr.Player2PR END AS PlayerPR,
+                CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck ELSE mr.Player2Luck END AS PlayerLuck,
+                CASE WHEN 
+                    (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR 
+                    (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) 
+                    THEN 'Win' ELSE 'Loss' END AS Result
+            FROM MatchResults mr
+            JOIN Players p1 ON mr.Player1ID = p1.PlayerID
+            JOIN Players p2 ON mr.Player2ID = p2.PlayerID
+            WHERE mr.Player1ID = %s OR mr.Player2ID = %s
+            ORDER BY mr.Date DESC, mr.MatchResultID DESC
+        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+
+        matches = cursor.fetchall()
+        if matches:
+            df = pd.DataFrame(matches, columns=[
+                "Date", "MatchResultID", "Opponent", "OpponentNickname",
+                "PlayerPoints", "OpponentPoints", "PlayerPR", "PlayerLuck", "Result"
+            ])
+            df["Date"] = pd.to_datetime(df["Date"])
+            df["Opponent"] = df["Opponent"] + " (" + df["OpponentNickname"] + ")"
+            df = df.drop(columns=["OpponentNickname"])
+            df = df[
+                ["Date", "MatchResultID", "Opponent", "PlayerPoints", "OpponentPoints", "PlayerPR", "PlayerLuck", "Result"]
+            ]
+            df = df.rename(columns={
+                "Date": "📅 Date",
+                "MatchResultID": "🆔 Match ID",
+                "Opponent": "🆚 Opponent",
+                "PlayerPoints": "🏓 Player Points",
+                "OpponentPoints": "🏓 Opponent Points",
+                "PlayerPR": "📈 Player PR",
+                "PlayerLuck": "🍀 Player Luck",
+                "Result": "✅ Result"
+            })
+
+            st.dataframe(
+                df.style.format({
+                    "📈 Player PR": "{:.2f}",
+                    "🍀 Player Luck": "{:.2f}"
+                }),
+                use_container_width=True,
+                hide_index=True
+            )
+        else:
+            st.info("No matches found for this player yet.")
+            
         cursor.close()
         conn.close()
 
