@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone, date
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
 
 # Add an icon image to sidebar
+# Add an icon image to sidebar
 st.sidebar.markdown(
     """
     <div style='text-align: center; margin: 10px 5px 10px 5px;'>
@@ -18,15 +19,28 @@ st.sidebar.markdown(
     </div>
     """, unsafe_allow_html=True
 )
-st.sidebar.title("LEAGUE SERIES STATS:")
-st.sidebar.markdown("Select the Series to display:")
 
-# Create a radio button section with "Current Series" as the default
-series_choice = st.sidebar.radio(
-    "Select a series:",  
-    ["2025 - Series 3","2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],  
-    index=0  # Sets "Current Series" as the default selection
+st.sidebar.title("LEAGUE SERIES STATS:")
+
+# Add "View Player Statistics" as a navigation option
+view_option = st.sidebar.radio(
+    "Select what to view:",
+    ["Series Stats", "Player Statistics"],
+    index=0  # default to Series Stats
 )
+
+if view_option == "Series Stats":
+    st.sidebar.markdown("Select the Series to display:")
+    series_choice = st.sidebar.radio(
+        "Select a series:",
+        ["2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
+        index=0
+    )
+else:
+    # Call your player summary tab directly
+    show_player_summary_tab()
+    st.stop()
+
 
 def league_tab(matchtype_id,league_title):
     #st.write(f"Loading {league_title} data...") 
