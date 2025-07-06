@@ -162,31 +162,38 @@ def show_player_summary_tab():
             "MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
         ])
         
-        # Ensure numeric dtype safely
-        for col in ["Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"]:
-            per_mt_df[col] = pd.to_numeric(per_mt_df[col], errors="coerce").fillna(0)
+        # Ensure correct dtypes
+        for col in ["Games", "Wins", "Losses", "PR Wins"]:
+            per_mt_df[col] = pd.to_numeric(per_mt_df[col], errors="coerce").fillna(0).astype(int)
         
-        # Compute Win %
+        for col in ["Avg PR", "Avg Luck"]:
+            per_mt_df[col] = pd.to_numeric(per_mt_df[col], errors="coerce").fillna(0.0)
+        
+        # Compute Win % and PR Win %
         per_mt_df["Win %"] = round(
             (per_mt_df["Wins"] / per_mt_df["Games"].replace(0, pd.NA) * 100), 2
-        ).fillna(0)
+        ).fillna(0.0)
+        
+        per_mt_df["PR Win %"] = round(
+            (per_mt_df["PR Wins"] / per_mt_df["Games"].replace(0, pd.NA) * 100), 2
+        ).fillna(0.0)
         
         # Reorder columns for clarity
         per_mt_df = per_mt_df[
-            ["MatchType", "Games", "Wins", "Losses", "Win %", "PR Wins", "Avg PR", "Avg Luck"]
+            ["MatchType", "Games", "Wins", "Losses", "Win %", "PR Wins", "PR Win %", "Avg PR", "Avg Luck"]
         ]
         
-        # Display with clean formatting
+        # Display with clear % formatting
         st.subheader("🏅 Performance by Match Type")
         st.dataframe(
             per_mt_df.style.format({
-                "Win %": "{:.2f}",
+                "Win %": "{:.2f}%",
+                "PR Win %": "{:.2f}%",
                 "Avg PR": "{:.2f}",
                 "Avg Luck": "{:.2f}"
             }),
             hide_index=True
         )
-
 
         cursor.close()
         conn.close()
