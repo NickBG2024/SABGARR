@@ -37,6 +37,132 @@ def safe_float(value):
         return "-"
 
 def show_player_summary_tab():
+    import plotly.express as px
+    import pandas as pd
+
+    st.header("👤 Player Statistics - Summary Page")
+
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Fetch players for selection
+        cursor.execute("SELECT PlayerID, Name, Nickname FROM Players ORDER BY Name")
+        players = cursor.fetchall()
+        player_options = {f"{name} ({nickname})": pid for pid, name, nickname in players}
+
+        selected_player = st.selectbox("Select a player:", list(player_options.keys()), key="player_summary_select")
+        player_id = player_options[selected_player]
+
+        # 1️⃣ Player Ranking by Average PR
+        cursor.execute("""
+            SELECT p.PlayerID, AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR END) as AvgPR
+            FROM Players p
+            JOIN MatchResults mr ON p.PlayerID = mr.Player1ID OR p.PlayerID = mr.Player2ID
+            GROUP BY p.PlayerID
+            HAVING AvgPR IS NOT NULL
+            ORDER BY AvgPR ASC
+        """)
+        rankings = cursor.fetchall()
+        ranking_list = [(pid, avgpr) for pid, avgpr in rankings]
+        total_players = len(ranking_list)
+        player_rank = next((i + 1 for i, (pid, _) in enumerate(ranking_list) if pid == player_id), None)
+
+        # 2️⃣ Current Form (Last 5 Matches)
+        cursor.execute("""
+            SELECT Date, Player1ID, Player2ID, Player1Points, Player2Points, Player1PR, Player2PR, Player1Luck, Player2Luck, MatchTypeID
+            FROM MatchResults
+            WHERE Player1ID = %s OR Player2ID = %s
+            ORDER BY Date DESC, MatchResultID DESC
+            LIMIT 5
+        """, (player_id, player_id))
+        last5 = cursor.fetchall()
+        wins_last5 = 0
+        pr_list = []
+        luck_list = []
+        mini_table = []
+
+        for row in last5:
+            date, p1_id, p2_id, p1_pts, p2_pts, p1_pr, p2_pr, p1_luck, p2_luck, mt_id = row
+            opponent_id = p2_id if p1_id == player_id else p1_id
+            cursor.execute("SELECT Name FROM Players WHERE PlayerID = %s", (opponent_id,))
+            opponent_name = cursor.fetchone()[0]
+            result = "Win" if (p1_id == player_id and p1_pts > p2_pts) or (p2_id == player_id and p2_pts > p1_pts) else "Loss"
+            if result == "Win":
+                wins_last5 += 1
+            pr = p1_pr if p1_id == player_id else p2_pr
+            luck = p1_luck if p1_id == player_id else p2_luck
+            pr_list.append(pr)
+            luck_list.append(luck)
+            cursor.execute("SELECT MatchTypeTitle FROM MatchType WHERE MatchTypeID = %s", (mt_id,))
+            mt_title = cursor.fetchone()[0] if cursor.rowcount else "-"
+            mini_table.append([date, mt_title, opponent_name, result, pr, luck])
+
+        avg_pr_last5 = round(sum(pr_list) / len(pr_list), 2) if pr_list else "-"
+        avg_luck_last5 = round(sum(luck_list) / len(luck_list), 2) if luck_list else "-"
+
+        st.subheader(f"🏆 Player Rank: #{player_rank} out of {total_players}")
+        st.metric("Average PR (last 5)", avg_pr_last5)
+        st.metric("Average Luck (last 5)", avg_luck_last5)
+        st.metric("Wins in last 5", f"{wins_last5}/5")
+
+        mini_df = pd.DataFrame(mini_table, columns=["Date", "MatchType", "Opponent", "Result", "PR", "Luck"])
+        st.dataframe(mini_df, hide_index=True)
+
+        # 3️⃣ Enhanced Completed Matches Table
+        cursor.execute("""
+            SELECT mr.Date, mt.MatchTypeTitle,
+                   CASE WHEN mr.Player1ID = %s THEN p2.Name ELSE p1.Name END as Opponent,
+                   CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points)
+                        THEN 'Win' ELSE 'Loss' END as Result,
+                   CONCAT(mr.Player1Points, '-', mr.Player2Points) as Score,
+                   CASE WHEN mr.Player1ID = %s THEN mr.Player1PR ELSE mr.Player2PR END as PR,
+                   CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck ELSE mr.Player2Luck END as Luck
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            JOIN Players p1 ON mr.Player1ID = p1.PlayerID
+            JOIN Players p2 ON mr.Player2ID = p2.PlayerID
+            WHERE mr.Player1ID = %s OR mr.Player2ID = %s
+            ORDER BY mr.Date DESC
+        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        matches = cursor.fetchall()
+        match_df = pd.DataFrame(matches, columns=["Date", "MatchType", "Opponent", "Result", "Score", "PR", "Luck"])
+        st.subheader("📄 Completed Matches")
+        st.dataframe(match_df, hide_index=True)
+
+        # 4️⃣ Per MatchType Summary Table
+        cursor.execute("""
+            SELECT mt.MatchTypeTitle,
+                   COUNT(mr.MatchResultID) as Games,
+                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
+                                (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 1 ELSE 0 END) as Wins,
+                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points < mr.Player2Points) OR
+                                (mr.Player2ID = %s AND mr.Player2Points < mr.Player1Points) THEN 1 ELSE 0 END) as Losses,
+                   AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR WHEN mr.Player2ID = %s THEN mr.Player2PR END) as AvgPR,
+                   AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck WHEN mr.Player2ID = %s THEN mr.Player2Luck END) as AvgLuck,
+                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1PR < mr.Player2PR) OR
+                                (mr.Player2ID = %s AND mr.Player2PR < mr.Player1PR) THEN 1 ELSE 0 END) as PRWins
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            WHERE mr.Player1ID = %s OR mr.Player2ID = %s
+            GROUP BY mt.MatchTypeTitle
+            ORDER BY Games DESC
+        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        per_mt = cursor.fetchall()
+        per_mt_df = pd.DataFrame(per_mt, columns=["MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"])
+        per_mt_df["Win %"] = round((per_mt_df["Wins"] / per_mt_df["Games"] * 100), 2)
+        st.subheader("🏅 Performance by Match Type")
+        st.dataframe(per_mt_df, hide_index=True)
+
+        cursor.close()
+        conn.close()
+
+    except Exception as e:
+        st.error(f"Error loading player stats: {e}")
+
+def show_player_summary_tab1():
     """
     Displays Player Summary tab with robust type handling for Plotly trendlines,
     smoothed rolling average PR, and hover tooltips.
