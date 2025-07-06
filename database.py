@@ -102,9 +102,10 @@ def show_player_summary_tab():
         avg_luck_last5 = round(sum(luck_list) / len(luck_list), 2) if luck_list else "-"
 
         st.subheader(f"🏆 Player Rank: #{player_rank} out of {total_players}")
-        st.metric("Average PR (last 5)", avg_pr_last5)
-        st.metric("Average Luck (last 5)", avg_luck_last5)
-        st.metric("Wins in last 5", f"{wins_last5}/5")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Average PR (last 5)", avg_pr_last5)
+        col2.metric("Average Luck (last 5)", avg_luck_last5)
+        col3.metric("Wins in last 5", f"{wins_last5}/5")
 
         mini_df = pd.DataFrame(mini_table, columns=["Date", "MatchType", "Opponent", "Result", "PR", "Luck"])
         st.dataframe(mini_df, hide_index=True)
