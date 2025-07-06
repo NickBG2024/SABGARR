@@ -102,12 +102,14 @@ def show_player_summary_tab():
         avg_luck_last5 = round(sum(luck_list) / len(luck_list), 2) if luck_list else "-"
 
         st.subheader(f"🏆 Player Rank: #{player_rank} out of {total_players}")
+        
         col1, col2, col3 = st.columns(3)
         col1.metric("Average PR (last 5)", avg_pr_last5)
         col2.metric("Average Luck (last 5)", avg_luck_last5)
         col3.metric("Wins in last 5", f"{wins_last5}/5")
 
         mini_df = pd.DataFrame(mini_table, columns=["Date", "MatchType", "Opponent", "Result", "PR", "Luck"])
+        st.subheader("🎲🎲 Last 5 Matches")
         st.dataframe(mini_df, hide_index=True)
 
         # 3️⃣ Enhanced Completed Matches Table
@@ -150,12 +152,41 @@ def show_player_summary_tab():
             WHERE mr.Player1ID = %s OR mr.Player2ID = %s
             GROUP BY mt.MatchTypeTitle
             ORDER BY Games DESC
-        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        """, (
+            player_id, player_id, player_id, player_id,
+            player_id, player_id, player_id, player_id,
+            player_id, player_id, player_id, player_id
+        ))
         per_mt = cursor.fetchall()
-        per_mt_df = pd.DataFrame(per_mt, columns=["MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"])
-        per_mt_df["Win %"] = round((per_mt_df["Wins"] / per_mt_df["Games"] * 100), 2)
+        per_mt_df = pd.DataFrame(per_mt, columns=[
+            "MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
+        ])
+        
+        # Ensure numeric dtype safely
+        for col in ["Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"]:
+            per_mt_df[col] = pd.to_numeric(per_mt_df[col], errors="coerce").fillna(0)
+        
+        # Compute Win %
+        per_mt_df["Win %"] = round(
+            (per_mt_df["Wins"] / per_mt_df["Games"].replace(0, pd.NA) * 100), 2
+        ).fillna(0)
+        
+        # Reorder columns for clarity
+        per_mt_df = per_mt_df[
+            ["MatchType", "Games", "Wins", "Losses", "Win %", "PR Wins", "Avg PR", "Avg Luck"]
+        ]
+        
+        # Display with clean formatting
         st.subheader("🏅 Performance by Match Type")
-        st.dataframe(per_mt_df, hide_index=True)
+        st.dataframe(
+            per_mt_df.style.format({
+                "Win %": "{:.2f}",
+                "Avg PR": "{:.2f}",
+                "Avg Luck": "{:.2f}"
+            }),
+            hide_index=True
+        )
+
 
         cursor.close()
         conn.close()
