@@ -115,25 +115,31 @@ def show_player_summary_tab():
             col3.metric("Win %", f"{year_win_pct:.2f}%")
             col4.metric("Avg PR", f"{year_avg_pr:.2f}" if year_avg_pr is not None else "-")
         
-        # Career summary
+                # Career summary (all-time)
         cursor.execute("""
             SELECT COUNT(*),
                    SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
                                  (Player2ID = %s AND Player2Points > Player1Points) THEN 1 ELSE 0 END),
-                   AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR END)
+                   AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR END),
+                   AVG(CASE WHEN Player1ID = %s THEN Player1Luck WHEN Player2ID = %s THEN Player2Luck END)
             FROM MatchResults
             WHERE Player1ID = %s OR Player2ID = %s
-        """, (player_id, player_id, player_id, player_id, player_id, player_id))
-        total_matches, total_wins, avg_pr = cursor.fetchone()
-        win_pct = round((total_wins / total_matches) * 100, 2) if total_matches else 0
+        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        career_matches, career_wins, career_avg_pr, career_avg_luck = cursor.fetchone()
+
+        career_matches = int(career_matches or 0)
+        career_wins = int(career_wins or 0)
+        career_avg_pr = float(career_avg_pr) if career_avg_pr is not None else None
+        career_avg_luck = float(career_avg_luck) if career_avg_luck is not None else None
+        career_win_pct = round((career_wins / career_matches) * 100, 2) if career_matches else 0
 
         with st.container():
             st.markdown("### 🏆 Career")
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Total Matches", total_matches or 0)
-            col2.metric("Wins", total_wins or 0)
-            col3.metric("Win %", f"{win_pct:.2f}%")
-            col4.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr else "-")
+            col1.metric("Matches", career_matches)
+            col2.metric("Wins", career_wins)
+            col3.metric("Win %", f"{career_win_pct:.2f}%")
+            col4.metric("Avg PR", f"{career_avg_pr:.2f}" if career_avg_pr is not None else "-")
 
         # Completed Matches Table
         cursor.execute("""
