@@ -143,16 +143,21 @@ def show_player_summary_tab():
 
         # Completed Matches Table (cleaned)
         cursor.execute("""
-            SELECT
-                mr.Date,
-                mt.MatchTypeTitle,
-                CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
-                          (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 'Won' ELSE 'Lost' END as Result,
-                CASE WHEN mr.Player1ID = %s THEN p2.Name ELSE p1.Name END as Opponent,
-                CONCAT('11-', CASE WHEN mr.Player1ID = %s THEN mr.Player2Points ELSE mr.Player1Points END) as Score,
-                ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR ELSE mr.Player2PR END, 2) as PR,
-                ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck ELSE mr.Player2Luck END, 2) as Luck
-            FROM MatchResults mr
+         SELECT
+            mr.Date,
+            mt.MatchTypeTitle,
+            CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
+                      (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 'Won' ELSE 'Lost' END as Result,
+            CASE WHEN mr.Player1ID = %s THEN p2.Name ELSE p1.Name END as Opponent,
+            CASE 
+                WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR 
+                     (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points)
+                THEN CONCAT(GREATEST(mr.Player1Points, mr.Player2Points), '-', LEAST(mr.Player1Points, mr.Player2Points))
+                ELSE CONCAT(LEAST(mr.Player1Points, mr.Player2Points), '-', GREATEST(mr.Player1Points, mr.Player2Points))
+            END as Score,
+            ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR ELSE mr.Player2PR END, 2) as PR,
+            ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck ELSE mr.Player2Luck END, 2) as Luck
+        FROM MatchResults mr
             JOIN Fixtures f ON mr.FixtureID = f.FixtureID
             JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
             JOIN Players p1 ON mr.Player1ID = p1.PlayerID
