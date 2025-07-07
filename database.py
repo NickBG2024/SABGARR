@@ -219,39 +219,40 @@ def show_player_summary_tab():
         st.subheader("🏅 Performance by Match Type")
         st.dataframe(per_mt_df, hide_index=True)
 
-        # PR over time
+       # PR Over Time with smoothed rolling average and hover tooltips
         cursor.execute("""
-            SELECT Date,
+            SELECT Date, MatchResultID,
                    CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
             FROM MatchResults
             WHERE (Player1ID = %s OR Player2ID = %s) AND Date IS NOT NULL
-            ORDER BY Date ASC
+            ORDER BY Date ASC, MatchResultID ASC
         """, (player_id, player_id, player_id))
         pr_data = cursor.fetchall()
-        
         if pr_data:
             pr_df = pd.DataFrame([
-                {
-                    "Date": pd.to_datetime(row[0]),
-                    "PR": float(row[1]) if isinstance(row[1], (int, float, Decimal)) else None
-                }
-                for row in pr_data
-                if row[0] is not None and row[1] is not None
+                {"Date": pd.to_datetime(row[0]), "MatchResultID": row[1], "PR": float(row[2])}
+                for row in pr_data if row[0] is not None and isinstance(row[2], (int, float))
             ])
-        
+
             if not pr_df.empty:
+                pr_df["RollingAvgPR"] = pr_df["PR"].rolling(window=5, min_periods=1).mean()
+
                 fig = px.scatter(
                     pr_df,
                     x="Date",
                     y="PR",
-                    title="PR Over Time",
-                    trendline="rolling",
-                    trendline_options=dict(window=5),
-                    labels={"PR": "Performance Rating (PR)", "Date": "Date"},
-                    template="plotly_white"
+                    title="PR Over Time with Rolling Average",
+                    hover_data={"Date": True, "PR": ":.2f", "MatchResultID": True}
                 )
-                fig.update_traces(marker=dict(size=8, color="darkblue"))
-                fig.update_layout(height=400)
+                fig.add_traces(
+                    px.line(
+                        pr_df,
+                        x="Date",
+                        y="RollingAvgPR"
+                    ).data
+                )
+                fig.update_traces(marker=dict(size=8, opacity=0.6))
+
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("No PR data available for graph.")
