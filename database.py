@@ -172,34 +172,52 @@ def show_player_summary_tab():
             st.subheader("📜 Recent Completed Matches")
             st.dataframe(matches_df, hide_index=True)
 
-        # Per MatchType summary
+                # 4️⃣ Per MatchType Summary Table
         cursor.execute("""
             SELECT mt.MatchTypeTitle,
-                   COUNT(mr.MatchResultID),
+                   COUNT(mr.MatchResultID) as Games,
                    SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
-                                (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 1 ELSE 0 END),
+                                (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 1 ELSE 0 END) as Wins,
                    SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points < mr.Player2Points) OR
-                                (mr.Player2ID = %s AND mr.Player2Points < mr.Player1Points) THEN 1 ELSE 0 END),
-                   AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR WHEN mr.Player2ID = %s THEN mr.Player2PR END),
-                   AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck WHEN mr.Player2ID = %s THEN mr.Player2Luck END),
+                                (mr.Player2ID = %s AND mr.Player2Points < mr.Player1Points) THEN 1 ELSE 0 END) as Losses,
+                   AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR WHEN mr.Player2ID = %s THEN mr.Player2PR END) as AvgPR,
+                   AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck WHEN mr.Player2ID = %s THEN mr.Player2Luck END) as AvgLuck,
                    SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1PR < mr.Player2PR) OR
-                                (mr.Player2ID = %s AND mr.Player2PR < mr.Player1PR) THEN 1 ELSE 0 END)
+                                (mr.Player2ID = %s AND mr.Player2PR < mr.Player1PR) THEN 1 ELSE 0 END) as PRWins
             FROM MatchResults mr
             JOIN Fixtures f ON mr.FixtureID = f.FixtureID
             JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
             WHERE mr.Player1ID = %s OR mr.Player2ID = %s
             GROUP BY mt.MatchTypeTitle
-            ORDER BY COUNT(mr.MatchResultID) DESC
+            ORDER BY Games DESC
         """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
         per_mt = cursor.fetchall()
-        if per_mt:
-            per_mt_df = pd.DataFrame(per_mt, columns=[
-                "Match Type", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
-            ])
-            per_mt_df["Win %"] = round(per_mt_df["Wins"] / per_mt_df["Games"] * 100, 2)
-            per_mt_df["PR Win %"] = round(per_mt_df["PR Wins"] / per_mt_df["Games"] * 100, 2)
-            st.subheader("🏅 Performance by Match Type")
-            st.dataframe(per_mt_df, hide_index=True)
+
+        # Create DataFrame with correct types
+        per_mt_df = pd.DataFrame(per_mt, columns=[
+            "MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
+        ])
+
+        # Convert numeric columns safely to float
+        for col in ["Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"]:
+            per_mt_df[col] = per_mt_df[col].astype(float)
+
+        # Add Win % and PR Win %
+        per_mt_df["Win %"] = per_mt_df.apply(
+            lambda row: round((row["Wins"] / row["Games"]) * 100, 2) if row["Games"] > 0 else 0,
+            axis=1
+        )
+        per_mt_df["PR Win %"] = per_mt_df.apply(
+            lambda row: round((row["PR Wins"] / row["Games"]) * 100, 2) if row["Games"] > 0 else 0,
+            axis=1
+        )
+
+        # Format percentage columns with "%"
+        per_mt_df["Win %"] = per_mt_df["Win %"].astype(str) + "%"
+        per_mt_df["PR Win %"] = per_mt_df["PR Win %"].astype(str) + "%"
+
+        st.subheader("🏅 Performance by Match Type")
+        st.dataframe(per_mt_df, hide_index=True)
 
         # PR Over Time Plot
         cursor.execute("""
