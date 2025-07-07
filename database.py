@@ -89,7 +89,7 @@ def show_player_summary_tab():
             col2.metric("Average Luck (last 5)", avg_luck_last5)
             col3.metric("Wins in last 5", f"{wins_last5}/5")
 
-        # This Year summary
+          # This Year summary
         cursor.execute("""
             SELECT COUNT(*),
                    SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
@@ -100,16 +100,21 @@ def show_player_summary_tab():
             WHERE (Player1ID = %s OR Player2ID = %s) AND YEAR(Date) = YEAR(CURDATE())
         """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
         year_matches, year_wins, year_avg_pr, year_avg_luck = cursor.fetchone()
+
+        year_matches = int(year_matches or 0)
+        year_wins = int(year_wins or 0)
+        year_avg_pr = float(year_avg_pr) if year_avg_pr is not None else None
+        year_avg_luck = float(year_avg_luck) if year_avg_luck is not None else None
         year_win_pct = round((year_wins / year_matches) * 100, 2) if year_matches else 0
 
         with st.container():
             st.markdown("### 🗓️ This Year")
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Matches", year_matches or 0)
-            col2.metric("Wins", year_wins or 0)
+            col1.metric("Matches", year_matches)
+            col2.metric("Wins", year_wins)
             col3.metric("Win %", f"{year_win_pct:.2f}%")
-            col4.metric("Avg PR", f"{year_avg_pr:.2f}" if year_avg_pr else "-")
-
+            col4.metric("Avg PR", f"{year_avg_pr:.2f}" if year_avg_pr is not None else "-")
+        
         # Career summary
         cursor.execute("""
             SELECT COUNT(*),
