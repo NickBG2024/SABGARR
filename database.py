@@ -36,7 +36,81 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
-def show_player_summary_tab():
+# 1️⃣ Form (Last 5) Box
+with st.container():
+    st.markdown("### 📈 Current Form (Last 5 Matches)")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Average PR (last 5)", f"{avg_pr_last5:.2f}" if avg_pr_last5 else "-")
+    col2.metric("Average Luck (last 5)", f"{avg_luck_last5:.2f}" if avg_luck_last5 else "-")
+    col3.metric("Wins in last 5", f"{wins_last5}/5")
+
+# 2️⃣ This Year Box
+cursor.execute("""
+    SELECT COUNT(*),
+           SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
+                         (Player2ID = %s AND Player2Points > Player1Points) THEN 1 ELSE 0 END),
+           AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR END),
+           AVG(CASE WHEN Player1ID = %s THEN Player1Luck WHEN Player2ID = %s THEN Player2Luck END)
+    FROM MatchResults
+    WHERE (Player1ID = %s OR Player2ID = %s) AND YEAR(Date) = YEAR(CURDATE())
+""", (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+year_matches, year_wins, year_avg_pr, year_avg_luck = cursor.fetchone()
+year_matches = int(year_matches or 0)
+year_wins = int(year_wins or 0)
+year_win_pct = (year_wins / year_matches * 100) if year_matches else 0
+year_avg_pr = float(year_avg_pr) if year_avg_pr else None
+year_avg_luck = float(year_avg_luck) if year_avg_luck else None
+
+with st.container():
+    st.markdown("### 🗓️ This Year")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Matches", year_matches)
+    col2.metric("Wins", year_wins)
+    col3.metric("Win %", f"{year_win_pct:.2f}%" if year_matches else "-")
+    col4.metric("Avg PR", f"{year_avg_pr:.2f}" if year_avg_pr else "-")
+
+# 3️⃣ Career Box
+with st.container():
+    st.markdown("### 🏆 Career")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Matches", total_matches)
+    col2.metric("Wins", wins)
+    col3.metric("Win %", f"{win_pct:.2f}%" if total_matches else "-")
+    col4.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr else "-")
+
+# 4️⃣ PR Plot
+cursor.execute("""
+    SELECT Date,
+           CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
+    FROM MatchResults
+    WHERE (Player1ID = %s OR Player2ID = %s) AND Date IS NOT NULL
+    ORDER BY Date ASC
+""", (player_id, player_id, player_id))
+pr_data = cursor.fetchall()
+
+if pr_data:
+    pr_df = pd.DataFrame([
+        {"Date": row[0], "PR": row[1]}
+        for row in pr_data
+        if row[0] is not None and isinstance(row[1], (int, float, float))
+    ])
+    if not pr_df.empty:
+        st.markdown("### 📊 PR Over Time")
+        fig = px.scatter(
+            pr_df, x="Date", y="PR",
+            title="PR Over Time with Trendline",
+            trendline="rolling", trendline_options=dict(window=5, function="mean"),
+            labels={"PR": "Performance Rating", "Date": "Date"},
+            template="plotly_white"
+        )
+        fig.update_traces(marker=dict(size=8, color="rgba(0, 102, 204, 0.6)", line=dict(width=1, color="DarkSlateGrey")))
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No PR data available for graph.")
+else:
+    st.info("No PR data available for graph.")
+
+def show_player_summary_tab5():
     import plotly.express as px
     import pandas as pd
 
