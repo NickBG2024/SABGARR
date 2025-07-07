@@ -219,7 +219,7 @@ def show_player_summary_tab():
         st.subheader("🏅 Performance by Match Type")
         st.dataframe(per_mt_df, hide_index=True)
 
-        # PR Over Time Plot
+        # PR over time
         cursor.execute("""
             SELECT Date,
                    CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
@@ -228,22 +228,30 @@ def show_player_summary_tab():
             ORDER BY Date ASC
         """, (player_id, player_id, player_id))
         pr_data = cursor.fetchall()
+        
         if pr_data:
             pr_df = pd.DataFrame([
-                {"Date": row[0], "PR": row[1]}
+                {
+                    "Date": pd.to_datetime(row[0]),
+                    "PR": float(row[1]) if isinstance(row[1], (int, float, Decimal)) else None
+                }
                 for row in pr_data
-                if row[0] is not None and isinstance(row[1], (int, float, float))
+                if row[0] is not None and row[1] is not None
             ])
+        
             if not pr_df.empty:
-                st.subheader("📈 PR Over Time")
                 fig = px.scatter(
-                    pr_df, x="Date", y="PR",
-                    title="PR Over Time with Rolling Average",
-                    trendline="rolling", trendline_options=dict(window=5, function="mean"),
-                    labels={"PR": "Performance Rating", "Date": "Date"},
+                    pr_df,
+                    x="Date",
+                    y="PR",
+                    title="PR Over Time",
+                    trendline="rolling",
+                    trendline_options=dict(window=5),
+                    labels={"PR": "Performance Rating (PR)", "Date": "Date"},
                     template="plotly_white"
                 )
-                fig.update_traces(marker=dict(size=7, color="rgba(0, 102, 204, 0.6)", line=dict(width=1, color="DarkSlateGrey")))
+                fig.update_traces(marker=dict(size=8, color="darkblue"))
+                fig.update_layout(height=400)
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("No PR data available for graph.")
