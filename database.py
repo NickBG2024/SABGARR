@@ -163,7 +163,7 @@ def show_player_summary_tab():
             WHERE mr.Player1ID = %s OR mr.Player2ID = %s
             ORDER BY mr.Date DESC
             LIMIT 50
-        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
         matches = cursor.fetchall()
         if matches:
             matches_df = pd.DataFrame(matches, columns=[
