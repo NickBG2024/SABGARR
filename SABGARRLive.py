@@ -39,6 +39,7 @@ if view_option == "Series Stats":
 else:
     # Call your player summary tab directly
     show_player_summary_tab()
+    show_player_summary_tab1()
     st.stop()
 
 
