@@ -35,80 +35,197 @@ def safe_float(value):
         return f"{float(value):.2f}"
     except (ValueError, TypeError):
         return "-"
+        
+def show_player_summary_tab():
+    """
+    Displays Player Statistics - Summary Page with:
+    - Form (last 5)
+    - This Year
+    - Career
+    - Completed Matches
+    - Per MatchType summary
+    - PR Over Time trend plot
+    """
+    import pandas as pd
+    import plotly.express as px
 
-# 1️⃣ Form (Last 5) Box
-with st.container():
-    st.markdown("### 📈 Current Form (Last 5 Matches)")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Average PR (last 5)", f"{avg_pr_last5:.2f}" if avg_pr_last5 else "-")
-    col2.metric("Average Luck (last 5)", f"{avg_luck_last5:.2f}" if avg_luck_last5 else "-")
-    col3.metric("Wins in last 5", f"{wins_last5}/5")
+    st.header("👤 Player Statistics - Summary Page")
 
-# 2️⃣ This Year Box
-cursor.execute("""
-    SELECT COUNT(*),
-           SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
-                         (Player2ID = %s AND Player2Points > Player1Points) THEN 1 ELSE 0 END),
-           AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR END),
-           AVG(CASE WHEN Player1ID = %s THEN Player1Luck WHEN Player2ID = %s THEN Player2Luck END)
-    FROM MatchResults
-    WHERE (Player1ID = %s OR Player2ID = %s) AND YEAR(Date) = YEAR(CURDATE())
-""", (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
-year_matches, year_wins, year_avg_pr, year_avg_luck = cursor.fetchone()
-year_matches = int(year_matches or 0)
-year_wins = int(year_wins or 0)
-year_win_pct = (year_wins / year_matches * 100) if year_matches else 0
-year_avg_pr = float(year_avg_pr) if year_avg_pr else None
-year_avg_luck = float(year_avg_luck) if year_avg_luck else None
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
 
-with st.container():
-    st.markdown("### 🗓️ This Year")
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Matches", year_matches)
-    col2.metric("Wins", year_wins)
-    col3.metric("Win %", f"{year_win_pct:.2f}%" if year_matches else "-")
-    col4.metric("Avg PR", f"{year_avg_pr:.2f}" if year_avg_pr else "-")
+        # Player selector
+        cursor.execute("SELECT PlayerID, Name, Nickname FROM Players ORDER BY Name")
+        players = cursor.fetchall()
+        player_options = {f"{name} ({nickname})": pid for pid, name, nickname in players}
+        selected_player = st.selectbox("Select a player:", list(player_options.keys()))
+        player_id = player_options[selected_player]
 
-# 3️⃣ Career Box
-with st.container():
-    st.markdown("### 🏆 Career")
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Matches", total_matches)
-    col2.metric("Wins", wins)
-    col3.metric("Win %", f"{win_pct:.2f}%" if total_matches else "-")
-    col4.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr else "-")
+        # Form (last 5 matches)
+        cursor.execute("""
+            SELECT
+                CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END,
+                CASE WHEN Player1ID = %s THEN Player1Luck ELSE Player2Luck END,
+                CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
+                          (Player2ID = %s AND Player2Points > Player1Points) THEN 1 ELSE 0 END
+            FROM MatchResults
+            WHERE Player1ID = %s OR Player2ID = %s
+            ORDER BY Date DESC, MatchResultID DESC
+            LIMIT 5
+        """, (player_id, player_id, player_id, player_id, player_id, player_id))
+        last5 = cursor.fetchall()
+        pr_last5 = [row[0] for row in last5 if isinstance(row[0], (int, float))]
+        luck_last5 = [row[1] for row in last5 if isinstance(row[1], (int, float))]
+        wins_last5 = sum(row[2] for row in last5)
 
-# 4️⃣ PR Plot
-cursor.execute("""
-    SELECT Date,
-           CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
-    FROM MatchResults
-    WHERE (Player1ID = %s OR Player2ID = %s) AND Date IS NOT NULL
-    ORDER BY Date ASC
-""", (player_id, player_id, player_id))
-pr_data = cursor.fetchall()
+        avg_pr_last5 = round(sum(pr_last5) / len(pr_last5), 2) if pr_last5 else "-"
+        avg_luck_last5 = round(sum(luck_last5) / len(luck_last5), 2) if luck_last5 else "-"
 
-if pr_data:
-    pr_df = pd.DataFrame([
-        {"Date": row[0], "PR": row[1]}
-        for row in pr_data
-        if row[0] is not None and isinstance(row[1], (int, float, float))
-    ])
-    if not pr_df.empty:
-        st.markdown("### 📊 PR Over Time")
-        fig = px.scatter(
-            pr_df, x="Date", y="PR",
-            title="PR Over Time with Trendline",
-            trendline="rolling", trendline_options=dict(window=5, function="mean"),
-            labels={"PR": "Performance Rating", "Date": "Date"},
-            template="plotly_white"
-        )
-        fig.update_traces(marker=dict(size=8, color="rgba(0, 102, 204, 0.6)", line=dict(width=1, color="DarkSlateGrey")))
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("No PR data available for graph.")
-else:
-    st.info("No PR data available for graph.")
+        with st.container():
+            st.markdown("### ⚡ Current Form (Last 5 Matches)")
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Average PR (last 5)", avg_pr_last5)
+            col2.metric("Average Luck (last 5)", avg_luck_last5)
+            col3.metric("Wins in last 5", f"{wins_last5}/5")
+
+        # This Year summary
+        cursor.execute("""
+            SELECT COUNT(*),
+                   SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
+                                 (Player2ID = %s AND Player2Points > Player1Points) THEN 1 ELSE 0 END),
+                   AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR END),
+                   AVG(CASE WHEN Player1ID = %s THEN Player1Luck WHEN Player2ID = %s THEN Player2Luck END)
+            FROM MatchResults
+            WHERE (Player1ID = %s OR Player2ID = %s) AND YEAR(Date) = YEAR(CURDATE())
+        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        year_matches, year_wins, year_avg_pr, year_avg_luck = cursor.fetchone()
+        year_win_pct = round((year_wins / year_matches) * 100, 2) if year_matches else 0
+
+        with st.container():
+            st.markdown("### 🗓️ This Year")
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Matches", year_matches or 0)
+            col2.metric("Wins", year_wins or 0)
+            col3.metric("Win %", f"{year_win_pct:.2f}%")
+            col4.metric("Avg PR", f"{year_avg_pr:.2f}" if year_avg_pr else "-")
+
+        # Career summary
+        cursor.execute("""
+            SELECT COUNT(*),
+                   SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
+                                 (Player2ID = %s AND Player2Points > Player1Points) THEN 1 ELSE 0 END),
+                   AVG(CASE WHEN Player1ID = %s THEN Player1PR WHEN Player2ID = %s THEN Player2PR END)
+            FROM MatchResults
+            WHERE Player1ID = %s OR Player2ID = %s
+        """, (player_id, player_id, player_id, player_id, player_id, player_id))
+        total_matches, total_wins, avg_pr = cursor.fetchone()
+        win_pct = round((total_wins / total_matches) * 100, 2) if total_matches else 0
+
+        with st.container():
+            st.markdown("### 🏆 Career")
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Total Matches", total_matches or 0)
+            col2.metric("Wins", total_wins or 0)
+            col3.metric("Win %", f"{win_pct:.2f}%")
+            col4.metric("Avg PR", f"{avg_pr:.2f}" if avg_pr else "-")
+
+        # Completed Matches Table
+        cursor.execute("""
+            SELECT
+                mr.Date,
+                mt.MatchTypeTitle,
+                p1.Name,
+                p2.Name,
+                mr.Player1Points,
+                mr.Player2Points,
+                mr.Player1PR,
+                mr.Player2PR,
+                mr.Player1Luck,
+                mr.Player2Luck
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            JOIN Players p1 ON mr.Player1ID = p1.PlayerID
+            JOIN Players p2 ON mr.Player2ID = p2.PlayerID
+            WHERE mr.Player1ID = %s OR mr.Player2ID = %s
+            ORDER BY mr.Date DESC
+            LIMIT 50
+        """, (player_id, player_id))
+        matches = cursor.fetchall()
+        if matches:
+            matches_df = pd.DataFrame(matches, columns=[
+                "Date", "Match Type", "Player 1", "Player 2", "P1 Points", "P2 Points",
+                "P1 PR", "P2 PR", "P1 Luck", "P2 Luck"
+            ])
+            st.subheader("📜 Recent Completed Matches")
+            st.dataframe(matches_df, hide_index=True)
+
+        # Per MatchType summary
+        cursor.execute("""
+            SELECT mt.MatchTypeTitle,
+                   COUNT(mr.MatchResultID),
+                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
+                                (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 1 ELSE 0 END),
+                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points < mr.Player2Points) OR
+                                (mr.Player2ID = %s AND mr.Player2Points < mr.Player1Points) THEN 1 ELSE 0 END),
+                   AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR WHEN mr.Player2ID = %s THEN mr.Player2PR END),
+                   AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck WHEN mr.Player2ID = %s THEN mr.Player2Luck END),
+                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1PR < mr.Player2PR) OR
+                                (mr.Player2ID = %s AND mr.Player2PR < mr.Player1PR) THEN 1 ELSE 0 END)
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            WHERE mr.Player1ID = %s OR mr.Player2ID = %s
+            GROUP BY mt.MatchTypeTitle
+            ORDER BY COUNT(mr.MatchResultID) DESC
+        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        per_mt = cursor.fetchall()
+        if per_mt:
+            per_mt_df = pd.DataFrame(per_mt, columns=[
+                "Match Type", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
+            ])
+            per_mt_df["Win %"] = round(per_mt_df["Wins"] / per_mt_df["Games"] * 100, 2)
+            per_mt_df["PR Win %"] = round(per_mt_df["PR Wins"] / per_mt_df["Games"] * 100, 2)
+            st.subheader("🏅 Performance by Match Type")
+            st.dataframe(per_mt_df, hide_index=True)
+
+        # PR Over Time Plot
+        cursor.execute("""
+            SELECT Date,
+                   CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
+            FROM MatchResults
+            WHERE (Player1ID = %s OR Player2ID = %s) AND Date IS NOT NULL
+            ORDER BY Date ASC
+        """, (player_id, player_id, player_id))
+        pr_data = cursor.fetchall()
+        if pr_data:
+            pr_df = pd.DataFrame([
+                {"Date": row[0], "PR": row[1]}
+                for row in pr_data
+                if row[0] is not None and isinstance(row[1], (int, float, float))
+            ])
+            if not pr_df.empty:
+                st.subheader("📈 PR Over Time")
+                fig = px.scatter(
+                    pr_df, x="Date", y="PR",
+                    title="PR Over Time with Rolling Average",
+                    trendline="rolling", trendline_options=dict(window=5, function="mean"),
+                    labels={"PR": "Performance Rating", "Date": "Date"},
+                    template="plotly_white"
+                )
+                fig.update_traces(marker=dict(size=7, color="rgba(0, 102, 204, 0.6)", line=dict(width=1, color="DarkSlateGrey")))
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("No PR data available for graph.")
+        else:
+            st.info("No PR data available for graph.")
+
+        cursor.close()
+        conn.close()
+
+    except Exception as e:
+        st.error(f"Error loading player stats: {e}")
 
 def show_player_summary_tab5():
     import plotly.express as px
