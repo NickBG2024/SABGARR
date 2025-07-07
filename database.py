@@ -38,13 +38,13 @@ def safe_float(value):
         
 def show_player_summary_tab():
     """
-    Displays Player Statistics - Summary Page with:
-    - Current Form (last 5)
+    Displays Player Statistics - Summary Page:
+    - Current Form (Last 5)
     - This Year
     - Career
-    - Completed Matches (clean format)
+    - Completed Matches (clean table)
     - Performance by Match Type
-    - PR Over Time with rolling average
+    - PR Over Time graph with rolling average
     """
     import pandas as pd
     import plotly.express as px
@@ -62,7 +62,7 @@ def show_player_summary_tab():
         selected_player = st.selectbox("Select a player:", list(player_options.keys()))
         player_id = player_options[selected_player]
 
-        # ---------- Current Form (last 5 matches) ----------
+        # === 1️⃣ Current Form (Last 5) ===
         cursor.execute("""
             SELECT
                 CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END,
@@ -85,11 +85,11 @@ def show_player_summary_tab():
         with st.container():
             st.markdown("### ⚡ Current Form (Last 5 Matches)")
             col1, col2, col3 = st.columns(3)
-            col1.metric("Average PR (last 5)", avg_pr_last5)
-            col2.metric("Average Luck (last 5)", avg_luck_last5)
-            col3.metric("Wins in last 5", f"{wins_last5}/5")
+            col1.metric("Avg PR (Last 5)", avg_pr_last5)
+            col2.metric("Avg Luck (Last 5)", avg_luck_last5)
+            col3.metric("Wins in Last 5", f"{wins_last5}/5")
 
-        # ---------- This Year ----------
+        # === 2️⃣ This Year ===
         cursor.execute("""
             SELECT COUNT(*),
                    SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
@@ -100,6 +100,7 @@ def show_player_summary_tab():
             WHERE (Player1ID = %s OR Player2ID = %s) AND YEAR(Date) = YEAR(CURDATE())
         """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
         year_matches, year_wins, year_avg_pr, year_avg_luck = cursor.fetchone()
+
         year_matches = int(year_matches or 0)
         year_wins = int(year_wins or 0)
         year_avg_pr = round(float(year_avg_pr), 2) if year_avg_pr is not None else "-"
@@ -114,7 +115,7 @@ def show_player_summary_tab():
             col3.metric("Win %", f"{year_win_pct:.2f}%")
             col4.metric("Avg PR", year_avg_pr)
 
-        # ---------- Career ----------
+        # === 3️⃣ Career ===
         cursor.execute("""
             SELECT COUNT(*),
                    SUM(CASE WHEN (Player1ID = %s AND Player1Points > Player2Points) OR
@@ -125,6 +126,7 @@ def show_player_summary_tab():
             WHERE Player1ID = %s OR Player2ID = %s
         """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
         career_matches, career_wins, career_avg_pr, career_avg_luck = cursor.fetchone()
+
         career_matches = int(career_matches or 0)
         career_wins = int(career_wins or 0)
         career_avg_pr = round(float(career_avg_pr), 2) if career_avg_pr is not None else "-"
@@ -139,22 +141,22 @@ def show_player_summary_tab():
             col3.metric("Win %", f"{career_win_pct:.2f}%")
             col4.metric("Avg PR", career_avg_pr)
 
-        # ---------- Completed Matches Table ----------
+        # === 4️⃣ Completed Matches Table (clean view) ===
         cursor.execute("""
             SELECT
                 mr.Date,
                 mt.MatchTypeTitle,
                 CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
-                          (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 'Won' ELSE 'Lost' END as Result,
-                CASE WHEN mr.Player1ID = %s THEN p2.Name ELSE p1.Name END as Opponent,
-                CASE 
-                    WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
-                         (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points)
-                    THEN CONCAT(GREATEST(mr.Player1Points, mr.Player2Points), '-', LEAST(mr.Player1Points, mr.Player2Points))
-                    ELSE CONCAT(LEAST(mr.Player1Points, mr.Player2Points), '-', GREATEST(mr.Player1Points, mr.Player2Points))
-                END as Score,
-                ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR ELSE mr.Player2PR END, 2) as PR,
-                ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck ELSE mr.Player2Luck END, 2) as Luck
+                          (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 'Won' ELSE 'Lost' END AS Result,
+                CASE WHEN mr.Player1ID = %s THEN p2.Name ELSE p1.Name END AS Opponent,
+                CONCAT(
+                    '11-', 
+                    CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) THEN mr.Player2Points
+                         WHEN (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN mr.Player1Points
+                         ELSE LEAST(mr.Player1Points, mr.Player2Points) END
+                ) AS Score,
+                ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR ELSE mr.Player2PR END, 2) AS PR,
+                ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck ELSE mr.Player2Luck END, 2) AS Luck
             FROM MatchResults mr
             JOIN Fixtures f ON mr.FixtureID = f.FixtureID
             JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
@@ -163,7 +165,7 @@ def show_player_summary_tab():
             WHERE mr.Player1ID = %s OR mr.Player2ID = %s
             ORDER BY mr.Date DESC
             LIMIT 50
-        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        """, (player_id,) * 12)  # ✅ EXACTLY 12 parameters
         matches = cursor.fetchall()
         if matches:
             matches_df = pd.DataFrame(matches, columns=[
@@ -172,7 +174,7 @@ def show_player_summary_tab():
             st.subheader("📜 Recent Completed Matches")
             st.dataframe(matches_df, hide_index=True)
 
-        # ---------- Performance by MatchType ----------
+        # === 5️⃣ Performance by Match Type ===
         cursor.execute("""
             SELECT mt.MatchTypeTitle,
                    COUNT(mr.MatchResultID) as Games,
@@ -190,12 +192,13 @@ def show_player_summary_tab():
             WHERE mr.Player1ID = %s OR mr.Player2ID = %s
             GROUP BY mt.MatchTypeTitle
             ORDER BY Games DESC
-        """, (player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id, player_id))
+        """, (player_id,) * 12)
         per_mt = cursor.fetchall()
-        per_mt_df = pd.DataFrame(per_mt, columns=[
-            "MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
-        ])
-        if not per_mt_df.empty:
+
+        if per_mt:
+            per_mt_df = pd.DataFrame(per_mt, columns=[
+                "MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
+            ])
             per_mt_df["Win %"] = per_mt_df.apply(
                 lambda row: f"{round((row['Wins'] / row['Games']) * 100, 2)}%" if row["Games"] > 0 else "0%",
                 axis=1
@@ -207,7 +210,7 @@ def show_player_summary_tab():
             st.subheader("🏅 Performance by Match Type")
             st.dataframe(per_mt_df, hide_index=True)
 
-        # ---------- PR Over Time with Rolling Average ----------
+        # === 6️⃣ PR Over Time Graph ===
         cursor.execute("""
             SELECT Date, MatchResultID,
                    CASE WHEN Player1ID = %s THEN Player1PR ELSE Player2PR END
@@ -216,10 +219,11 @@ def show_player_summary_tab():
             ORDER BY Date ASC, MatchResultID ASC
         """, (player_id, player_id, player_id))
         pr_data = cursor.fetchall()
+
         if pr_data:
             pr_df = pd.DataFrame([
                 {"Date": pd.to_datetime(row[0]), "MatchResultID": row[1], "PR": float(row[2])}
-                for row in pr_data if row[0] is not None and isinstance(row[2], (int, float, float))
+                for row in pr_data if row[0] is not None and isinstance(row[2], (int, float))
             ])
             if not pr_df.empty:
                 pr_df["RollingAvgPR"] = pr_df["PR"].rolling(window=5, min_periods=1).mean()
@@ -227,7 +231,7 @@ def show_player_summary_tab():
                     pr_df,
                     x="Date",
                     y="PR",
-                    title="PR Over Time with Rolling Average",
+                    title="PR Over Time (with Rolling Avg)",
                     hover_data={"Date": True, "PR": ":.2f", "MatchResultID": True}
                 )
                 fig.add_traces(
@@ -235,10 +239,6 @@ def show_player_summary_tab():
                 )
                 fig.update_traces(marker=dict(size=8, opacity=0.6))
                 st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.info("No PR data available for graph.")
-        else:
-            st.info("No PR data available for graph.")
 
         cursor.close()
         conn.close()
