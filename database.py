@@ -140,49 +140,50 @@ def show_player_summary_tab():
             col4.metric("Avg PR", career_avg_pr_str)
 
         # 4️⃣ Completed Matches Table
-params = (player_id,) * 10
-assert len(params) == 10, f"Expected 10 params, got {len(params)}: {params}"
-
-cursor.execute("""
-    SELECT
-        mr.Date,
-        mt.MatchTypeTitle,
-        CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
-                  (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 'Won' ELSE 'Lost' END AS Result,
-        CASE WHEN mr.Player1ID = %s THEN p2.Name ELSE p1.Name END AS Opponent,
-        CONCAT(
-            '11-',
-            CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) THEN mr.Player2Points
-                 WHEN (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN mr.Player1Points
-                 ELSE LEAST(mr.Player1Points, mr.Player2Points) END
-        ) AS Score,
-        ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR ELSE mr.Player2PR END, 2) AS PR,
-        ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck ELSE mr.Player2Luck END, 2) AS Luck
-    FROM MatchResults mr
-    JOIN Fixtures f ON mr.FixtureID = f.FixtureID
-    JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
-    JOIN Players p1 ON mr.Player1ID = p1.PlayerID
-    JOIN Players p2 ON mr.Player2ID = p2.PlayerID
-    WHERE mr.Player1ID = %s OR mr.Player2ID = %s
-    ORDER BY mr.Date DESC
-    LIMIT 50
-""", params)
-
-matches = cursor.fetchall()
-
-if matches:
-    matches_df = pd.DataFrame(matches, columns=[
-        "Date", "Match Type", "Result", "Opponent", "Score", "PR", "Luck"
-    ])
-    # Ensure correct dtypes
-    matches_df["Date"] = pd.to_datetime(matches_df["Date"])
-    matches_df["PR"] = pd.to_numeric(matches_df["PR"], errors="coerce").round(2)
-    matches_df["Luck"] = pd.to_numeric(matches_df["Luck"], errors="coerce").round(2)
-
-    st.subheader("📜 Recent Completed Matches")
-    st.dataframe(matches_df, hide_index=True)
-else:
-    st.info("No completed matches found for this player.")
+        params = (player_id,) * 10
+        assert len(params) == 10, f"Expected 10 params, got {len(params)}: {params}"
+        
+        cursor.execute("""
+            SELECT
+                mr.Date,
+                mt.MatchTypeTitle,
+                CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
+                          (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 'Won' ELSE 'Lost' END AS Result,
+                CASE WHEN mr.Player1ID = %s THEN p2.Name ELSE p1.Name END AS Opponent,
+                CONCAT(
+                    '11-',
+                    CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) THEN mr.Player2Points
+                         WHEN (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN mr.Player1Points
+                         ELSE LEAST(mr.Player1Points, mr.Player2Points) END
+                ) AS Score,
+                ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR ELSE mr.Player2PR END, 2) AS PR,
+                ROUND(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck ELSE mr.Player2Luck END, 2) AS Luck
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            JOIN Players p1 ON mr.Player1ID = p1.PlayerID
+            JOIN Players p2 ON mr.Player2ID = p2.PlayerID
+            WHERE mr.Player1ID = %s OR mr.Player2ID = %s
+            ORDER BY mr.Date DESC
+            LIMIT 50
+        """, params)
+        
+        matches = cursor.fetchall()
+        
+        if matches:
+            matches_df = pd.DataFrame(matches, columns=[
+                "Date", "Match Type", "Result", "Opponent", "Score", "PR", "Luck"
+            ])
+            # Ensure correct dtypes
+            matches_df["Date"] = pd.to_datetime(matches_df["Date"])
+            matches_df["PR"] = pd.to_numeric(matches_df["PR"], errors="coerce").round(2)
+            matches_df["Luck"] = pd.to_numeric(matches_df["Luck"], errors="coerce").round(2)
+        
+            st.subheader("📜 Recent Completed Matches")
+            st.dataframe(matches_df, hide_index=True)
+        else:
+            st.info("No completed matches found for this player.")
+            
         # 5️⃣ Per MatchType Summary Table
         cursor.execute("""
             SELECT mt.MatchTypeTitle,
