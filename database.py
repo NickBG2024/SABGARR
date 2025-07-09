@@ -183,43 +183,6 @@ def show_player_summary_tab():
             st.dataframe(matches_df, hide_index=True)
         else:
             st.info("No completed matches found for this player.")
-            
-        # 5️⃣ Per MatchType Summary Table
-        """
-        cursor.execute("""
-            SELECT mt.MatchTypeTitle,
-                   COUNT(mr.MatchResultID) AS Games,
-                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
-                                (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 1 ELSE 0 END) AS Wins,
-                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points < mr.Player2Points) OR
-                                (mr.Player2ID = %s AND mr.Player2Points < mr.Player1Points) THEN 1 ELSE 0 END) AS Losses,
-                   ROUND(AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1PR WHEN mr.Player2ID = %s THEN mr.Player2PR END), 2) AS AvgPR,
-                   ROUND(AVG(CASE WHEN mr.Player1ID = %s THEN mr.Player1Luck WHEN mr.Player2ID = %s THEN mr.Player2Luck END), 2) AS AvgLuck,
-                   SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1PR < mr.Player2PR) OR
-                                (mr.Player2ID = %s AND mr.Player2PR < mr.Player1PR) THEN 1 ELSE 0 END) AS PRWins
-            FROM MatchResults mr
-            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
-            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
-            WHERE mr.Player1ID = %s OR mr.Player2ID = %s
-            GROUP BY mt.MatchTypeTitle
-            ORDER BY Games DESC
-        """, (player_id,) * 12)
-        per_mt = cursor.fetchall()
-        if per_mt:
-            per_mt_df = pd.DataFrame(per_mt, columns=[
-                "MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
-            ])
-            per_mt_df["Win %"] = per_mt_df.apply(
-                lambda row: f"{(row['Wins'] / row['Games'] * 100):.2f}%" if row["Games"] > 0 else "0.00%",
-                axis=1
-            )
-            per_mt_df["PR Win %"] = per_mt_df.apply(
-                lambda row: f"{(row['PR Wins'] / row['Games'] * 100):.2f}%" if row["Games"] > 0 else "0.00%",
-                axis=1
-            )
-            st.subheader("🏅 Performance by Match Type")
-            st.dataframe(per_mt_df, hide_index=True)
-        """
         
         # 6️⃣ PR Over Time with Rolling Avg
         cursor.execute("""
