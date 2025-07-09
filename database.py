@@ -142,7 +142,7 @@ def show_player_summary_tab():
         # 4️⃣ Completed Matches Table
         params = (player_id,) * 10
         assert len(params) == 10, f"Expected 10 params, got {len(params)}: {params}"
-        
+        st.write("starting")
         cursor.execute("""
             SELECT
                 mr.Date,
@@ -169,7 +169,7 @@ def show_player_summary_tab():
         """, params)
         
         matches = cursor.fetchall()
-        
+        st.write("here")
         if matches:
             matches_df = pd.DataFrame(matches, columns=[
                 "Date", "Match Type", "Result", "Opponent", "Score", "PR", "Luck"
