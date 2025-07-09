@@ -185,7 +185,7 @@ def show_player_summary_tab():
             st.info("No completed matches found for this player.")
             
         # 5️⃣ Per MatchType Summary Table
-        cursor.execute("""
+        """cursor.execute("""
             SELECT mt.MatchTypeTitle,
                    COUNT(mr.MatchResultID) AS Games,
                    SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
@@ -218,7 +218,7 @@ def show_player_summary_tab():
             )
             st.subheader("🏅 Performance by Match Type")
             st.dataframe(per_mt_df, hide_index=True)
-
+"""
         # 6️⃣ PR Over Time with Rolling Avg
         cursor.execute("""
             SELECT Date, MatchResultID,
