@@ -140,7 +140,7 @@ def show_player_summary_tab():
             col4.metric("Avg PR", career_avg_pr_str)
 
         # 4️⃣ Completed Matches Table
-        params = (player_id,) * 7
+        params = (player_id,) * 10
         assert len(params) == 10, f"Expected 10 params, got {len(params)}: {params}"
         st.write("starting")
         cursor.execute("""
@@ -167,7 +167,7 @@ def show_player_summary_tab():
             ORDER BY mr.Date DESC
             LIMIT 50
         """, params)
-        
+        st.write("now?")
         matches = cursor.fetchall()
         st.write("here")
         if matches:
