@@ -4160,7 +4160,120 @@ def smccc(series_id):
         if conn:
             conn.close()
 
-def get_series_completed_matches_detailed(series_id):
+def get_series_completed_matches_detailed(series_id, player_id=None):
+    """
+    Loads and displays completed matches from CompletedMatchesCache for the series.
+    If player_id is provided, adjusts columns to show that player's perspective.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT 
+                Date,
+                MatchTypeTitle,
+                Player1Name,
+                Player2Name,
+                Player1Points,
+                Player2Points,
+                Player1PR,
+                Player1Luck,
+                Player2PR,
+                Player2Luck
+            FROM CompletedMatchesCache
+            WHERE SeriesID = %s
+            ORDER BY Date DESC, TimeCompleted DESC
+        """, (series_id,))
+        results = cursor.fetchall()
+
+        if not results:
+            st.info("No completed matches recorded yet for this series.")
+            return
+
+        data = []
+        for row in results:
+            (
+                match_date, match_type_title,
+                p1_name, p2_name,
+                p1_points, p2_points,
+                p1_pr, p1_luck, p2_pr, p2_luck
+            ) = row
+
+            match_date = match_date.strftime("%Y-%m-%d") if match_date else "?"
+
+            # Determine winner/loser and perspective if player_id provided
+            if p1_points > p2_points:
+                winner = p1_name
+                loser = p2_name
+                winner_pts = p1_points
+                loser_pts = p2_points
+                winner_pr = p1_pr
+                winner_luck = p1_luck
+                loser_pr = p2_pr
+                loser_luck = p2_luck
+            else:
+                winner = p2_name
+                loser = p1_name
+                winner_pts = p2_points
+                loser_pts = p1_points
+                winner_pr = p2_pr
+                winner_luck = p2_luck
+                loser_pr = p1_pr
+                loser_luck = p1_luck
+
+            # If player perspective is needed
+            if player_id:
+                if winner == player_id:
+                    result = "Won"
+                    opponent = loser
+                    player_pr_display = f"{winner_pr:.2f}" if winner_pr is not None else "-"
+                    player_luck_display = f"{winner_luck:.2f}" if winner_luck is not None else "-"
+                else:
+                    result = "Lost"
+                    opponent = winner
+                    player_pr_display = f"{loser_pr:.2f}" if loser_pr is not None else "-"
+                    player_luck_display = f"{loser_luck:.2f}" if loser_luck is not None else "-"
+                score_display = f"11-{loser_pts}"
+                data.append([
+                    match_date, match_type_title, result, opponent,
+                    score_display, player_pr_display, player_luck_display
+                ])
+            else:
+                # General view
+                result_line = f"{winner} beat {loser}"
+                score_display = f"{winner_pts}-{loser_pts}"
+                data.append([
+                    match_date, match_type_title, result_line, score_display,
+                    f"{winner_pr:.2f}" if winner_pr is not None else "-",
+                    f"{winner_luck:.2f}" if winner_luck is not None else "-",
+                    f"{loser_pr:.2f}" if loser_pr is not None else "-",
+                    f"{loser_luck:.2f}" if loser_luck is not None else "-"
+                ])
+
+        if player_id:
+            df = pd.DataFrame(data, columns=[
+                "Date", "Match Type", "Result", "Opponent",
+                "Score", "PR", "Luck"
+            ])
+        else:
+            df = pd.DataFrame(data, columns=[
+                "Date", "Match Type", "Result", "Score",
+                "Winner PR", "Winner Luck", "Loser PR", "Loser Luck"
+            ])
+
+        st.subheader("✅ Completed Matches")
+        st.dataframe(df, hide_index=True)
+
+    except Exception as e:
+        st.error(f"Error loading completed matches: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def get_series_completed_matches_detailed1(series_id):
     try:
         conn = create_connection()
         cursor = conn.cursor()
