@@ -1906,7 +1906,7 @@ def fetch_series_standings(series_id):
             "Avg PR": "{:.2f}", "Avg Luck": "{:.2f}", "Points%": "{:.2f}", "Win%": "{:.2f}"
         })
 
-        st.subheader("Series Standings with Points:")
+        st.subheader("Series Standings with Pointss:")
         st.dataframe(styled_df)
 
     except Exception as e:
@@ -1985,7 +1985,7 @@ def fetch_cached_series_standings(series_id):
             "Avg Luck": "{:.2f}"
         })
 
-        st.subheader("Series Standings with Points:")
+        st.subheader("Series Standings with Pointsss:")
         st.dataframe(styled, hide_index=True)
 
     except Exception as e:
@@ -2058,7 +2058,7 @@ def display_series_standings_with_points_and_details(series_id):
             "Avg Luck": "{:.2f}"
         })
 
-        st.subheader("Series Standings with Points:")
+        st.subheader("Series Standings with Pointsssssssssss:")
         st.dataframe(styled, hide_index=True)
 
     except Exception as e:
@@ -2226,7 +2226,7 @@ def display_series_standings_with_points(series_id):
                 formatted_stats,
                 columns=["Name (Nickname)", "Played", "Points", "Wins", "PR wins", "Losses", "Win%", "Averaged PR", "Averaged Luck"]
             )
-            st.subheader("Series Standings with Points:")
+            st.subheader("Series Standings with Pointsssss:")
             st.dataframe(df)
         else:
             st.subheader("No valid matches to display.")
