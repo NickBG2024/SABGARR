@@ -1917,6 +1917,98 @@ def fetch_series_standings(series_id):
 
 def fetch_cached_series_standings(series_id):
     """
+    Display standings using precomputed stats from SeriesPlayerStats for the given series,
+    sorted by Points% DESC, then Points DESC, then Win% DESC, then Avg PR ASC.
+    """
+    import pandas as pd
+
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT 
+                p.Name,
+                p.Nickname,
+                sps.GamesPlayed,
+                sps.Wins,
+                sps.Losses,
+                sps.Points,
+                sps.WinPercentage,
+                sps.AveragePR,
+                sps.PRWins,
+                sps.AverageLuck
+            FROM SeriesPlayerStats sps
+            JOIN Players p ON sps.PlayerID = p.PlayerID
+            WHERE sps.SeriesID = %s
+        """
+        cursor.execute(query, (series_id,))
+        rows = cursor.fetchall()
+
+        if not rows:
+            st.subheader("No stats available for this series.")
+            return
+
+        formatted_stats = []
+        for row in rows:
+            try:
+                name_nickname = f"{row[0]} ({row[1]})"
+                games_played = int(row[2] or 0)
+                wins = int(row[3] or 0)
+                losses = int(row[4] or 0)
+                points = int(row[5] or 0)
+                win_pct = float(row[6]) if row[6] is not None else 0.0
+                avg_pr = float(row[7]) if row[7] is not None else None
+                pr_wins = int(row[8] or 0)
+                avg_luck = float(row[9]) if row[9] is not None else None
+                points_pct = round((points / (games_played * 3)) * 100, 2) if games_played > 0 else 0.0
+
+                formatted_stats.append([
+                    name_nickname, games_played, points, points_pct, wins,
+                    pr_wins, losses, win_pct, avg_pr, avg_luck
+                ])
+            except Exception as e:
+                st.warning(f"Skipped row due to error: {e}")
+
+        df = pd.DataFrame(formatted_stats, columns=[
+            "Name (Nickname)", "Played", "Points", "Points%", "Wins",
+            "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"
+        ])
+
+        numeric_cols = ["Played", "Points", "Points%", "Wins", "PR Wins", "Losses", "Win%", "Avg PR", "Avg Luck"]
+        df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
+
+        # ✅ Sort by Points% DESC, Points DESC, Win% DESC, Avg PR ASC
+        df = df.sort_values(
+            by=["Points%", "Points", "Win%", "Avg PR"],
+            ascending=[False, False, False, True]
+        ).reset_index(drop=True)
+
+        df.insert(0, "Position", range(1, len(df) + 1))
+
+        styled = df.style.set_properties(
+            **{"font-weight": "bold"}, subset=["Position"]
+        ).format({
+            "Points%": "{:.2f}%",
+            "Win%": "{:.2f}%",
+            "Avg PR": "{:.2f}",
+            "Avg Luck": "{:.2f}"
+        })
+
+        st.subheader("🏆 Series Standings (sorted by Points%)")
+        st.dataframe(styled, hide_index=True)
+
+    except Exception as e:
+        st.error(f"Error displaying series standings: {e}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def fetch_cached_series_standings1(series_id):
+    """
     Display standings using precomputed stats from SeriesPlayerStats for the given series.
     """
     try:
