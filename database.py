@@ -1135,6 +1135,170 @@ def refresh_matchtype_stats(match_type_id):
         cursor.execute(base_query, (match_type_id,))
         player_stats = cursor.fetchall()
 
+        # Build stats dictionary
+        from collections import defaultdict
+        stats_dict = {}
+        for row in player_stats:
+            player_id, games, wins, losses, avg_pr, avg_luck, pr_wins = row
+            points = (wins * 2) + (pr_wins or 0)
+            win_pct = (wins / games) * 100 if games > 0 else 0
+            stats_dict[player_id] = {
+                "GamesPlayed": games,
+                "Wins": wins,
+                "Losses": losses,
+                "AvgPR": avg_pr,
+                "AvgLuck": avg_luck,
+                "PRWins": pr_wins,
+                "Points": points,
+                "WinPct": win_pct,
+                "HeadToHeadScore": 0
+            }
+
+        print(f"✅ Calculated base stats for {len(stats_dict)} players.")
+
+        # Step 2: Identify clusters for H2H tiebreaking
+        clusters = defaultdict(list)
+        for pid, stats in stats_dict.items():
+            key = (stats["Points"], stats["Wins"], stats["PRWins"])
+            clusters[key].append(pid)
+
+        # Step 3: Calculate H2H Scores
+        for key, player_ids in clusters.items():
+            if len(player_ids) < 2:
+                continue
+            print(f"🔍 Calculating H2H for tied cluster: {key} | Players: {player_ids}")
+            for player_id in player_ids:
+                h2h_score = 0
+                for opponent_id in player_ids:
+                    if player_id == opponent_id:
+                        continue
+                    cursor.execute("""
+                        SELECT Player1ID, Player2ID, Player1Points, Player2Points
+                        FROM MatchResults
+                        WHERE MatchTypeID = %s
+                          AND ((Player1ID = %s AND Player2ID = %s) OR (Player1ID = %s AND Player2ID = %s))
+                    """, (match_type_id, player_id, opponent_id, opponent_id, player_id))
+                    matches = cursor.fetchall()
+                    for m in matches:
+                        p1_id, p2_id, p1_pts, p2_pts = m
+                        if p1_id == player_id and p1_pts > p2_pts:
+                            h2h_score += 1
+                        elif p2_id == player_id and p2_pts > p1_pts:
+                            h2h_score += 1
+                        elif p1_id == player_id and p1_pts < p2_pts:
+                            h2h_score -= 1
+                        elif p2_id == player_id and p2_pts < p1_pts:
+                            h2h_score -= 1
+                stats_dict[player_id]["HeadToHeadScore"] = h2h_score
+                print(f"🧮 Player {player_id} H2H Score: {h2h_score}")
+
+        # Step 4: Insert into MatchTypePlayerStats
+        insert_query = """
+            INSERT INTO MatchTypePlayerStats (
+                MatchTypeID, PlayerID, GamesPlayed, Wins, Losses, Points,
+                WinPercentage, PRWins, AveragePR, AverageLuck, HeadToHeadScore
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        for player_id, s in stats_dict.items():
+            cursor.execute(insert_query, (
+                match_type_id, player_id, s["GamesPlayed"], s["Wins"], s["Losses"], s["Points"],
+                s["WinPct"], s["PRWins"], s["AvgPR"], s["AvgLuck"], s["HeadToHeadScore"]
+            ))
+
+        # Step 5: Refresh MatchTypeCompletedCache directly from MatchResults
+        cursor.execute("DELETE FROM MatchTypeCompletedCache WHERE MatchTypeID = %s", (match_type_id,))
+        match_query = """
+            SELECT 
+                mr.FixtureID, f.Player1ID, f.Player2ID, p1.Name, p2.Name,
+                mr.Player1Points, mr.Player2Points,
+                mr.Player1PR, mr.Player2PR,
+                mr.Player1Luck, mr.Player2Luck,
+                mr.Date, mr.TimeCompleted
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID AND mr.MatchTypeID = f.MatchTypeID
+            JOIN Players p1 ON f.Player1ID = p1.PlayerID
+            JOIN Players p2 ON f.Player2ID = p2.PlayerID
+            WHERE mr.MatchTypeID = %s
+        """
+        cursor.execute(match_query, (match_type_id,))
+        completed_matches = cursor.fetchall()
+
+        insert_completed_query = """
+            INSERT INTO MatchTypeCompletedCache (
+                MatchTypeID, FixtureID, Player1ID, Player2ID,
+                Player1Name, Player2Name,
+                Player1Points, Player2Points,
+                Player1PR, Player2PR,
+                Player1Luck, Player2Luck,
+                Winner, Date, TimeCompleted, LastUpdated
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW()
+            )
+        """
+        for row in completed_matches:
+            (
+                fixture_id, p1_id, p2_id, p1_name, p2_name,
+                p1_pts, p2_pts, p1_pr, p2_pr, p1_luck, p2_luck,
+                date, time_completed
+            ) = row
+            winner = p1_name if p1_pts > p2_pts else p2_name if p2_pts > p1_pts else "Draw"
+            cursor.execute(insert_completed_query, (
+                match_type_id, fixture_id, p1_id, p2_id,
+                p1_name, p2_name,
+                p1_pts, p2_pts,
+                p1_pr, p2_pr,
+                p1_luck, p2_luck,
+                winner, date, time_completed
+            ))
+
+        conn.commit()
+        print(f"✅ MatchTypePlayerStats and MatchTypeCompletedCache updated for MatchTypeID {match_type_id}.")
+
+    except Exception as e:
+        print(f"❌ Error in refresh_matchtype_stats({match_type_id}): {e}")
+
+    finally:
+        cursor.close()
+        conn.close()
+
+def refresh_matchtype_stats44(match_type_id):
+    import datetime
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        print(f"⚡ Refreshing MatchType stats for MatchTypeID {match_type_id}...")
+
+        # Clear existing stats
+        cursor.execute("DELETE FROM MatchTypePlayerStats WHERE MatchTypeID = %s", (match_type_id,))
+
+        # Step 1: Calculate base stats for all players with Fixtures in this MatchType
+        base_query = """
+            SELECT
+                p.PlayerID,
+                COUNT(DISTINCT mr.MatchResultID) AS GamesPlayed,
+                SUM(CASE WHEN (p.PlayerID = mr.Player1ID AND mr.Player1Points > mr.Player2Points)
+                          OR (p.PlayerID = mr.Player2ID AND mr.Player2Points > mr.Player1Points)
+                         THEN 1 ELSE 0 END) AS Wins,
+                SUM(CASE WHEN (p.PlayerID = mr.Player1ID AND mr.Player1Points < mr.Player2Points)
+                          OR (p.PlayerID = mr.Player2ID AND mr.Player2Points < mr.Player1Points)
+                         THEN 1 ELSE 0 END) AS Losses,
+                AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1PR
+                         WHEN p.PlayerID = mr.Player2ID THEN mr.Player2PR ELSE NULL END) AS AvgPR,
+                AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
+                         WHEN p.PlayerID = mr.Player2ID THEN mr.Player2Luck ELSE NULL END) AS AvgLuck,
+                SUM(CASE WHEN (p.PlayerID = mr.Player1ID AND mr.Player1PR < mr.Player2PR)
+                          OR (p.PlayerID = mr.Player2ID AND mr.Player2PR < mr.Player1PR)
+                         THEN 1 ELSE 0 END) AS PRWins
+            FROM Players p
+            JOIN Fixtures f ON (f.Player1ID = p.PlayerID OR f.Player2ID = p.PlayerID)
+            LEFT JOIN MatchResults mr ON f.FixtureID = mr.FixtureID AND f.MatchTypeID = mr.MatchTypeID
+            WHERE f.MatchTypeID = %s
+            GROUP BY p.PlayerID
+        """
+        cursor.execute(base_query, (match_type_id,))
+        player_stats = cursor.fetchall()
+
         # Build a dict to hold interim stats for easier cluster processing
         stats_dict = {}
         for row in player_stats:
