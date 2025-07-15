@@ -2798,7 +2798,8 @@ def display_cached_matchtype_standings(match_type_id):
                 s.Wins DESC,
                 s.PRWins DESC,
                 s.HeadToHeadScore DESC,
-                s.AveragePR ASC
+                s.AveragePR ASC,
+                s.GamesPlayed DESC
         """
         cursor.execute(query, (match_type_id, match_type_id))
         rows = cursor.fetchall()
