@@ -70,7 +70,6 @@ def league_tab(matchtype_id,league_title):
         display_cached_matchtype_standings(matchtype_id)
         display_match_grid(matchtype_id)       
         list_cached_remaining_fixtures(matchtype_id)
-        st.write("completed matches next")
         show_cached_matches_completed(matchtype_id)
 
 #2025 - SERIES 3 LEAGUE DATA DISPLAY       
