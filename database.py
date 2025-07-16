@@ -1995,8 +1995,8 @@ def refresh_series_stats(series_id):
                     s["WinPct"], s["PRWins"], s["AvgPR"], s["AvgLuck"], s["HeadToHeadScore"]
                 ))
 
-        # Step 2: Refresh SeriesCompletedMatchesCache
-        cursor.execute("DELETE FROM SeriesCompletedMatchesCache WHERE SeriesID = %s", (series_id,))
+        # Step 2: Refresh CompletedMatchesCache
+        cursor.execute("DELETE FROM CompletedMatchesCache WHERE SeriesID = %s", (series_id,))
         cursor.execute("""
             SELECT 
                 mr.FixtureID, f.MatchTypeID, f.Player1ID, f.Player2ID,
@@ -2016,7 +2016,7 @@ def refresh_series_stats(series_id):
         completed_matches = cursor.fetchall()
 
         insert_completed_query = """
-            INSERT INTO SeriesCompletedMatchesCache (
+            INSERT INTO CompletedMatchesCache (
                 SeriesID, FixtureID, MatchTypeID, Player1ID, Player2ID,
                 Player1Name, Player2Name,
                 Player1Points, Player2Points,
@@ -2042,7 +2042,7 @@ def refresh_series_stats(series_id):
             ))
 
         conn.commit()
-        print(f"✅ SeriesPlayerStats and SeriesCompletedMatchesCache updated for SeriesID {series_id}.")
+        print(f"✅ SeriesPlayerStats and CompletedMatchesCache updated for SeriesID {series_id}.")
 
     except Exception as e:
         print(f"❌ Error in refresh_series_stats({series_id}): {e}")
