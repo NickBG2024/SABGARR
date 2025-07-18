@@ -133,7 +133,8 @@ if series_choice == "2025 - Series 3":
         st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
         
         fetch_cached_series_standings(current_series_id)
-        get_series_completed_matches_detailed(current_series_id)
+        #get_series_completed_matches_detailed(current_series_id)
+        smccc(current_series_id)
         show_cached_remaining_fixtures_by_series(current_series_id)
 
 
