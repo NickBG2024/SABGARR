@@ -194,8 +194,8 @@ def show_league_statistics_page(series_choice):
                 with tabs[i]:
                     league_tab(matchtype_ids[league_name], league_name)    
         
-        #2025 - SERIES 1 LEAGUE DATA DISPLAY        
-        elif series_choice == "2025 - Series 1":
+    #2025 - SERIES 1 LEAGUE DATA DISPLAY        
+    elif series_choice == "2025 - Series 1":
             st.write("Loading data for the 2025 - S1 series...")
          
             #Initialisation variables:
@@ -261,8 +261,8 @@ def show_league_statistics_page(series_choice):
                 with tabs[i]:
                     league_tab(matchtype_ids[league_name], league_name)    
         
-        #SORTING LEAGUE DATA DISPLAY
-        elif series_choice == "2024 - Sorting League":
+    #SORTING LEAGUE DATA DISPLAY
+    elif series_choice == "2024 - Sorting League":
             st.write("Loading data for Sorting League series...")
         
             seriesid = 4
