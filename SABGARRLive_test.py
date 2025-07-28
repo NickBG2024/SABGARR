@@ -128,7 +128,7 @@ def show_league_statistics_page(series_choice):
                 league_tab(matchtype_ids[league_name], league_name)    
 
             #2025 - SERIES 2 LEAGUE DATA DISPLAY        
-        elif series_choice == "2025 - Series 2":
+    elif series_choice == "2025 - Series 2":
             st.write("Loading data for the 2025 - S2 series...")
         
             #Initialisation variables:
