@@ -39,25 +39,59 @@ def safe_float(value):
 import streamlit as st
 
 def show_trophies_awards_page():
-    st.subheader("🏆 Trophies & Awards")
+    import streamlit as st
+
+    st.title("🏆 SABGA Trophies & Awards")
 
     st.markdown("""
-    This section will highlight major achievements by players across all series.
-    
-    Future features may include:
-    - 🥇 Series Champions
-    - 🎯 Best PR Performances
-    - 🔁 Most Matches Played
-    - 🧠 Most Consistent Player
-    - 🥶 Most Unlucky Player
-    - 🎖️ PR Excellence Awards
-    - 🧱 Ironman Awards for participation
-    
-    **Stay tuned!**
-    """)
+    Welcome to the **SABGA Round Robin Leagues Hall of Fame**.  
+    This section celebrates outstanding achievements, prize winners, and the spirit of backgammon excellence in South Africa.
 
-    # Optional placeholder for future tables or graphics
-    st.info("This section is under construction. Come back soon!")
+    ---
+    ## 💰 Cash Prizes
+
+    **Cash prizes are awarded for each Series to the winners and, from Series 2, also to the runner-ups in a 60/40 split** across the top four leagues (A–D) as follows:
+
+    | League | Series 1 | Series 2 | Series 3 | Series 4 |
+    |--------|----------|----------|----------|----------|
+    | **A-League** | R2100 to Winner | R1260 / R840 | R1260 / R840 | R1260 / R840 |
+    | **B-League** | R1600 to Winner | R960 / R640 | R960 / R640 | R960 / R640 |
+    | **C-League** | R1100 to Winner | R660 / R440 | R660 / R440 | R660 / R440 |
+    | **D-League** | R600 to Winner | R360 / R240 | R360 / R240 | R360 / R240 |
+
+    ---
+    ## 🏅 Annual Trophies & Awards
+
+    These trophies are awarded **annually**, at the conclusion of the fourth Series:
+
+    - 🥇 **Player of the Year**  
+      Awarded to the player with the **lowest average PR** over all League matches for the year.
+
+    - 👑 **League Champion**  
+      Awarded to the **A-League player** with the best combined PR across **all four Series**.
+
+    - 📈 **Most Improved Player**  
+      Selected by the League Director, recognising the greatest improvement over the calendar year.
+
+    - 🍀 **Unluckiest Player**  
+      Awarded to the most statistically unlucky player (lowest average luck score) with significant participation.
+
+    - 💖 **Justin Goldman Memorial Trophy**  
+      Voted for by club members, in honour of Justin Goldman (1985–2016), recognising the player who best exemplifies:
+      - Integrity
+      - Honour
+      - Politeness
+      - Respect
+
+    - 🏆 **SABGA League Knockout Cup**  
+      A knockout cup competition held in the **second half of every year**, open to all SABGA League players.
+
+    ---
+    ## 📜 Past Winners
+
+    🕒 *No historical data yet. Past winners will be added here from the conclusion of the 2025 season.*
+
+    """, unsafe_allow_html=True)
 
 def show_league_statistics_page(series_choice):
     series_map = {
