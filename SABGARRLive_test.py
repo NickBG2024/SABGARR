@@ -20,41 +20,6 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
-st.sidebar.title("LEAGUE SERIES STATS:")
-
-# Add page navigation
-view_option = st.sidebar.radio(
-    "Select what to view:",
-    ["Series Stats", "Player Statistics", "League Statistics", "Trophies & Awards"],
-    index=0
-)
-
-if view_option == "Series Stats":
-    st.sidebar.markdown("Select the Series to display:")
-    series_choice = st.sidebar.radio(
-        "Select a series:",
-        ["2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
-        index=0
-    )
-    # Call your Series Stats logic here
-    show_series_stats_page(series_choice)   # replace with your actual function
-
-elif view_option == "Player Statistics":
-    show_player_summary_tab()
-
-elif view_option == "League Statistics":
-    st.sidebar.markdown("Select the Series to analyze:")
-    series_choice = st.sidebar.radio(
-        "Select a series:",
-        ["2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
-        index=0
-    )
-    show_league_statistics_page(series_choice)
-
-elif view_option == "Trophies & Awards":
-    show_trophies_awards_page()     # replace with your actual function
-    st.stop()
-    
 def show_series_stats_page(series_choice):
     #2025 - SERIES 3 LEAGUE DATA DISPLAY       
     if series_choice == "2025 - Series 3":
@@ -297,6 +262,40 @@ def show_series_stats_page(series_choice):
         #show_overall_PR_data = st.sidebar.checkbox("PR data")
         #show_overall_luck_data = st.sidebar.checkbox("Luck data")
 
+st.sidebar.title("LEAGUE SERIES STATS:")
+
+# Add page navigation
+view_option = st.sidebar.radio(
+    "Select what to view:",
+    ["Series Stats", "Player Statistics", "League Statistics", "Trophies & Awards"],
+    index=0
+)
+
+if view_option == "Series Stats":
+    st.sidebar.markdown("Select the Series to display:")
+    series_choice = st.sidebar.radio(
+        "Select a series:",
+        ["2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
+        index=0
+    )
+    # Call your Series Stats logic here
+    show_series_stats_page(series_choice)   # replace with your actual function
+
+elif view_option == "Player Statistics":
+    show_player_summary_tab()
+
+elif view_option == "League Statistics":
+    st.sidebar.markdown("Select the Series to analyze:")
+    series_choice = st.sidebar.radio(
+        "Select a series:",
+        ["2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
+        index=0
+    )
+    show_league_statistics_page(series_choice)
+
+elif view_option == "Trophies & Awards":
+    show_trophies_awards_page()     # replace with your actual function
+    st.stop()
 
 
 def league_tab(matchtype_id,league_title):
