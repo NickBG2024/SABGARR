@@ -36,6 +36,162 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+import streamlit as st
+
+def show_trophies_awards_page():
+    st.subheader("🏆 Trophies & Awards")
+
+    st.markdown("""
+    This section will highlight major achievements by players across all series.
+    
+    Future features may include:
+    - 🥇 Series Champions
+    - 🎯 Best PR Performances
+    - 🔁 Most Matches Played
+    - 🧠 Most Consistent Player
+    - 🥶 Most Unlucky Player
+    - 🎖️ PR Excellence Awards
+    - 🧱 Ironman Awards for participation
+    
+    **Stay tuned!**
+    """)
+
+    # Optional placeholder for future tables or graphics
+    st.info("This section is under construction. Come back soon!")
+
+def show_league_statistics_page(series_choice):
+    series_map = {
+        "2025 - Series 3": 7,
+        "2025 - Series 2": 6,
+        "2025 - Series 1": 5,
+        "2024 - Sorting League": 4
+    }
+    series_id = series_map.get(series_choice)
+
+    if series_id is None:
+        st.error("Invalid series selected.")
+        return
+
+    st.subheader(f"📊 League Statistics for {series_choice}")
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # 1️⃣ Top 10 by Points%
+        cursor.execute("""
+            SELECT p.Name, sps.GamesPlayed, sps.Points,
+                   ROUND((sps.Points / (sps.GamesPlayed * 3)) * 100, 2) AS PointsPercent
+            FROM SeriesPlayerStats sps
+            JOIN Players p ON sps.PlayerID = p.PlayerID
+            WHERE sps.SeriesID = %s AND sps.GamesPlayed > 0
+            ORDER BY PointsPercent DESC
+            LIMIT 10
+        """, (series_id,))
+        df_points_pct = pd.DataFrame(cursor.fetchall(), columns=["Player", "Games", "Points", "Points%"])
+        st.markdown("### 🥇 Top 10 Players by Points%")
+        st.dataframe(df_points_pct, hide_index=True)
+
+        # 2️⃣ Top 10 Avg PR
+        cursor.execute("""
+            SELECT p.Name, ROUND(AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+                                          WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR ELSE NULL END), 2) AS AvgPR
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN Players p ON (p.PlayerID = f.Player1ID OR p.PlayerID = f.Player2ID)
+            WHERE f.MatchTypeID IN (
+                SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
+            )
+            GROUP BY p.PlayerID
+            HAVING COUNT(*) >= 2
+            ORDER BY AvgPR ASC
+            LIMIT 10
+        """, (series_id,))
+        df_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "Average PR"])
+        st.markdown("### 🧠 Top 10 Players by Average PR")
+        st.dataframe(df_pr, hide_index=True)
+
+        # 3️⃣ Top 10 individual PRs (best single-game performance)
+        cursor.execute("""
+            SELECT p.Name, mt.MatchTypeTitle, mr.Date,
+                   CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1PR ELSE mr.Player2PR END AS PR
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN Players p ON (p.PlayerID = mr.Player1ID OR p.PlayerID = mr.Player2ID)
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            WHERE f.MatchTypeID IN (
+                SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
+            )
+            ORDER BY PR ASC
+            LIMIT 10
+        """, (series_id,))
+        df_top_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League", "Date", "PR"])
+        st.markdown("### 🏅 Top 10 Individual Match Performances (Lowest PRs)")
+        st.dataframe(df_top_pr, hide_index=True)
+
+        # 4️⃣ Luckiest players
+        cursor.execute("""
+            SELECT p.Name, ROUND(AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
+                                          WHEN p.PlayerID = mr.Player2ID THEN mr.Player2Luck ELSE NULL END), 2) AS AvgLuck
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN Players p ON (p.PlayerID = f.Player1ID OR p.PlayerID = f.Player2ID)
+            WHERE f.MatchTypeID IN (
+                SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
+            )
+            GROUP BY p.PlayerID
+            HAVING COUNT(*) >= 2
+            ORDER BY AvgLuck DESC
+            LIMIT 10
+        """, (series_id,))
+        df_luckiest = pd.DataFrame(cursor.fetchall(), columns=["Player", "Average Luck"])
+        st.markdown("### 🍀 Top 10 Luckiest Players")
+        st.dataframe(df_luckiest, hide_index=True)
+
+        # 5️⃣ Unluckiest players
+        cursor.execute("""
+            SELECT p.Name, ROUND(AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
+                                          WHEN p.PlayerID = mr.Player2ID THEN mr.Player2Luck ELSE NULL END), 2) AS AvgLuck
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN Players p ON (p.PlayerID = f.Player1ID OR p.PlayerID = f.Player2ID)
+            WHERE f.MatchTypeID IN (
+                SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
+            )
+            GROUP BY p.PlayerID
+            HAVING COUNT(*) >= 2
+            ORDER BY AvgLuck ASC
+            LIMIT 10
+        """, (series_id,))
+        df_unluckiest = pd.DataFrame(cursor.fetchall(), columns=["Player", "Average Luck"])
+        st.markdown("### 😵 Top 10 Unluckiest Players")
+        st.dataframe(df_unluckiest, hide_index=True)
+
+        # 6️⃣ Visual: Average PR per MatchType (Group)
+        cursor.execute("""
+            SELECT mt.MatchTypeTitle,
+                   ROUND(AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1PR
+                                  WHEN p.PlayerID = mr.Player2ID THEN mr.Player2PR ELSE NULL END), 2) AS AvgPR
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+            JOIN Players p ON (p.PlayerID = mr.Player1ID OR p.PlayerID = mr.Player2ID)
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            WHERE f.MatchTypeID IN (
+                SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
+            )
+            GROUP BY mt.MatchTypeTitle
+            ORDER BY AvgPR ASC
+        """, (series_id,))
+        df_pr_by_league = pd.DataFrame(cursor.fetchall(), columns=["League", "Average PR"])
+        st.markdown("### 📉 Average PR by League (Match Type)")
+        fig = px.bar(df_pr_by_league, x="League", y="Average PR", color="Average PR", color_continuous_scale="blues")
+        st.plotly_chart(fig, use_container_width=True)
+
+    except Exception as e:
+        st.error(f"Error loading league statistics: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+        
 def show_player_summary_tab():
     """
     Displays Player Statistics - Summary Page:
