@@ -55,7 +55,7 @@ elif view_option == "Trophies & Awards":
     show_trophies_awards_page()     # replace with your actual function
     st.stop()
     
-def show_league_statistics_page(series_choice):
+def show_series_stats_page(series_choice):
     #2025 - SERIES 3 LEAGUE DATA DISPLAY       
     if series_choice == "2025 - Series 3":
         st.write("Loading data for the 2025 - S3 series...")
