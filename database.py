@@ -36,7 +36,76 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
-import streamlit as st
+def get_annual_pr_and_luck_leaders(min_matches=5):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Player of the Year - lowest average PR
+        cursor.execute("""
+            SELECT PlayerName, COUNT(*) as Matches, AVG(
+                CASE 
+                    WHEN Player1ID = p.PlayerID THEN Player1PR 
+                    WHEN Player2ID = p.PlayerID THEN Player2PR 
+                END
+            ) as AvgPR
+            FROM CompletedMatchesCache c
+            JOIN Players p ON p.PlayerID IN (c.Player1ID, c.Player2ID)
+            WHERE (p.PlayerID = c.Player1ID OR p.PlayerID = c.Player2ID)
+            GROUP BY PlayerName
+            HAVING Matches >= %s
+            ORDER BY AvgPR ASC
+            LIMIT 10
+        """, (min_matches,))
+        pr_leaders = pd.DataFrame(cursor.fetchall(), columns=["Player", "Matches", "Avg PR"])
+
+        # Unluckiest Player - lowest average Luck
+        cursor.execute("""
+            SELECT PlayerName, COUNT(*) as Matches, AVG(
+                CASE 
+                    WHEN Player1ID = p.PlayerID THEN Player1Luck 
+                    WHEN Player2ID = p.PlayerID THEN Player2Luck 
+                END
+            ) as AvgLuck
+            FROM CompletedMatchesCache c
+            JOIN Players p ON p.PlayerID IN (c.Player1ID, c.Player2ID)
+            WHERE (p.PlayerID = c.Player1ID OR p.PlayerID = c.Player2ID)
+            GROUP BY PlayerName
+            HAVING Matches >= %s
+            ORDER BY AvgLuck ASC
+            LIMIT 10
+        """, (min_matches,))
+        luck_leaders = pd.DataFrame(cursor.fetchall(), columns=["Player", "Matches", "Avg Luck"])
+
+        # League Champion - best A-League PR (matchtype_ids to define!)
+        A_LEAGUE_IDS = [19, 30, 39]  # Update based on actual MatchTypeIDs for A-League
+        format_ids = ','.join(str(mid) for mid in A_LEAGUE_IDS)
+        cursor.execute(f"""
+            SELECT PlayerName, COUNT(*) as Matches, AVG(
+                CASE 
+                    WHEN Player1ID = p.PlayerID THEN Player1PR 
+                    WHEN Player2ID = p.PlayerID THEN Player2PR 
+                END
+            ) as AvgPR
+            FROM CompletedMatchesCache c
+            JOIN Players p ON p.PlayerID IN (c.Player1ID, c.Player2ID)
+            WHERE MatchTypeID IN ({format_ids})
+              AND (p.PlayerID = c.Player1ID OR p.PlayerID = c.Player2ID)
+            GROUP BY PlayerName
+            HAVING Matches >= %s
+            ORDER BY AvgPR ASC
+            LIMIT 10
+        """, (min_matches,))
+        aleague_champion = pd.DataFrame(cursor.fetchall(), columns=["Player", "Matches", "Avg PR"])
+
+        return pr_leaders, luck_leaders, aleague_champion
+
+    except Exception as e:
+        st.error(f"❌ Error loading award leaders: {e}")
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+    finally:
+        cursor.close()
+        conn.close()
 
 def show_trophies_awards_page():
     import streamlit as st
