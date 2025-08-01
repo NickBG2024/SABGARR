@@ -4,7 +4,7 @@ import re
 import random
 import streamlit as st
 import pandas as pd
-from database import show_trophies_awards_page, show_league_statistics_page, show_player_summary_tab, show_player_summary_tab1, fetch_cached_series_standings, show_cached_remaining_fixtures_by_series, get_series_completed_matches_detailed, display_match_grid, list_cached_remaining_fixtures, show_cached_matches_completed, display_cached_matchtype_standings, get_averagePR_by_matchtype, list_remaining_fixtures_by_series, display_matchtype_standings_full_details_styled, get_fixturescount_by_matchtype, get_matchcount_by_matchtype, display_series_standings_with_points_and_details, display_series_standings_with_points, display_matchtype_standings_with_points_and_details, display_matchtype_standings_with_points, get_matchcount_by_date_and_series, smccc, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
+from database import show_trophies_awards_page, show_series_statistics_page, show_season_statistics_page, show_player_summary_tab, show_player_summary_tab1, fetch_cached_series_standings, show_cached_remaining_fixtures_by_series, get_series_completed_matches_detailed, display_match_grid, list_cached_remaining_fixtures, show_cached_matches_completed, display_cached_matchtype_standings, get_averagePR_by_matchtype, list_remaining_fixtures_by_series, display_matchtype_standings_full_details_styled, get_fixturescount_by_matchtype, get_matchcount_by_matchtype, display_series_standings_with_points_and_details, display_series_standings_with_points, display_matchtype_standings_with_points_and_details, display_matchtype_standings_with_points, get_matchcount_by_date_and_series, smccc, get_matchcount_by_series, get_fixturescount_by_series, show_matches_completed_by_series, show_matches_completed, display_sorting_series_table, display_series_table, display_series_table_completedonly, display_match_grid, list_remaining_fixtures, display_group_table, get_remaining_fixtures, get_match_results_for_grid, get_player_stats_with_fixtures, get_player_stats_by_matchtype, get_sorting_standings, get_fixtures_with_names_by_match_type, get_match_results_nicely_formatted, print_table_structure, get_player_id_by_nickname, get_match_type_id_by_identifier, check_result_exists, insert_match_result, get_fixture, get_standings, get_match_results, check_tables, create_connection, insert_match_result, check_result_exists, get_email_checker_status 
 from datetime import datetime, timedelta, timezone, date
 
 # Add a header image at the top of the page
@@ -290,16 +290,16 @@ def show_series_stats_page(series_choice):
         #show_overall_PR_data = st.sidebar.checkbox("PR data")
         #show_overall_luck_data = st.sidebar.checkbox("Luck data")
 
-st.sidebar.title("LEAGUE SERIES STATS:")
+st.sidebar.title("SABGA RR LEAGUE DATA:")
 
 # Add page navigation
 view_option = st.sidebar.radio(
     "Select what to view:",
-    ["Series Stats", "Player Statistics", "League Statistics", "Trophies & Awards"],
+    ["League Standings", "Player Statistics", "Series Statistics", "Season (year) Statistics", "Trophies & Awards"],
     index=0
 )
 
-if view_option == "Series Stats":
+if view_option == "League Standings":
     st.sidebar.markdown("Select the Series to display:")
     series_choice = st.sidebar.radio(
         "Select a series:",
@@ -312,15 +312,24 @@ if view_option == "Series Stats":
 elif view_option == "Player Statistics":
     show_player_summary_tab()
 
-elif view_option == "League Statistics":
+elif view_option == "Series Statistics":
     st.sidebar.markdown("Select the Series to analyze:")
     series_choice = st.sidebar.radio(
         "Select a series:",
         ["2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
         index=0
     )
-    show_league_statistics_page(series_choice)
+    show_series_statistics_page(series_choice)
 
+elif view_option == "Season (year) Statistics":
+    st.sidebar.markdown("Select the Season to analyze:")
+    season_choice = st.sidebar.radio(
+        "Select a season:",
+        ["2026","2025"],
+        index=1
+    )
+    show_season_statistics_page(season_choice)
+        
 elif view_option == "Trophies & Awards":
     show_trophies_awards_page()     # replace with your actual function
     st.stop()
