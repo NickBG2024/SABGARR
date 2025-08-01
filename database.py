@@ -195,7 +195,7 @@ def show_series_statistics_page(series_choice):
             ORDER BY PointsPercent DESC, sps.GamesPlayed DESC
             LIMIT 10
         """, (series_id,))
-        df_points_pct = pd.DataFrame(cursor.fetchall(), columns=["Player", "Games", "Points", "Points%"])
+        df_points_pct = pd.DataFrame(cursor.fetchall(), columns=["Player", "Played", "Points", "Points%"])
         df_points_pct.insert(0, "Rank", range(1, len(df_points_pct) + 1))
         df_points_pct["Points%"] = df_points_pct["Points%"].map(lambda x: f"{x:.1f}%")
         st.markdown(f"### 🥇 Top 10 Players by Points% - {series_choice}")
@@ -203,7 +203,7 @@ def show_series_statistics_page(series_choice):
 
         # 2️⃣ Top 10 Avg PR
         cursor.execute("""
-            SELECT p.Name, mt.MatchTypeTitle, ROUND(AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+            SELECT p.Name, mt.MatchTypeTitle, COUNT(mr.MatchResultID) AS Games, ROUND(AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
                                           WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR ELSE NULL END), 2) AS AvgPR
             FROM MatchResults mr
             JOIN MatchType mt ON mr.MatchTypeID = mt.MatchTypeID
@@ -217,7 +217,7 @@ def show_series_statistics_page(series_choice):
             ORDER BY AvgPR ASC
             LIMIT 10;
         """, (series_id,))
-        df_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League", "Average PR"])
+        df_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League", "Played", "Average PR"])
         df_pr.insert(0,"Rank", range(1, len(df_pr)+1))
         
         st.markdown(f"### 🧠 Top 10 Players by Average PR - {series_choice}")
@@ -239,16 +239,17 @@ def show_series_statistics_page(series_choice):
         """, (series_id,))
         df_top_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League", "Date", "PR"])
         df_top_pr.insert(0,"Rank", range(1, len(df_top_pr)+1))
-        st.markdown("### 🏅 Top 10 Individual Match Performances (Lowest PRs)")
+        st.markdown(f"### 🏅 Top 10 Match Performances (Lowest PRs) - {series_choice}")
         st.dataframe(df_top_pr, hide_index=True)
 
         # 4️⃣ Luckiest players
         cursor.execute("""
-            SELECT p.Name, ROUND(AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
+            SELECT p.Name, mt.MatchTypeTitle, count(mr.MatchResultID) as Played, ROUND(AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
                                           WHEN p.PlayerID = mr.Player2ID THEN mr.Player2Luck ELSE NULL END), 2) AS AvgLuck
             FROM MatchResults mr
             JOIN Fixtures f ON mr.FixtureID = f.FixtureID
             JOIN Players p ON (p.PlayerID = f.Player1ID OR p.PlayerID = f.Player2ID)
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
             WHERE f.MatchTypeID IN (
                 SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
             )
@@ -257,8 +258,9 @@ def show_series_statistics_page(series_choice):
             ORDER BY AvgLuck DESC
             LIMIT 10
         """, (series_id,))
-        df_luckiest = pd.DataFrame(cursor.fetchall(), columns=["Player", "Average Luck"])
-        st.markdown("### 🍀 Top 10 Luckiest Players")
+        df_luckiest = pd.DataFrame(cursor.fetchall(), columns=["Player", "League","Played", "Average Luck"])
+        df_luckiest.insert(0,"Rank", range(1, len(df_luckiest)+1))
+        st.markdown(f"### 🍀 Top 10 Luckiest Players - {series_choice}")
         st.dataframe(df_luckiest, hide_index=True)
 
         # 5️⃣ Unluckiest players
@@ -277,7 +279,7 @@ def show_series_statistics_page(series_choice):
             LIMIT 10
         """, (series_id,))
         df_unluckiest = pd.DataFrame(cursor.fetchall(), columns=["Player", "Average Luck"])
-        st.markdown("### 😵 Top 10 Unluckiest Players")
+        st.markdown(f"### 😵 Top 10 Unluckiest Players - {series_choice}")
         st.dataframe(df_unluckiest, hide_index=True)
 
         # 6️⃣ Visual: Average PR per MatchType (Group)
