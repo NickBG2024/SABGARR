@@ -3,6 +3,7 @@ import email
 import imaplib
 import streamlit as st
 import datetime
+import plotly.express as px
 import pandas as pd
 from decimal import Decimal
 from datetime import datetime
@@ -305,9 +306,6 @@ def show_player_summary_tab():
     - Per MatchType summary
     - PR Over Time plot
     """
-    import pandas as pd
-    import plotly.express as px
-
     st.header("👤 Player Statistics - Summary Page")
 
     try:
@@ -725,8 +723,6 @@ def show_player_summary_tab6():
         st.error(f"Error loading player stats: {e}")
 
 def show_player_summary_tab5():
-    import plotly.express as px
-    import pandas as pd
 
     st.header("👤 Player Statistics - Summary Page")
 
