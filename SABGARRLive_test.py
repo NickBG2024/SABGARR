@@ -20,6 +20,34 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
+def league_tab(matchtype_id,league_title, days_left):
+    with st.spinner(f"Loading {league_title} data..."):
+        league_matches_played = get_matchcount_by_matchtype(matchtype_id)
+        league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
+        ave_pr = get_averagePR_by_matchtype(matchtype_id)
+                
+        if league_fixtures != 0:
+            percentage = (league_matches_played / league_fixtures) * 100
+            #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            metric_value = f"{league_matches_played}/{league_fixtures}"
+            games_left = league_fixtures - league_matches_played  # Calculate remaining games
+        else:
+            percentage = 0
+            metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
+            games_left = 0
+        
+        # Display metrics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric(f"{league_title} Progress", f"{metric_value}", f"{percentage:.1f}%")
+        col2.metric("Games remaining:", games_left)
+        col3.metric("Days left:", days_left)
+        col4.metric("Average PR:", ave_pr)
+
+        display_cached_matchtype_standings(matchtype_id)
+        display_match_grid(matchtype_id)       
+        list_cached_remaining_fixtures(matchtype_id)
+        show_cached_matches_completed(matchtype_id)
+
 def show_series_stats_page(series_choice):
     #2025 - SERIES 3 LEAGUE DATA DISPLAY       
     if series_choice == "2025 - Series 3":
@@ -296,35 +324,3 @@ elif view_option == "League Statistics":
 elif view_option == "Trophies & Awards":
     show_trophies_awards_page()     # replace with your actual function
     st.stop()
-
-
-def league_tab(matchtype_id,league_title, days_left):
-    with st.spinner(f"Loading {league_title} data..."):
-        league_matches_played = get_matchcount_by_matchtype(matchtype_id)
-        league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
-        ave_pr = get_averagePR_by_matchtype(matchtype_id)
-                
-        if league_fixtures != 0:
-            percentage = (league_matches_played / league_fixtures) * 100
-            #metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-            metric_value = f"{league_matches_played}/{league_fixtures}"
-            games_left = league_fixtures - league_matches_played  # Calculate remaining games
-        else:
-            percentage = 0
-            metric_value = f"{league_matches_played}/{league_fixtures} ({percentage:.1f}%)"
-            games_left = 0
-        
-        # Display metrics
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric(f"{league_title} Progress", f"{metric_value}", f"{percentage:.1f}%")
-        col2.metric("Games remaining:", games_left)
-        col3.metric("Days left:", days_left)
-        col4.metric("Average PR:", ave_pr)
-
-        display_cached_matchtype_standings(matchtype_id)
-        display_match_grid(matchtype_id)       
-        list_cached_remaining_fixtures(matchtype_id)
-        show_cached_matches_completed(matchtype_id)
-
-
-
