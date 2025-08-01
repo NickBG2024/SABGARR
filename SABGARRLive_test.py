@@ -90,7 +90,7 @@ def show_series_stats_page(series_choice):
         # League tabs - dynamically call league_tab() with appropriate matchtype_id
         for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
             with tabs[i]:
-                league_tab(matchtype_ids[league_name], league_name)    
+                league_tab(matchtype_ids[league_name], league_name, days_left)    
 
             #2025 - SERIES 2 LEAGUE DATA DISPLAY        
     elif series_choice == "2025 - Series 2":
@@ -157,7 +157,7 @@ def show_series_stats_page(series_choice):
             # League tabs - dynamically call league_tab() with appropriate matchtype_id
             for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
                 with tabs[i]:
-                    league_tab(matchtype_ids[league_name], league_name)    
+                    league_tab(matchtype_ids[league_name], league_name, days_left)    
         
     #2025 - SERIES 1 LEAGUE DATA DISPLAY        
     elif series_choice == "2025 - Series 1":
@@ -224,7 +224,7 @@ def show_series_stats_page(series_choice):
             # League tabs - dynamically call league_tab() with appropriate matchtype_id
             for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
                 with tabs[i]:
-                    league_tab(matchtype_ids[league_name], league_name)    
+                    league_tab(matchtype_ids[league_name], league_name,days_left)    
         
     #SORTING LEAGUE DATA DISPLAY
     elif series_choice == "2024 - Sorting League":
@@ -298,8 +298,7 @@ elif view_option == "Trophies & Awards":
     st.stop()
 
 
-def league_tab(matchtype_id,league_title):
-    #st.write(f"Loading {league_title} data...") 
+def league_tab(matchtype_id,league_title, days_left):
     with st.spinner(f"Loading {league_title} data..."):
         league_matches_played = get_matchcount_by_matchtype(matchtype_id)
         league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
