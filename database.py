@@ -239,7 +239,7 @@ def show_series_statistics_page(series_choice):
         """, (series_id,))
         df_top_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League", "Date", "PR"])
         df_top_pr.insert(0,"Rank", range(1, len(df_top_pr)+1))
-        st.markdown(f"### 🏅 Top 10 Match Performances (Lowest PRs) - {series_choice}")
+        st.markdown(f"### 🏅 Top 10 Match Performances - {series_choice}")
         st.dataframe(df_top_pr, hide_index=True)
 
         # 4️⃣ Luckiest players
