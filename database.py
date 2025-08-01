@@ -198,7 +198,7 @@ def show_series_statistics_page(series_choice):
         df_points_pct = pd.DataFrame(cursor.fetchall(), columns=["Player", "Games", "Points", "Points%"])
         df_points_pct.insert(0, "Rank", range(1, len(df_points_pct) + 1))
         df_points_pct["Points%"] = df_points_pct["Points%"].map(lambda x: f"{x:.1f}%")
-        st.markdown("### 🥇 Top 10 Players by Points% - {series_choice}")
+        st.markdown(f"### 🥇 Top 10 Players by Points% - {series_choice}")
         st.dataframe(df_points_pct, hide_index=True)
 
         # 2️⃣ Top 10 Avg PR
@@ -220,7 +220,7 @@ def show_series_statistics_page(series_choice):
         df_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League", "Average PR"])
         df_pr.insert(0,"Rank", range(1, len(df_pr)+1))
         
-        st.markdown("### 🧠 Top 10 Players by Average PR - {series_choice}")
+        st.markdown(f"### 🧠 Top 10 Players by Average PR - {series_choice}")
         st.dataframe(df_pr, hide_index=True)
 
         # 3️⃣ Top 10 individual PRs (best single-game performance)
@@ -238,6 +238,7 @@ def show_series_statistics_page(series_choice):
             LIMIT 10
         """, (series_id,))
         df_top_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League", "Date", "PR"])
+        df_top_pr.insert(0,"Rank", range(1, len(df_top_pr)+1))
         st.markdown("### 🏅 Top 10 Individual Match Performances (Lowest PRs)")
         st.dataframe(df_top_pr, hide_index=True)
 
