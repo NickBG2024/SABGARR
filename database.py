@@ -192,20 +192,21 @@ def show_series_statistics_page(series_choice):
             FROM SeriesPlayerStats sps
             JOIN Players p ON sps.PlayerID = p.PlayerID
             WHERE sps.SeriesID = %s AND sps.GamesPlayed > 0
-            ORDER BY PointsPercent DESC
+            ORDER BY PointsPercent DESC, sps.GamesPlayed DESC
             LIMIT 10
         """, (series_id,))
         df_points_pct = pd.DataFrame(cursor.fetchall(), columns=["Player", "Games", "Points", "Points%"])
         df_points_pct.insert(0, "Rank", range(1, len(df_points_pct) + 1))
         df_points_pct["Points%"] = df_points_pct["Points%"].map(lambda x: f"{x:.1f}%")
-        st.markdown("### 🥇 Top 10 Players by Points%")
+        st.markdown("### 🥇 Top 10 Players by Points% - {series_choice}")
         st.dataframe(df_points_pct, hide_index=True)
 
         # 2️⃣ Top 10 Avg PR
         cursor.execute("""
-            SELECT p.Name, ROUND(AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
+            SELECT p.Name, mt.MatchTypeTitle, ROUND(AVG(CASE WHEN mr.Player1ID = p.PlayerID THEN mr.Player1PR
                                           WHEN mr.Player2ID = p.PlayerID THEN mr.Player2PR ELSE NULL END), 2) AS AvgPR
             FROM MatchResults mr
+            JOIN MatchType mt ON mr.MatchTypeID = mt.MatchTypeID
             JOIN Fixtures f ON mr.FixtureID = f.FixtureID
             JOIN Players p ON (p.PlayerID = f.Player1ID OR p.PlayerID = f.Player2ID)
             WHERE f.MatchTypeID IN (
@@ -214,9 +215,11 @@ def show_series_statistics_page(series_choice):
             GROUP BY p.PlayerID
             HAVING COUNT(*) >= 2
             ORDER BY AvgPR ASC
-            LIMIT 10
+            LIMIT 10;
         """, (series_id,))
-        df_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "Average PR"])
+        df_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League" "Average PR"])
+        df_pr.insert(0,"Rank", range(1, len(df_pr)+1))
+        df_pr.
         st.markdown("### 🧠 Top 10 Players by Average PR")
         st.dataframe(df_pr, hide_index=True)
 
