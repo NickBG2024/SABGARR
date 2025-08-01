@@ -265,11 +265,12 @@ def show_series_statistics_page(series_choice):
 
         # 5️⃣ Unluckiest players
         cursor.execute("""
-            SELECT p.Name, ROUND(AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
+            SELECT p.Name, mt.MatchTypeTitle, count(mr.MatchResultID) as Played, ROUND(AVG(CASE WHEN p.PlayerID = mr.Player1ID THEN mr.Player1Luck
                                           WHEN p.PlayerID = mr.Player2ID THEN mr.Player2Luck ELSE NULL END), 2) AS AvgLuck
             FROM MatchResults mr
             JOIN Fixtures f ON mr.FixtureID = f.FixtureID
             JOIN Players p ON (p.PlayerID = f.Player1ID OR p.PlayerID = f.Player2ID)
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
             WHERE f.MatchTypeID IN (
                 SELECT MatchTypeID FROM SeriesMatchTypes WHERE SeriesID = %s
             )
@@ -278,7 +279,9 @@ def show_series_statistics_page(series_choice):
             ORDER BY AvgLuck ASC
             LIMIT 10
         """, (series_id,))
-        df_unluckiest = pd.DataFrame(cursor.fetchall(), columns=["Player", "Average Luck"])
+        df_unluckiest = pd.DataFrame(cursor.fetchall(), columns=["Player", "League","Played", "Average Luck"])
+        df_unluckiest.insert(0,"Rank", range(1, len(df_unluckiest)+1))
+        
         st.markdown(f"### 😵 Top 10 Unluckiest Players - {series_choice}")
         st.dataframe(df_unluckiest, hide_index=True)
 
