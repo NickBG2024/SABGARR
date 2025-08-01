@@ -219,8 +219,8 @@ def show_series_statistics_page(series_choice):
         """, (series_id,))
         df_pr = pd.DataFrame(cursor.fetchall(), columns=["Player", "League" "Average PR"])
         df_pr.insert(0,"Rank", range(1, len(df_pr)+1))
-        df_pr.
-        st.markdown("### 🧠 Top 10 Players by Average PR")
+        
+        st.markdown("### 🧠 Top 10 Players by Average PR - {series_choice}")
         st.dataframe(df_pr, hide_index=True)
 
         # 3️⃣ Top 10 individual PRs (best single-game performance)
