@@ -196,6 +196,8 @@ def show_series_statistics_page(series_choice):
             LIMIT 10
         """, (series_id,))
         df_points_pct = pd.DataFrame(cursor.fetchall(), columns=["Player", "Games", "Points", "Points%"])
+        df_points_pct.insert(0, "Rank", range(1, len(df_points_pct) + 1))
+        df_points_pct["Points%"] = df_points_pct["Points%"].map(lambda x: f"{x:.1f}%")
         st.markdown("### 🥇 Top 10 Players by Points%")
         st.dataframe(df_points_pct, hide_index=True)
 
