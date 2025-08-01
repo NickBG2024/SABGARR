@@ -163,7 +163,10 @@ def show_trophies_awards_page():
 
     """, unsafe_allow_html=True)
 
-def show_league_statistics_page(series_choice):
+show_season_statistics_page(season_choice):
+    season_year = season_choice
+
+def show_series_statistics_page(series_choice):
     series_map = {
         "2025 - Series 3": 7,
         "2025 - Series 2": 6,
@@ -176,7 +179,7 @@ def show_league_statistics_page(series_choice):
         st.error("Invalid series selected.")
         return
 
-    st.subheader(f"📊 League Statistics for {series_choice}")
+    st.subheader(f"📊 Series Statistics for {series_choice}")
     conn = create_connection()
     cursor = conn.cursor()
 
