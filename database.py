@@ -165,6 +165,7 @@ def show_trophies_awards_page():
 
 def show_season_statistics_page(season_choice):
     season_year = season_choice
+    st.write(" Season data under construction")
 
 def show_series_statistics_page(series_choice):
     series_map = {
