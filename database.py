@@ -163,7 +163,7 @@ def show_trophies_awards_page():
 
     """, unsafe_allow_html=True)
 
-show_season_statistics_page(season_choice):
+def show_season_statistics_page(season_choice):
     season_year = season_choice
 
 def show_series_statistics_page(series_choice):
