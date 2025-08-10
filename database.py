@@ -201,6 +201,26 @@ def show_trophies_awards_page():
 def show_season_statistics_page(season_choice):
     season_year = season_choice
     st.write(" Season data under construction")
+    
+    st.subheader("Average PR by League Across Series")
+    pr_trend_df = get_average_pr_by_league_and_series()
+    
+    # Filter to only relevant Series for selected one
+    relevant_series_ids = {
+        "2025 - Series 3": [5, 6, 7],
+        "2025 - Series 2": [5, 6],
+        "2025 - Series 1": [5],
+        "2024 - Sorting League": [4]
+    }
+    
+    selected_ids = relevant_series_ids.get(series_choice, [])
+    
+    filtered = pr_trend_df[pr_trend_df["SeriesID"].isin(selected_ids)]
+    
+    # Pivot to show Series in columns
+    pivot_df = filtered.pivot(index="MatchTypeTitle", columns="SeriesName", values="AveragePR")
+    pivot_df = pivot_df.sort_index()
+    st.dataframe(pivot_df, use_container_width=True)
 
 def show_series_statistics_page(series_choice):
     series_map = {
