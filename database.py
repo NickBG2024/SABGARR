@@ -1426,6 +1426,31 @@ def refresh_matchtype_stats(match_type_id):
 
         print(f"✅ Calculated base stats for {len(stats_dict)} players.")
 
+        # Add this debugging section right after building stats_dict and before Step 2
+        # Make sure you have: import streamlit as st
+        
+        st.write("📊 **Player stats summary:**")
+        for player_id, stats in stats_dict.items():
+            st.write(f"  Player {player_id}: Points={stats['Points']}, Wins={stats['Wins']}, PRWins={stats['PRWins']}, Games={stats['GamesPlayed']}")
+        
+        st.write("🔍 **Cluster analysis:**")
+        clusters = defaultdict(list)
+        for pid, stats in stats_dict.items():
+            key = (stats["Points"], stats["Wins"], stats["PRWins"])
+            clusters[key].append(pid)
+        
+        st.write(f"Found {len(clusters)} unique combinations:")
+        for key, player_ids in clusters.items():
+            points, wins, pr_wins = key
+            st.write(f"  ({points} pts, {wins} wins, {pr_wins} PR wins): {len(player_ids)} players - {player_ids}")
+            if len(player_ids) >= 2:
+                st.write(f"    ⚡ This cluster will get H2H calculations!")
+        
+        tied_clusters = {k: v for k, v in clusters.items() if len(v) >= 2}
+        st.write(f"🎯 **{len(tied_clusters)} clusters have ties requiring H2H calculation**")
+        
+        # Continue with your existing Step 3 logic...
+
         # Step 2: Identify clusters for H2H tiebreaking
         clusters = defaultdict(list)
         for pid, stats in stats_dict.items():
