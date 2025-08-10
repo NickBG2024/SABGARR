@@ -9,8 +9,8 @@ from database import show_trophies_awards_page, show_series_statistics_page, sho
 from datetime import datetime, timedelta, timezone, date
 
 # Add this at the very top of your app
-logging.basicConfig(level=logging.DEBUG)
-st.set_option('logger.level', 'debug')
+#logging.basicConfig(level=logging.DEBUG)
+#st.set_option('logger.level', 'debug')
 
 # Add a header image at the top of the page
 st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
