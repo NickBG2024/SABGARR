@@ -37,6 +37,41 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+def get_average_pr_by_league_and_series():
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT 
+                sm.SeriesID,
+                s.SeriesName,
+                mt.MatchTypeTitle,
+                ROUND(AVG(CASE 
+                    WHEN mr.Player1PR IS NOT NULL AND mr.Player2PR IS NOT NULL 
+                    THEN (mr.Player1PR + mr.Player2PR) / 2 
+                    ELSE NULL END), 2) AS AveragePR
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID AND mr.MatchTypeID = f.MatchTypeID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            JOIN SeriesMatchTypes sm ON sm.MatchTypeID = f.MatchTypeID
+            JOIN Series s ON sm.SeriesID = s.SeriesID
+            WHERE mr.Player1PR IS NOT NULL AND mr.Player2PR IS NOT NULL
+            GROUP BY sm.SeriesID, f.MatchTypeID
+            ORDER BY mt.MatchTypeTitle, sm.SeriesID
+        """)
+        rows = cursor.fetchall()
+        df = pd.DataFrame(rows, columns=["SeriesID", "SeriesName", "MatchTypeTitle", "AveragePR"])
+        return df
+
+    except Exception as e:
+        print("Error fetching average PRs by league and series:", e)
+        return pd.DataFrame()
+
+    finally:
+        cursor.close()
+        conn.close()
+
 def get_annual_pr_and_luck_leaders(min_matches=5):
     conn = create_connection()
     cursor = conn.cursor()
