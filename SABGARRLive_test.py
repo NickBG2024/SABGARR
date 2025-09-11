@@ -49,6 +49,7 @@ def league_tab(matchtype_id,league_title, days_left):
         col4.metric("Average PR:", ave_pr)
 
         display_cached_matchtype_standings(matchtype_id)
+        display_matchtype_standings_with_points_and_details(matchtype_id)
         display_match_grid(matchtype_id)       
         list_cached_remaining_fixtures(matchtype_id)
         show_cached_matches_completed(matchtype_id)
