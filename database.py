@@ -201,20 +201,22 @@ def show_trophies_awards_page():
 
 def show_season_statistics_page(season_choice):
     season_year = season_choice
-    st.write(" Season data under construction")
+    st.write(f"Season {season_year} data under construction")
     
     st.subheader("Average PR by League Across Series")
     pr_trend_df = get_average_pr_by_league_and_series()
     
     # Filter to only relevant Series for selected one
     relevant_series_ids = {
-        "2025 - Series 3": [5, 6, 7],
-        "2025 - Series 2": [5, 6],
-        "2025 - Series 1": [5],
-        "2024 - Sorting League": [4]
+        "2025": [5, 6, 7],   # Series 1, 2, 3
+        "2024": [4]          # Sorting League
     }
     
-    selected_ids = relevant_series_ids.get(series_choice, [])
+    selected_ids = relevant_series_ids.get(str(season_year), [])
+    
+    if not selected_ids:
+        st.warning(f"No Series found for Season {season_year}")
+        return
     
     filtered = pr_trend_df[pr_trend_df["SeriesID"].isin(selected_ids)]
     
