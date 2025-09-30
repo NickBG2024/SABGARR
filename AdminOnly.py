@@ -50,7 +50,7 @@ st.title("SABGA Backgammon: Admin page")
 st.write("Welcome to the admin page of South African Backgammon Round Robin! This page is for admins to manage the SABGA National Round Robin.")
 
 if st.button("🔄 Run H2H Debug Test"):
-    refresh_matchtype_stats(31)  # replace 32 with your MatchTypeID
+    refresh_matchtype_stats(39)  # replace 32 with your MatchTypeID
     
 # Add an icon image to sidebar
 st.sidebar.markdown(
