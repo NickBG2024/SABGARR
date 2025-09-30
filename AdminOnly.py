@@ -665,18 +665,19 @@ if red_card_player:
             conn = create_connection()
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT DISTINCT MatchTypeID
-                FROM Fixtures
-                WHERE Completed = 0
-                  AND (Player1ID = %s OR Player2ID = %s)
+                SELECT DISTINCT mt.MatchTypeID, mt.MatchTypeTitle
+                FROM Fixtures f
+                JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+                WHERE f.Completed = 0
+                  AND (f.Player1ID = %s OR f.Player2ID = %s)
             """, (player_id, player_id))
             match_types = cursor.fetchall()
             cursor.close()
             conn.close()
 
             if match_types:
-                # Map display for matchtype dropdown
-                matchtype_dict = {f"{mt[0]}": mt[0] for mt in match_types}
+                # Map display for matchtype dropdown (ID + Name)
+                matchtype_dict = {f"{mt[0]} - {mt[1]}": mt[0] for mt in match_types}
                 selected_matchtype_display = st.selectbox("Select MatchType", list(matchtype_dict.keys()))
                 if selected_matchtype_display:
                     match_type_id = matchtype_dict[selected_matchtype_display]
@@ -709,7 +710,7 @@ if red_card_player:
                             """, (match_type_id, player_id, player_id))
 
                             conn.commit()
-                            st.success(f"Red card applied to {selected_player_display} for MatchType {match_type_id}!")
+                            st.success(f"Red card applied to {selected_player_display} for MatchType {selected_matchtype_display}!")
 
                             # Refresh stats automatically
                             refresh_matchtype_stats(match_type_id)
