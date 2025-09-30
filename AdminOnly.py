@@ -676,16 +676,14 @@ if red_card_player:
             conn.close()
 
             if match_types:
-                # Map display for matchtype dropdown (ID + Name)
-                matchtype_dict = {f"{mt[0]} - {mt[1]}": mt[0] for mt in match_types}
+                # Map display for matchtype dropdown
+                matchtype_dict = {f"{mt[0]} – {mt[1]}": mt[0] for mt in match_types}
                 selected_matchtype_display = st.selectbox("Select MatchType", list(matchtype_dict.keys()))
                 if selected_matchtype_display:
                     match_type_id = matchtype_dict[selected_matchtype_display]
 
                     # Step 3: Button to apply red card
                     if st.button("Apply Red Card"):
-                        from datetime import datetime
-
                         non_league_id = 38  # 2025NonLeague
 
                         conn = create_connection()
@@ -694,13 +692,12 @@ if red_card_player:
                             # Move all completed matches of this player to Non-League
                             cursor.execute("""
                                 UPDATE MatchResults mr
-                                JOIN Fixtures f ON mr.FixtureID = f.FixtureID
-                                SET mr.MatchTypeID = %s, f.MatchTypeID = %s
+                                SET mr.MatchTypeID = %s
                                 WHERE mr.MatchTypeID = %s
                                   AND (mr.Player1ID = %s OR mr.Player2ID = %s)
-                            """, (non_league_id, non_league_id, match_type_id, player_id, player_id))
+                            """, (non_league_id, match_type_id, player_id, player_id))
 
-                            # Mark remaining fixtures as completed
+                            # Mark remaining fixtures as completed (but leave MatchTypeID unchanged)
                             cursor.execute("""
                                 UPDATE Fixtures
                                 SET Completed = 1
