@@ -5668,8 +5668,42 @@ def show_matches_completed(match_type_id):
 
     else:
         st.subheader("No completed matches found.")
-    
+
 def get_match_results_for_grid(match_type_id):
+    """
+    Fetch match results for a given match type, using MatchResults.MatchTypeID
+    as the source of truth. Includes player names for grid display.
+    """
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT 
+                p1.PlayerID AS Player1ID,
+                p1.Name AS Player1Name,
+                p2.PlayerID AS Player2ID,
+                p2.Name AS Player2Name,
+                mr.Player1Points AS Player1Points,
+                mr.Player2Points AS Player2Points
+            FROM MatchResults mr
+            JOIN Players p1 ON mr.Player1ID = p1.PlayerID
+            JOIN Players p2 ON mr.Player2ID = p2.PlayerID
+            WHERE mr.MatchTypeID = %s
+            ORDER BY p1.Name ASC;
+        """
+        cursor.execute(query, (match_type_id,))
+        results = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+        return results
+
+    except Exception as e:
+        st.error(f"Error fetching match results: {e}")
+        return []
+
+def get_match_results_for_grid930(match_type_id):
     try:
         conn = create_connection()
         cursor = conn.cursor()
