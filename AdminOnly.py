@@ -242,6 +242,7 @@ edit_match_types = st.sidebar.checkbox("Edit Match Types")
 edit_match_results = st.sidebar.checkbox("Edit Match Results")
 edit_fixtures = st.sidebar.checkbox("Edit Fixtures")
 edit_series = st.sidebar.checkbox("Edit Series")
+red_card_player = st.sidebar.checkbox("Red card a player")
 
 if email_checker_checkbox != email_checker_status:
     set_email_checker_status(email_checker_checkbox)
@@ -635,6 +636,90 @@ if show_match_types:
         st.table(matchtypes_data)
     else:
         st.write("No match types found in the database.")
+
+# **********************************RED CARD PLAYER *******************************************
+if red_card_player:
+    st.subheader("Red Card Player")
+
+    # Step 1: Fetch players who have incomplete fixtures
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT DISTINCT p.PlayerID, p.Name, p.Nickname
+        FROM Players p
+        JOIN Fixtures f ON p.PlayerID IN (f.Player1ID, f.Player2ID)
+        WHERE f.Completed = 0
+    """)
+    players = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if players:
+        # Map player display name to ID
+        player_dict = {f"{p[1]} ({p[2]})": p[0] for p in players}
+        selected_player_display = st.selectbox("Select Player to Red Card", list(player_dict.keys()))
+        if selected_player_display:
+            player_id = player_dict[selected_player_display]
+
+            # Step 2: Find all current matchtypes for this player (in incomplete fixtures)
+            conn = create_connection()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT DISTINCT MatchTypeID
+                FROM Fixtures
+                WHERE Completed = 0
+                  AND (Player1ID = %s OR Player2ID = %s)
+            """, (player_id, player_id))
+            match_types = cursor.fetchall()
+            cursor.close()
+            conn.close()
+
+            if match_types:
+                # Map display for matchtype dropdown
+                matchtype_dict = {f"{mt[0]}": mt[0] for mt in match_types}
+                selected_matchtype_display = st.selectbox("Select MatchType", list(matchtype_dict.keys()))
+                if selected_matchtype_display:
+                    match_type_id = matchtype_dict[selected_matchtype_display]
+
+                    # Step 3: Button to apply red card
+                    if st.button("Apply Red Card"):
+                        from datetime import datetime
+
+                        non_league_id = 38  # 2025NonLeague
+
+                        conn = create_connection()
+                        cursor = conn.cursor()
+                        try:
+                            # Move all completed matches of this player to Non-League
+                            cursor.execute("""
+                                UPDATE MatchResults mr
+                                JOIN Fixtures f ON mr.FixtureID = f.FixtureID
+                                SET mr.MatchTypeID = %s, f.MatchTypeID = %s
+                                WHERE mr.MatchTypeID = %s
+                                  AND (mr.Player1ID = %s OR mr.Player2ID = %s)
+                            """, (non_league_id, non_league_id, match_type_id, player_id, player_id))
+
+                            # Mark remaining fixtures as completed
+                            cursor.execute("""
+                                UPDATE Fixtures
+                                SET Completed = 1
+                                WHERE MatchTypeID = %s
+                                  AND Completed = 0
+                                  AND (Player1ID = %s OR Player2ID = %s)
+                            """, (match_type_id, player_id, player_id))
+
+                            conn.commit()
+                            st.success(f"Red card applied to {selected_player_display} for MatchType {match_type_id}!")
+
+                            # Refresh stats automatically
+                            refresh_matchtype_stats(match_type_id)
+                            st.info("MatchType standings refreshed automatically.")
+
+                        except Exception as e:
+                            st.error(f"Error applying red card: {e}")
+                        finally:
+                            cursor.close()
+                            conn.close()
     
 # 3. *****************************EDITING FORMS************************************************
 if edit_series:
