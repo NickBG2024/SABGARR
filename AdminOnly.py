@@ -646,7 +646,7 @@ if award_walkover:
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT f.FixtureID, mt.MatchTypeTitle,
+        SELECT f.FixtureID, f.MatchTypeID, mt.MatchTypeTitle,
                p1.PlayerID, p1.Name, p1.Nickname,
                p2.PlayerID, p2.Name, p2.Nickname
         FROM Fixtures f
@@ -662,22 +662,25 @@ if award_walkover:
     if fixtures:
         # Build a nice dropdown label for each fixture
         fixture_dict = {
-            f"Fixture {f[0]} – {f[1]}: {f[3]} ({f[4]}) vs {f[6]} ({f[7]})": f for f in fixtures
+            f"Fixture {f[0]} – {f[2]}: {f[4]} ({f[5]}) vs {f[7]} ({f[8]})": f for f in fixtures
         }
 
         selected_fixture_display = st.selectbox("Select Fixture", list(fixture_dict.keys()))
         if selected_fixture_display:
             fixture = fixture_dict[selected_fixture_display]
             fixture_id = fixture[0]
-            matchtype_title = fixture[1]
-            player1_id, player1_name, player1_nick = fixture[2], fixture[3], fixture[4]
-            player2_id, player2_name, player2_nick = fixture[5], fixture[6], fixture[7]
+            matchtype_id = fixture[1]
+            matchtype_title = fixture[2]
+            player1_id, player1_name, player1_nick = fixture[3], fixture[4], fixture[5]
+            player2_id, player2_name, player2_nick = fixture[6], fixture[7], fixture[8]
 
             st.write(f"**Players:** {player1_name} ({player1_nick}) vs {player2_name} ({player2_nick})")
 
             # Step 2: Choose winner
-            winner_choice = st.radio("Select winner (awarded walkover):", 
-                                     [f"{player1_name} ({player1_nick})", f"{player2_name} ({player2_nick})"])
+            winner_choice = st.radio(
+                "Select winner (awarded walkover):",
+                [f"{player1_name} ({player1_nick})", f"{player2_name} ({player2_nick})"]
+            )
             if winner_choice:
                 if winner_choice.startswith(player1_name):
                     winner_id, loser_id = player1_id, player2_id
@@ -689,11 +692,11 @@ if award_walkover:
                     conn = create_connection()
                     cursor = conn.cursor()
                     try:
-                        # Insert into Walkovers table
+                        # Insert into Walkovers table (with MatchTypeID included)
                         cursor.execute("""
-                            INSERT INTO Walkovers (FixtureID, WinnerID, LoserID)
-                            VALUES (%s, %s, %s)
-                        """, (fixture_id, winner_id, loser_id))
+                            INSERT INTO Walkovers (FixtureID, MatchTypeID, WinnerID, LoserID)
+                            VALUES (%s, %s, %s, %s)
+                        """, (fixture_id, matchtype_id, winner_id, loser_id))
 
                         # Mark fixture as completed
                         cursor.execute("""
@@ -706,13 +709,7 @@ if award_walkover:
                         st.success(f"Walkover awarded: {winner_choice} wins by default.")
 
                         # Refresh standings automatically
-                        match_type_id_query = """
-                            SELECT MatchTypeID FROM Fixtures WHERE FixtureID = %s
-                        """
-                        cursor.execute(match_type_id_query, (fixture_id,))
-                        mt_id = cursor.fetchone()[0]
-
-                        refresh_matchtype_stats(mt_id)
+                        refresh_matchtype_stats(matchtype_id)
                         st.info(f"MatchType standings for '{matchtype_title}' refreshed.")
 
                     except Exception as e:
