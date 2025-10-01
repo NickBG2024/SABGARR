@@ -243,6 +243,7 @@ edit_match_results = st.sidebar.checkbox("Edit Match Results")
 edit_fixtures = st.sidebar.checkbox("Edit Fixtures")
 edit_series = st.sidebar.checkbox("Edit Series")
 red_card_player = st.sidebar.checkbox("Red card a player")
+award_walkover = st.sidebar.checkbox("Award walkover")
 
 if email_checker_checkbox != email_checker_status:
     set_email_checker_status(email_checker_checkbox)
@@ -636,6 +637,89 @@ if show_match_types:
         st.table(matchtypes_data)
     else:
         st.write("No match types found in the database.")
+
+# **********************************AWARD WALK OVER ******************************************
+if award_walkover:
+    st.subheader("Award Walkover")
+
+    # Step 1: Fetch all incomplete fixtures
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT f.FixtureID, mt.MatchTypeTitle,
+               p1.PlayerID, p1.Name, p1.Nickname,
+               p2.PlayerID, p2.Name, p2.Nickname
+        FROM Fixtures f
+        JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+        JOIN Players p1 ON f.Player1ID = p1.PlayerID
+        JOIN Players p2 ON f.Player2ID = p2.PlayerID
+        WHERE f.Completed = 0
+    """)
+    fixtures = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if fixtures:
+        # Build a nice dropdown label for each fixture
+        fixture_dict = {
+            f"Fixture {f[0]} – {f[1]}: {f[3]} ({f[4]}) vs {f[6]} ({f[7]})": f for f in fixtures
+        }
+
+        selected_fixture_display = st.selectbox("Select Fixture", list(fixture_dict.keys()))
+        if selected_fixture_display:
+            fixture = fixture_dict[selected_fixture_display]
+            fixture_id = fixture[0]
+            matchtype_title = fixture[1]
+            player1_id, player1_name, player1_nick = fixture[2], fixture[3], fixture[4]
+            player2_id, player2_name, player2_nick = fixture[5], fixture[6], fixture[7]
+
+            st.write(f"**Players:** {player1_name} ({player1_nick}) vs {player2_name} ({player2_nick})")
+
+            # Step 2: Choose winner
+            winner_choice = st.radio("Select winner (awarded walkover):", 
+                                     [f"{player1_name} ({player1_nick})", f"{player2_name} ({player2_nick})"])
+            if winner_choice:
+                if winner_choice.startswith(player1_name):
+                    winner_id, loser_id = player1_id, player2_id
+                else:
+                    winner_id, loser_id = player2_id, player1_id
+
+                # Step 3: Button to confirm walkover
+                if st.button("Award Walkover"):
+                    conn = create_connection()
+                    cursor = conn.cursor()
+                    try:
+                        # Insert into Walkovers table
+                        cursor.execute("""
+                            INSERT INTO Walkovers (FixtureID, WinnerID, LoserID)
+                            VALUES (%s, %s, %s)
+                        """, (fixture_id, winner_id, loser_id))
+
+                        # Mark fixture as completed
+                        cursor.execute("""
+                            UPDATE Fixtures
+                            SET Completed = 1
+                            WHERE FixtureID = %s
+                        """, (fixture_id,))
+
+                        conn.commit()
+                        st.success(f"Walkover awarded: {winner_choice} wins by default.")
+
+                        # Refresh standings automatically
+                        match_type_id_query = """
+                            SELECT MatchTypeID FROM Fixtures WHERE FixtureID = %s
+                        """
+                        cursor.execute(match_type_id_query, (fixture_id,))
+                        mt_id = cursor.fetchone()[0]
+
+                        refresh_matchtype_stats(mt_id)
+                        st.info(f"MatchType standings for '{matchtype_title}' refreshed.")
+
+                    except Exception as e:
+                        st.error(f"Error awarding walkover: {e}")
+                    finally:
+                        cursor.close()
+                        conn.close()
 
 # **********************************RED CARD PLAYER *******************************************
 if red_card_player:
