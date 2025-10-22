@@ -223,7 +223,7 @@ def show_season_statistics_page(season_choice):
     # Pivot to show Series in columns
     pivot_df = filtered.pivot(index="MatchTypeTitle", columns="SeriesName", values="AveragePR")
     pivot_df = pivot_df.sort_index()
-    st.dataframe(pivot_df, use_container_width=True)
+    st.dataframe(pivot_df, width='stretch')
 
 def show_series_statistics_page(series_choice):
     series_map = {
@@ -361,7 +361,7 @@ def show_series_statistics_page(series_choice):
         df_pr_by_league = pd.DataFrame(cursor.fetchall(), columns=["League", "Average PR"])
         st.markdown("### 📉 Average PR by League (Match Type)")
         fig = px.bar(df_pr_by_league, x="League", y="Average PR", color="Average PR", color_continuous_scale="blues")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     except Exception as e:
         st.error(f"Error loading league statistics: {e}")
@@ -529,7 +529,7 @@ def show_player_summary_tab():
                 )
                 fig.add_traces(px.line(pr_df, x="Date", y="RollingAvgPR").data)
                 fig.update_traces(marker=dict(size=8, opacity=0.6))
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
             else:
                 st.info("No PR data available for plotting.")
         else:
@@ -783,7 +783,7 @@ def show_player_summary_tab6():
                 )
                 fig.add_traces(px.line(pr_df, x="Date", y="RollingAvgPR").data)
                 fig.update_traces(marker=dict(size=8, opacity=0.6))
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
             else:
                 st.info("No PR data available for plotting.")
         else:
@@ -1103,7 +1103,7 @@ def show_player_summary_tab1():
                 )
                 fig.update_traces(marker=dict(size=8, opacity=0.6))
 
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
             else:
                 st.info("No PR data available for graph.")
         else:
@@ -1182,7 +1182,7 @@ def show_player_summary_tab1():
                     "📈 Player PR": "{:.2f}",
                     "🍀 Player Luck": "{:.2f}"
                 }),
-                use_container_width=True,
+                width='stretch',
                 hide_index=True
             )
         else:
