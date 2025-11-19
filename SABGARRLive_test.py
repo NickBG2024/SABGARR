@@ -58,7 +58,7 @@ def show_series_stats_page(series_choice):
 
     #2025 - SERIES 4 LEAGUE DATA DISPLAY       
     if series_choice == "2025 - Series 4":
-        st.write("Loading data for the 2025 - S4 series...")
+        st.write("Loading data for the 20255 - S4 series...")
     
         #Initialisation variables:
         current_series_id = 8
