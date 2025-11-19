@@ -126,9 +126,11 @@ def generate_fixtures_ui():
 if 'form_updated' in st.session_state and st.session_state['form_updated']:
     del st.session_state['form_updated']
     st.rerun()
-    
-matches_played = get_matchcount_by_series(8)
-total_fixtures = get_fixturescount_by_series(8)
+
+current_series_id = 8
+non_league_id = 38  # 2025NonLeague
+matches_played = get_matchcount_by_series(current_series_id)
+total_fixtures = get_fixturescount_by_series(current_series_id)
 percentage = (matches_played / total_fixtures) * 100
 metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
@@ -765,7 +767,6 @@ if red_card_player:
 
                     # Step 3: Button to apply red card
                     if st.button("Apply Red Card"):
-                        non_league_id = 38  # 2025NonLeague
 
                         conn = create_connection()
                         cursor = conn.cursor()
@@ -792,6 +793,7 @@ if red_card_player:
 
                             # Refresh stats automatically
                             refresh_matchtype_stats(match_type_id)
+                            update_remaining_fixtures_by_series(current_series_id)
                             st.info("MatchType standings refreshed automatically.")
 
                         except Exception as e:
