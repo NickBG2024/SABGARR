@@ -540,7 +540,6 @@ def show_player_summary_tab():
         # 4️⃣ Completed Matches Table
         params = (player_id,) * 9   # <- corrected to 9, because the query has 9 %s placeholders
         assert len(params) == 9, f"Expected 9 params, got {len(params)}: {params}"
-        st.write("starting")
         cursor.execute("""
             SELECT
                 mr.Date,
@@ -566,9 +565,7 @@ def show_player_summary_tab():
             LIMIT 50
         """, params)
 
-        st.write("now?")
         matches = cursor.fetchall()
-        st.write("here")
         if matches:
             matches_df = pd.DataFrame(matches, columns=[
                 "Date", "Match Type", "Result", "Opponent", "Score", "PR", "Luck"
