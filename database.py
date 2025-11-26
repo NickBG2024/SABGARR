@@ -244,28 +244,64 @@ def show_trophies_awards_page():
 def show_season_statistics_page(season_choice):
     season_year = season_choice
     st.write(f"Season {season_year} data under construction")
-    
+
     st.subheader("Average PR by League Across Series")
     pr_trend_df = get_average_pr_by_league_and_series()
-    
-    # Filter to only relevant Series for selected one
+
+    # Debug columns & sample — safe to leave in for a short while
+    st.write("PR trend columns:", pr_trend_df.columns.tolist())
+    st.write(pr_trend_df.head())
+
+    # Map of which series (by SeriesID) belong to which season year
     relevant_series_ids = {
         "2025": [5, 6, 7],   # Series 1, 2, 3
         "2024": [4]          # Sorting League
     }
-    
     selected_ids = relevant_series_ids.get(str(season_year), [])
-    
+
     if not selected_ids:
         st.warning(f"No Series found for Season {season_year}")
         return
-    
-    filtered = pr_trend_df[pr_trend_df["SeriesID"].isin(selected_ids)]
-    
-    # Pivot to show Series in columns
-    pivot_df = filtered.pivot(index="MatchTypeTitle", columns="SeriesName", values="AveragePR")
-    pivot_df = pivot_df.sort_index()
-    st.dataframe(pivot_df, width='stretch')
+
+    df = pr_trend_df.copy()
+
+    # Normalize possible series-name column names to 'SeriesName'
+    if "SeriesName" not in df.columns:
+        if "SeriesTitle" in df.columns:
+            df = df.rename(columns={"SeriesTitle": "SeriesName"})
+            st.info("Renamed 'SeriesTitle' -> 'SeriesName' for pivoting.")
+        else:
+            # try to auto-detect a series-like column
+            candidates = [c for c in df.columns if "series" in c.lower() and "name" in c.lower() or "title" in c.lower()]
+            if candidates:
+                df = df.rename(columns={candidates[0]: "SeriesName"})
+                st.info(f"Using '{candidates[0]}' as SeriesName for pivot.")
+            else:
+                st.error("No SeriesName/SeriesTitle column found in PR data. Cannot build pivot.")
+                return
+
+    # Ensure other required columns exist
+    for col in ("MatchTypeTitle", "AveragePR", "SeriesID"):
+        if col not in df.columns:
+            st.error(f"PR data missing required column '{col}'. Found columns: {df.columns.tolist()}")
+            return
+
+    # Filter for the chosen series ids
+    filtered = df[df["SeriesID"].isin(selected_ids)]
+    if filtered.empty:
+        st.warning(f"No PR data for Season {season_year} (series {selected_ids}).")
+        return
+
+    # Pivot (index = MatchTypeTitle, columns = SeriesName, values = AveragePR)
+    try:
+        pivot_df = filtered.pivot(index="MatchTypeTitle", columns="SeriesName", values="AveragePR")
+        pivot_df = pivot_df.sort_index()
+    except Exception as e:
+        st.error(f"Error pivoting PR data: {e}")
+        st.write("Filtered data sample:", filtered.head())
+        return
+
+    st.dataframe(pivot_df, width="stretch")
 
 def show_series_statistics_page(series_choice):
     series_map = {
