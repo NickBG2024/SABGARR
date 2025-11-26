@@ -46,6 +46,48 @@ def get_average_pr_by_league_and_series():
         cursor.execute("""
             SELECT 
                 sm.SeriesID,
+                s.SeriesTitle,
+                mt.MatchTypeTitle,
+                ROUND(AVG(
+                    CASE 
+                        WHEN mr.Player1PR IS NOT NULL AND mr.Player2PR IS NOT NULL 
+                        THEN (mr.Player1PR + mr.Player2PR) / 2 
+                        ELSE NULL 
+                    END
+                ), 2) AS AveragePR
+            FROM MatchResults mr
+            JOIN Fixtures f ON mr.FixtureID = f.FixtureID AND mr.MatchTypeID = f.MatchTypeID
+            JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
+            JOIN SeriesMatchTypes sm ON sm.MatchTypeID = f.MatchTypeID
+            JOIN Series s ON sm.SeriesID = s.SeriesID
+            WHERE mr.Player1PR IS NOT NULL AND mr.Player2PR IS NOT NULL
+            GROUP BY sm.SeriesID, s.SeriesTitle, mt.MatchTypeTitle
+            ORDER BY mt.MatchTypeTitle, sm.SeriesID
+        """)
+        rows = cursor.fetchall()
+        # returned rows are tuples: (SeriesID, SeriesTitle, MatchTypeTitle, AveragePR)
+        df = pd.DataFrame(rows, columns=["SeriesID", "SeriesTitle", "MatchTypeTitle", "AveragePR"])
+        # Ensure AveragePR is numeric and rounded (defensive)
+        if not df.empty:
+            df["AveragePR"] = pd.to_numeric(df["AveragePR"], errors="coerce").round(2)
+        return df
+
+    except Exception as e:
+        print("Error fetching average PRs by league and series:", e)
+        return pd.DataFrame(columns=["SeriesID", "SeriesTitle", "MatchTypeTitle", "AveragePR"])
+
+    finally:
+        cursor.close()
+        conn.close()
+
+def get_average_pr_by_league_and_seriess():
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT 
+                sm.SeriesID,
                 s.SeriesName,
                 mt.MatchTypeTitle,
                 ROUND(AVG(CASE 
