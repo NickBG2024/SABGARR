@@ -107,6 +107,47 @@ def get_player_pr_for_season(season_id):
         cursor.close()
         conn.close()
 
+def show_player_of_the_year(season_id):
+    st.subheader("🏆 Player of the Year — PR Standings")
+
+    df = get_player_pr_for_season(season_id)
+
+    if df.empty:
+        st.info("No PR data found for this Season.")
+        return
+
+    # ----- Total Matches + Average PR -----
+    summary = (
+        df.groupby(["PlayerID", "PlayerName"])
+          .agg(
+              Matches=("PlayerPR", "count"),
+              AveragePR=("PlayerPR", "mean")
+          )
+          .round(2)
+          .reset_index()
+    )
+
+    # ----- Per-Series PR averages -----
+    pivot = (
+        df.pivot_table(
+            index=["PlayerID", "PlayerName"],
+            columns="SeriesTitle",
+            values="PlayerPR",
+            aggfunc="mean"
+        )
+        .round(2)
+        .reset_index()
+    )
+
+    # ----- Merge totals + per-Series PR columns -----
+    standings = summary.merge(pivot, on=["PlayerID", "PlayerName"], how="left")
+
+    # Sort lowest PR first (best)
+    standings = standings.sort_values("AveragePR").reset_index(drop=True)
+
+    # Output
+    st.dataframe(standings, hide_index=True, width="stretch")
+
 def get_average_pr_by_league_and_series():
     conn = create_connection()
     cursor = conn.cursor()
