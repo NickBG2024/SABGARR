@@ -373,11 +373,11 @@ st.sidebar.title("SABGA RR LEAGUE DATA:")
 # Add page navigation
 view_option = st.sidebar.radio(
     "Select what to view:",
-    ["League Standings", "Player Statistics", "Series Statistics", "Season (year) Statistics", "Trophies & Awards"],
+    ["League Standings 📅", "Player Statistics 👤", "Series Statistics 📊", "Season (year) Statistics", "Trophies & Awards 🏆"],
     index=0
 )
 
-if view_option == "League Standings":
+if view_option == "League Standings 📅":
     st.sidebar.markdown("Select the Series to display:")
     series_choice = st.sidebar.radio(
         "Select a series:",
@@ -387,10 +387,10 @@ if view_option == "League Standings":
     # Call your Series Stats logic here
     show_series_stats_page(series_choice)   # replace with your actual function
 
-elif view_option == "Player Statistics":
+elif view_option == "Player Statistics 👤":
     show_player_summary_tab()
 
-elif view_option == "Series Statistics":
+elif view_option == "Series Statistics 📊":
     st.sidebar.markdown("Select the Series to analyze:")
     series_choice = st.sidebar.radio(
         "Select a series:",
@@ -419,6 +419,6 @@ elif view_option == "Season (year) Statistics":
     # Call the function with the calculated season_id
     show_player_of_the_year(season_id)
     # show_season_statistics_page(season_choice)        
-elif view_option == "Trophies & Awards":
+elif view_option == "Trophies & Awards 🏆":
     show_trophies_awards_page()     # replace with your actual function
     st.stop()
