@@ -38,6 +38,75 @@ def safe_float(value):
     except (ValueError, TypeError):
         return "-"
 
+def get_player_pr_for_season(season_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            WITH PlayerPR AS (
+                -- Player1 rows
+                SELECT 
+                    mr.MatchResultID,
+                    mr.MatchTypeID,
+                    smt.SeriesID,
+                    s.SeriesTitle,
+                    ss.SeasonID,
+                    mr.Player1ID AS PlayerID,
+                    mr.Player1PR AS PlayerPR
+                FROM MatchResults mr
+                JOIN SeriesMatchTypes smt ON smt.MatchTypeID = mr.MatchTypeID
+                JOIN SeasonSeries ss ON ss.SeriesID = smt.SeriesID
+                JOIN Series s ON s.SeriesID = smt.SeriesID
+                WHERE mr.Player1PR IS NOT NULL
+
+                UNION ALL
+
+                -- Player2 rows
+                SELECT 
+                    mr.MatchResultID,
+                    mr.MatchTypeID,
+                    smt.SeriesID,
+                    s.SeriesTitle,
+                    ss.SeasonID,
+                    mr.Player2ID AS PlayerID,
+                    mr.Player2PR AS PlayerPR
+                FROM MatchResults mr
+                JOIN SeriesMatchTypes smt ON smt.MatchTypeID = mr.MatchTypeID
+                JOIN SeasonSeries ss ON ss.SeriesID = smt.SeriesID
+                JOIN Series s ON s.SeriesID = smt.SeriesID
+                WHERE mr.Player2PR IS NOT NULL
+            )
+
+            SELECT
+                p.PlayerID,
+                p.Name AS PlayerName,
+                pp.SeriesID,
+                pp.SeriesTitle,
+                pp.PlayerPR,
+                pp.SeasonID
+            FROM PlayerPR pp
+            JOIN Players p ON p.PlayerID = pp.PlayerID
+            WHERE pp.SeasonID = %s
+            ORDER BY p.Name, pp.SeriesID;
+        """, (season_id,))
+
+        rows = cursor.fetchall()
+        df = pd.DataFrame(rows, columns=[
+            "PlayerID", "PlayerName", 
+            "SeriesID", "SeriesTitle", 
+            "PlayerPR", "SeasonID"
+        ])
+        return df
+
+    except Exception as e:
+        print("Error fetching Player PR for Season:", e)
+        return pd.DataFrame()
+
+    finally:
+        cursor.close()
+        conn.close()
+
 def get_average_pr_by_league_and_series():
     conn = create_connection()
     cursor = conn.cursor()
