@@ -15,7 +15,7 @@ if os.path.exists("secrets.toml"):
     shutil.copy("secrets.toml", ".streamlit/secrets.toml")
     
 # Add a header image at the top of the page
-st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", use_container_width=True)  # The image will resize to the width of the page
+st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", `width='content')  # The image will resize to the width of the page
 
 # Add an icon image to sidebar
 # Add an icon image to sidebar
