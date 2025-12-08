@@ -32,11 +32,12 @@ st.sidebar.title("LEAGUE SERIES STATS:")
 # Add "View Player Statistics" as a navigation option
 view_option = st.sidebar.radio(
     "Select what to view:",
-    ["Series Stats", "Player Statistics"],
+    ["Series Statistics", "Player Statistics"],
+    #["Series Statistics", "Player Statistics","Series Statistics","Season (year) Statistics"], 
     index=0  # default to Series Stats
 )
 
-if view_option == "Series Stats":
+if view_option == "Series Statistics":
     st.sidebar.markdown("Select the Series to display:")
     series_choice = st.sidebar.radio(
         "Select a series:",
