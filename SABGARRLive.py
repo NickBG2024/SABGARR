@@ -32,7 +32,7 @@ st.sidebar.title("LEAGUE SERIES STATS:")
 # Add "View Player Statistics" as a navigation option
 view_option = st.sidebar.radio(
     "Select what to view:",
-    ["Series Statistics", "Player Statistics"],
+    ["Series Statistics", "Player Statistics","Season (year) Stats"],
     #["Series Statistics", "Player Statistics","Series Statistics","Season (year) Statistics"], 
     index=0  # default to Series Stats
 )
