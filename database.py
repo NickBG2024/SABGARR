@@ -113,7 +113,7 @@ def show_player_of_the_year(season_id):
     df = get_player_pr_for_season(season_id)
 
     if df.empty:
-        st.info("No PR data found for this Season.")
+        st.info("No PR data found for the selected Season.")
         return
 
     # ----- Total Matches + Average PR -----
