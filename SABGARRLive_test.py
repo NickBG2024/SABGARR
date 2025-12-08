@@ -401,13 +401,24 @@ elif view_option == "Series Statistics":
 
 elif view_option == "Season (year) Statistics":
     st.sidebar.markdown("Select the Season to analyze:")
+    
+    # Radio button for season selection
     season_choice = st.sidebar.radio(
         "Select a season:",
-        ["2026","2025"],
+        ["2026", "2025"],
         index=1
     )
-    show_season_statistics_page(season_choice)
-        
+
+    # Map the selected season year to season_id
+    season_mapping = {
+        "2026": 2,
+        "2025": 1
+    }
+    season_id = season_mapping[season_choice]
+
+    # Call the function with the calculated season_id
+    show_player_of_the_year(season_id)
+    # show_season_statistics_page(season_choice)        
 elif view_option == "Trophies & Awards":
     show_trophies_awards_page()     # replace with your actual function
     st.stop()
