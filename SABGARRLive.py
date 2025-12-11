@@ -27,51 +27,6 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
-st.sidebar.title("ROUND ROBIN DATA:")
-
-# Add "View Player Statistics" as a navigation option
-view_option = st.sidebar.radio(
-    "Select what to view:",
-    ["Series Statistics 📊", "Player Statistics 👤","Season (year) Stats 📅"],
-    #["Series Statistics", "Player Statistics","Series Statistics","Season (year) Statistics "], 
-    index=0  # default to Series Stats
-)
-
-if view_option == "Series Statistics 📊":
-    st.sidebar.markdown("Select the Series to display:")
-    series_choice = st.sidebar.radio(
-        "Select a series:",
-        ["2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
-        index=0 
-    )
-    show_series_stats_page(series_choice)
-    
-elif view_option == "Player Statistics 👤":
-    # Call your player summary tab directly
-    show_player_summary_tab()
-    st.stop()
-
-elif view_option == "Season (year) Statistics 📅":
-    st.sidebar.markdown("Select the Season to analyze:")
-    
-    # Radio button for season selection
-    season_choice = st.sidebar.radio(
-        "Select a season:",
-        ["2026", "2025"],
-        index=1
-    )
-
-    # Map the selected season year to season_id
-    season_mapping = {
-        "2026": 2,
-        "2025": 1
-    }
-    season_id = season_mapping[season_choice]
-
-    # Call the function with the calculated season_id
-    show_player_of_the_year(season_id)
-
-
 def league_tab(matchtype_id,league_title):
     #st.write(f"Loading {league_title} data...") 
     with st.spinner(f"Loading {league_title} data..."):
@@ -408,4 +363,47 @@ def show_series_stats_page(series_choice):
         #list_remaining_fixtures_by_series(series_id)
         #show_matches_completed_by_series(series_id)
 
+st.sidebar.title("ROUND ROBIN DATA:")
 
+# Add "View Player Statistics" as a navigation option
+view_option = st.sidebar.radio(
+    "Select what to view:",
+    ["Series Statistics 📊", "Player Statistics 👤","Season (year) Stats 📅"],
+    #["Series Statistics", "Player Statistics","Series Statistics","Season (year) Statistics "], 
+    index=0  # default to Series Stats
+)
+
+if view_option == "Series Statistics 📊":
+    st.sidebar.markdown("Select the Series to display:")
+    series_choice = st.sidebar.radio(
+        "Select a series:",
+        ["2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
+        index=0 
+    )
+    show_series_stats_page(series_choice)
+    
+elif view_option == "Player Statistics 👤":
+    # Call your player summary tab directly
+    show_player_summary_tab()
+    st.stop()
+
+elif view_option == "Season (year) Statistics 📅":
+    st.sidebar.markdown("Select the Season to analyze:")
+    
+    # Radio button for season selection
+    season_choice = st.sidebar.radio(
+        "Select a season:",
+        ["2026", "2025"],
+        index=1
+    )
+
+    # Map the selected season year to season_id
+    season_mapping = {
+        "2026": 2,
+        "2025": 1
+    }
+    season_id = season_mapping[season_choice]
+
+    # Call the function with the calculated season_id
+    show_player_of_the_year(season_id)
+    st.stop()
