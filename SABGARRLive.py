@@ -27,6 +27,8 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
+days_left = 0;
+
 def league_tab(matchtype_id,league_title):
     #st.write(f"Loading {league_title} data...") 
     with st.spinner(f"Loading {league_title} data..."):
