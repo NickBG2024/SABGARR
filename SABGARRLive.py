@@ -373,12 +373,12 @@ st.sidebar.title("ROUND ROBIN DATA:")
 # Add "View Player Statistics" as a navigation option
 view_option = st.sidebar.radio(
     "Select what to view:",
-    ["Series Statistics 📊", "Player Statistics 👤","Season (year) Stats 📅"],
+    ["League Standings 📊", "Player Stats 👤","Season (year) Stats 📅"],
     #["Series Statistics", "Player Statistics","Series Statistics","Season (year) Statistics "], 
     index=0  # default to Series Stats
 )
 
-if view_option == "Series Statistics 📊":
+if view_option == "League Standings 📊":
     st.sidebar.markdown("Select the Series to display:")
     series_choice = st.sidebar.radio(
         "Select a series:",
@@ -387,7 +387,7 @@ if view_option == "Series Statistics 📊":
     )
     show_series_stats_page(series_choice)
     
-elif view_option == "Player Statistics 👤":
+elif view_option == "Player Stats 👤":
     # Call your player summary tab directly
     show_player_summary_tab()
     st.stop()
