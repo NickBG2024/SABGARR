@@ -14,8 +14,11 @@ if os.path.exists("secrets.toml"):
     os.makedirs(".streamlit", exist_ok=True)
     shutil.copy("secrets.toml", ".streamlit/secrets.toml")
     
-# Add a header image at the top of the page
-st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg", width='stretch')  # The image will resize to the width of the page
+# Header image — use use_column_width or a pixel width
+st.image(
+    "https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.jpg",
+    use_column_width=True
+)
 
 # Add an icon image to sidebar
 # Add an icon image to sidebar
@@ -27,9 +30,9 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
-days_left = 0;
+days_left = 0
 
-def league_tab(matchtype_id,league_title):
+def league_tab(matchtype_id,league_title,days_left):
     #st.write(f"Loading {league_title} data...") 
     with st.spinner(f"Loading {league_title} data..."):
         league_matches_played = get_matchcount_by_matchtype(matchtype_id)
@@ -128,7 +131,7 @@ def show_series_stats_page(series_choice):
         # League tabs - dynamically call league_tab() with appropriate matchtype_id
         for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
             with tabs[i]:
-                league_tab(matchtype_ids[league_name], league_name)    
+                league_tab(matchtype_ids[league_name], league_name, days_left)    
     
     #2025 - SERIES 3 LEAGUE DATA DISPLAY       
     if series_choice == "2025 - Series 3":
@@ -267,7 +270,7 @@ def show_series_stats_page(series_choice):
         # League tabs - dynamically call league_tab() with appropriate matchtype_id
         for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
             with tabs[i]:
-                league_tab(matchtype_ids[league_name], league_name)    
+                league_tab(matchtype_ids[league_name], league_name, days_left)    
     
     #2025 - SERIES 1 LEAGUE DATA DISPLAY        
     elif series_choice == "2025 - Series 1":
@@ -334,7 +337,7 @@ def show_series_stats_page(series_choice):
         # League tabs - dynamically call league_tab() with appropriate matchtype_id
         for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
             with tabs[i]:
-                league_tab(matchtype_ids[league_name], league_name)    
+                league_tab(matchtype_ids[league_name], league_name, days_left)    
     
     #SORTING LEAGUE DATA DISPLAY
     elif series_choice == "2024 - Sorting League":
@@ -389,7 +392,7 @@ elif view_option == "Player Statistics 👤":
     show_player_summary_tab()
     st.stop()
 
-elif view_option == "Season (year) Statistics 📅":
+elif view_option == "Season (year) Stats 📅":
     st.sidebar.markdown("Select the Season to analyze:")
     
     # Radio button for season selection
