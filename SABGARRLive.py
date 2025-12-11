@@ -202,7 +202,7 @@ def show_series_stats_page(series_choice):
         # League tabs - dynamically call league_tab() with appropriate matchtype_id
         for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
             with tabs[i]:
-                league_tab(matchtype_ids[league_name], league_name)    
+                league_tab(matchtype_ids[league_name], league_name,days_left)    
     
     
     #2025 - SERIES 2 LEAGUE DATA DISPLAY        
