@@ -127,14 +127,14 @@ if 'form_updated' in st.session_state and st.session_state['form_updated']:
     del st.session_state['form_updated']
     st.rerun()
 
-current_series_id = 8
-non_league_id = 38  # 2025NonLeague
+current_series_id = 10
+non_league_id = 65  # 2025NonLeague
 matches_played = get_matchcount_by_series(current_series_id)
 total_fixtures = get_fixturescount_by_series(current_series_id)
 percentage = (matches_played / total_fixtures) * 100
 metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
 
-st.sidebar.header("Current series: RR S4 2025 (id=8)")
+st.sidebar.header("Current series: RR S1 2026 (id=10)")
 #st.sidebar.metric("Series data - players","80","1")
 st.sidebar.metric("Series data - matches",metric_value, "6")
 st.sidebar.subheader("Admin-Functions: Main")
