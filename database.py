@@ -671,7 +671,6 @@ def show_player_summary_tab():
                    SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1PR < mr.Player2PR) OR
                                 (mr.Player2ID = %s AND mr.Player2PR < mr.Player1PR) THEN 1 ELSE 0 END) AS PRWins
             FROM MatchResults mr
-            JOIN Fixtures f ON mr.FixtureID = f.FixtureID
             JOIN MatchType mt ON f.MatchTypeID = mt.MatchTypeID
             WHERE mr.Player1ID = %s OR mr.Player2ID = %s
             GROUP BY mt.MatchTypeTitle
