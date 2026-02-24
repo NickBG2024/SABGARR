@@ -4070,17 +4070,17 @@ def display_cached_matchtype_standings(match_type_id):
 
             formatted.append([
                 name_nickname, played, points, points_pct, wins,
-                pr_wins, h2h_score, losses, win_pct, avg_pr, avg_luck
+                pr_wins, h2h_score, avg_pr, losses, win_pct, avg_luck
             ])
 
         df = pd.DataFrame(formatted, columns=[
             "Name (Nickname)", "Played", "Points", "Points%", "Wins",
-            "PR Wins", "H2H Score", "Losses", "Win%", "Avg PR", "Avg Luck"
+            "PR Wins", "H2H Score", "Avg PR", "Losses", "Win%", "Avg Luck"
         ])
 
         numeric_cols = [
             "Played", "Points", "Points%", "Wins", "PR Wins",
-            "H2H Score", "Losses", "Win%", "Avg PR", "Avg Luck"
+            "H2H Score", "Avg PR", "Losses", "Win%", "Avg Luck"
         ]
         df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
 
