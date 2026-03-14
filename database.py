@@ -660,7 +660,7 @@ def show_player_summary_tab():
 
         # 5️⃣ Per MatchType Summary Table
         cursor.execute("""
-            SELECT mt.MatchTypeTitle,
+            SELECT mt.StartDate, mt.MatchTypeTitle, 
                    COUNT(mr.MatchResultID) AS Games,
                    SUM(CASE WHEN (mr.Player1ID = %s AND mr.Player1Points > mr.Player2Points) OR
                                 (mr.Player2ID = %s AND mr.Player2Points > mr.Player1Points) THEN 1 ELSE 0 END) AS Wins,
@@ -674,12 +674,12 @@ def show_player_summary_tab():
             JOIN MatchType mt ON mr.MatchTypeID = mt.MatchTypeID
             WHERE mr.Player1ID = %s OR mr.Player2ID = %s
             GROUP BY mt.MatchTypeTitle
-            ORDER BY Games DESC
+            ORDER BY mt.StartDate DESC 
         """, (player_id,) * 12)
         per_mt = cursor.fetchall()
         if per_mt:
             per_mt_df = pd.DataFrame(per_mt, columns=[
-                "MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins"
+                "StartDate", "MatchType", "Games", "Wins", "Losses", "Avg PR", "Avg Luck", "PR Wins" 
             ])
             per_mt_df["Win %"] = per_mt_df.apply(
                 lambda row: f"{(row['Wins'] / row['Games'] * 100):.2f}%" if row["Games"] > 0 else "0.00%",
