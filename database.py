@@ -758,7 +758,7 @@ def show_player_summary_tab():
                 "Date", "Match Type", "Result", "Opponent", "Score", "PR", "Luck"
             ])
             # Ensure correct dtypes
-            matches_df["Date"] = pd.to_datetime(matches_df["Date"])
+            matches_df["Date"] = pd.to_datetime(matches_df["Date"]).dt.date
             matches_df["PR"] = pd.to_numeric(matches_df["PR"], errors="coerce").round(2)
             matches_df["Luck"] = pd.to_numeric(matches_df["Luck"], errors="coerce").round(2)
         
