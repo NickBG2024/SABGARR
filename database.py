@@ -1801,7 +1801,7 @@ def refresh_matchtype_statsz(match_type_id):
         cursor.close()
         conn.close()
 
-def refresh_matchtype_statsz(match_type_id):
+def refresh_matchtype_stats(match_type_id):
     import datetime, sys
     from collections import defaultdict
     conn = create_connection()
