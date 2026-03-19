@@ -15,6 +15,7 @@ def log_debug(message):
         f.write(f"[{timestamp}] {message}\n")
 
 # Create a connection to the database
+@st.cache_resource
 def create_connection():
     try:
         conn = mysql.connector.connect(
@@ -6239,6 +6240,7 @@ def show_matches_completed(match_type_id):
     else:
         st.subheader("No completed matches found.")
 
+@st.cache_data(ttl=300)
 def get_match_results_for_grid(match_type_id):
     """
     Fetch match results for a given match type, using MatchResults.MatchTypeID
