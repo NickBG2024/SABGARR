@@ -17,56 +17,23 @@ def log_debug(message):
 # Global query counter
 query_count = 0
 
-class ReconnectingConnection:
-    """A connection wrapper that auto-reconnects and counts queries."""
-    def __init__(self):
-        self._conn = None
-        self._connect()
-
-    def _connect(self):
-        try:
-            self._conn = mysql.connector.connect(
-                host=st.secrets["database"]["host"],
-                user=st.secrets["database"]["user"],
-                password=st.secrets["database"]["password"],
-                database=st.secrets["database"]["database"]
-            )
-        except mysql.connector.Error as e:
-            st.error(f"Error connecting to MySQL: {e}")
-            self._conn = None
-
-    def cursor(self, *args, **kwargs):
-        global query_count
-        # Auto-reconnect if dead
-        if self._conn is None or not self._conn.is_connected():
-            self._connect()
-        if self._conn is None:
-            raise mysql.connector.Error("Cannot establish database connection")
-
-        cursor = self._conn.cursor(*args, **kwargs)
-        original_execute = cursor.execute
-
-        def execute_wrapper(query, params=None):
-            global query_count
-            query_count += 1
-            return original_execute(query, params or ())
-
-        cursor.execute = execute_wrapper
-        return cursor
-
-    def is_connected(self):
-        return self._conn is not None and self._conn.is_connected()
-
-    def close(self):
-        if self._conn:
-            self._conn.close()
-            self._conn = None
-
-
 @st.cache_resource
 def create_connection():
-    """Return the self-healing connection wrapper."""
-    return ReconnectingConnection()
+    """
+    Return a live MySQL connection.
+    Auto-reconnects on cursor creation via execute_query helper.
+    """
+    try:
+        conn = mysql.connector.connect(
+            host=st.secrets["database"]["host"],
+            user=st.secrets["database"]["user"],
+            password=st.secrets["database"]["password"],
+            database=st.secrets["database"]["database"]
+        )
+        return conn
+    except mysql.connector.Error as e:
+        st.error(f"Error connecting to MySQL: {e}")
+        return None
 
 def safe_float(value):
     """Convert Decimal or string to float safely and format to 2 decimal places."""
