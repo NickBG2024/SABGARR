@@ -14,6 +14,9 @@ def log_debug(message):
     with open("sabga_debug_log.txt", "a") as f:
         f.write(f"[{timestamp}] {message}\n")
 
+# Global query counter
+query_count = 0
+
 # Create a connection to the database
 @st.cache_resource
 def create_connection():
@@ -24,8 +27,33 @@ def create_connection():
             password=st.secrets["database"]["password"],
             database=st.secrets["database"]["database"]
         )
+
         if conn.is_connected():
+
+            # Store original cursor method
+            original_cursor = conn.cursor
+
+            # Wrap cursor() method
+            def cursor_wrapper(*args, **kwargs):
+                cursor = original_cursor(*args, **kwargs)
+
+                # Store original execute
+                original_execute = cursor.execute
+
+                # Wrap execute()
+                def execute_wrapper(query, params=None):
+                    global query_count
+                    query_count += 1
+                    return original_execute(query, params or ())
+
+                cursor.execute = execute_wrapper
+                return cursor
+
+            # Replace connection's cursor method
+            conn.cursor = cursor_wrapper
+
             return conn
+
     except mysql.connector.Error as e:
         st.error(f"Error connecting to the database: {e}")
         return None
