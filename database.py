@@ -17,9 +17,14 @@ def log_debug(message):
 # Global query counter
 query_count = 0
 
-# Create a connection to the database
+import mysql.connector
+import streamlit as st
+
+query_count = 0
+
 @st.cache_resource
 def create_connection():
+    global query_count
     try:
         conn = mysql.connector.connect(
             host=st.secrets["database"]["host"],
@@ -28,31 +33,30 @@ def create_connection():
             database=st.secrets["database"]["database"]
         )
 
-        if conn.is_connected():
+        # Ensure the connection is alive
+        if not conn.is_connected():
+            conn.reconnect(attempts=3, delay=2)
 
-            # Store original cursor method
-            original_cursor = conn.cursor
+        original_cursor = conn.cursor
 
-            # Wrap cursor() method
-            def cursor_wrapper(*args, **kwargs):
-                cursor = original_cursor(*args, **kwargs)
+        def cursor_wrapper(*args, **kwargs):
+            # Recheck connection on each cursor creation
+            if not conn.is_connected():
+                conn.reconnect(attempts=3, delay=2)
 
-                # Store original execute
-                original_execute = cursor.execute
+            cursor = original_cursor(*args, **kwargs)
+            original_execute = cursor.execute
 
-                # Wrap execute()
-                def execute_wrapper(query, params=None):
-                    global query_count
-                    query_count += 1
-                    return original_execute(query, params or ())
+            def execute_wrapper(query, params=None):
+                global query_count
+                query_count += 1
+                return original_execute(query, params or ())
 
-                cursor.execute = execute_wrapper
-                return cursor
+            cursor.execute = execute_wrapper
+            return cursor
 
-            # Replace connection's cursor method
-            conn.cursor = cursor_wrapper
-
-            return conn
+        conn.cursor = cursor_wrapper
+        return conn
 
     except mysql.connector.Error as e:
         st.error(f"Error connecting to the database: {e}")
