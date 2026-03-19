@@ -17,7 +17,6 @@ def log_debug(message):
 # Global query counter
 query_count = 0
 
-@st.cache_resource
 def create_connection():
     """
     Return a live MySQL connection.
