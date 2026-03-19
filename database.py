@@ -17,50 +17,56 @@ def log_debug(message):
 # Global query counter
 query_count = 0
 
-import mysql.connector
-import streamlit as st
+class ReconnectingConnection:
+    """A connection wrapper that auto-reconnects and counts queries."""
+    def __init__(self):
+        self._conn = None
+        self._connect()
 
-query_count = 0
+    def _connect(self):
+        try:
+            self._conn = mysql.connector.connect(
+                host=st.secrets["database"]["host"],
+                user=st.secrets["database"]["user"],
+                password=st.secrets["database"]["password"],
+                database=st.secrets["database"]["database"]
+            )
+        except mysql.connector.Error as e:
+            st.error(f"Error connecting to MySQL: {e}")
+            self._conn = None
+
+    def cursor(self, *args, **kwargs):
+        global query_count
+        # Auto-reconnect if dead
+        if self._conn is None or not self._conn.is_connected():
+            self._connect()
+        if self._conn is None:
+            raise mysql.connector.Error("Cannot establish database connection")
+
+        cursor = self._conn.cursor(*args, **kwargs)
+        original_execute = cursor.execute
+
+        def execute_wrapper(query, params=None):
+            global query_count
+            query_count += 1
+            return original_execute(query, params or ())
+
+        cursor.execute = execute_wrapper
+        return cursor
+
+    def is_connected(self):
+        return self._conn is not None and self._conn.is_connected()
+
+    def close(self):
+        if self._conn:
+            self._conn.close()
+            self._conn = None
+
 
 @st.cache_resource
 def create_connection():
-    global query_count
-    try:
-        conn = mysql.connector.connect(
-            host=st.secrets["database"]["host"],
-            user=st.secrets["database"]["user"],
-            password=st.secrets["database"]["password"],
-            database=st.secrets["database"]["database"]
-        )
-
-        # Ensure the connection is alive
-        if not conn.is_connected():
-            conn.reconnect(attempts=3, delay=2)
-
-        original_cursor = conn.cursor
-
-        def cursor_wrapper(*args, **kwargs):
-            # Recheck connection on each cursor creation
-            if not conn.is_connected():
-                conn.reconnect(attempts=3, delay=2)
-
-            cursor = original_cursor(*args, **kwargs)
-            original_execute = cursor.execute
-
-            def execute_wrapper(query, params=None):
-                global query_count
-                query_count += 1
-                return original_execute(query, params or ())
-
-            cursor.execute = execute_wrapper
-            return cursor
-
-        conn.cursor = cursor_wrapper
-        return conn
-
-    except mysql.connector.Error as e:
-        st.error(f"Error connecting to the database: {e}")
-        return None
+    """Return the self-healing connection wrapper."""
+    return ReconnectingConnection()
 
 def safe_float(value):
     """Convert Decimal or string to float safely and format to 2 decimal places."""
