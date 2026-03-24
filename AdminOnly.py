@@ -49,7 +49,7 @@ st.image("https://www.sabga.co.za/wp-content/uploads/2020/06/cropped-coverphoto.
 st.title("SABGA Backgammon: Admin page")
 st.write("Welcome to the admin page of South African Backgammon Round Robin! This page is for admins to manage the SABGA National Round Robin.")
 
-if st.button("🔄 Run H2H Debug Test"):
+if st.button("🔄 Run B-League S1 2026 H2H Debug Test"):
     refresh_matchtype_stats(57)  #Currently B-League S1 2026 - replace 57 with your MatchTypeID
     
 # Add an icon image to sidebar
