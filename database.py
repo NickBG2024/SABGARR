@@ -1806,10 +1806,17 @@ def refresh_matchtype_statsz(match_type_id):
         cursor.close()
         conn.close()
 
-def refresh_matchtype_stats(match_type_id):
+def refresh_matchtype_stats(match_type_id,conn = None):
     import datetime, sys
     from collections import defaultdict
-    conn = create_connection()
+
+    # ✅ Detect whether we were given a connection
+    close_conn = False
+
+    if conn is None:
+        conn = create_connection()
+        close_conn = True
+
     cursor = conn.cursor()
 
     try:
@@ -1998,7 +2005,10 @@ def refresh_matchtype_stats(match_type_id):
 
     finally:
         cursor.close()
-        conn.close()
+        
+        # ✅ Only close if we created it
+        if close_conn:
+            conn.close()
 
 def refresh_matchtype_stats0210(match_type_id):
     import datetime, sys
