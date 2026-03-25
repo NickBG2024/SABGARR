@@ -32,6 +32,47 @@ st.sidebar.markdown(
 
 days_left = 0
 
+def league_section(matchtype_id, league_title, days_left):
+    with st.expander(f"🏆 {league_title}", expanded=False):
+
+        if not st.checkbox(f"Load {league_title} data", key=f"load_{matchtype_id}"):
+            st.info("Click to load league data")
+            return
+
+        with st.spinner(f"Loading {league_title}..."):
+
+            league_matches_played = get_matchcount_by_matchtype(matchtype_id)
+            league_fixtures = get_fixturescount_by_matchtype(matchtype_id)
+            ave_pr = get_averagePR_by_matchtype(matchtype_id)
+
+            if league_fixtures != 0:
+                percentage = (league_matches_played / league_fixtures) * 100
+                metric_value = f"{league_matches_played}/{league_fixtures}"
+                games_left = league_fixtures - league_matches_played
+            else:
+                percentage = 0
+                metric_value = f"{league_matches_played}/{league_fixtures}"
+                games_left = 0
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric(f"{league_title} Progress", metric_value, f"{percentage:.1f}%")
+            col2.metric("Games remaining:", games_left)
+            col3.metric("Days left:", days_left)
+            col4.metric("Average PR:", ave_pr)
+
+        # 🔽 granular loading inside league
+        if st.checkbox("Standings", key=f"standings_{matchtype_id}"):
+            display_cached_matchtype_standings(matchtype_id)
+
+        if st.checkbox("Match Grid", key=f"grid_{matchtype_id}"):
+            display_match_grid(matchtype_id)
+
+        if st.checkbox("Remaining Fixtures", key=f"fixtures_{matchtype_id}"):
+            list_cached_remaining_fixtures(matchtype_id)
+
+        if st.checkbox("Completed Matches", key=f"completed_{matchtype_id}"):
+            show_cached_matches_completed(matchtype_id)
+            
 def league_tab(matchtype_id,league_title,days_left):
     #st.write(f"Loading {league_title} data...") 
     with st.spinner(f"Loading {league_title} data..."):
@@ -113,27 +154,25 @@ def show_series_stats_page(series_choice):
             "Guppy Group Red": 64
         }
         
-        # Create tabs
-        tabs = st.tabs(tab_names)
-        
-        # Overview tab
-        with tabs[0]:
-            st.header("Overview")
-            pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/12/SABGA-Online-Backgammon-Round-Robin-Leagues-2026-rules-etc-v1.pdf"
-            st.markdown("**The 2026 Round Robin leagues kick off with Series 1, taking place 11 January 2026 - 2 April 2026, with 85 players competing in nine league groups (A-F and 3 Guppy Groups). The top five leagues play matches to 11 points. The next two leagues, E and F, play to 9 points. There are also three 'Guppy' groups for new players.**")
-            st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2026 - rules etc v1.1.pdf]({pdf_url})", unsafe_allow_html=True)
-            st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
-            
-            fetch_cached_series_standings(current_series_id)
-            #get_series_completed_matches_detailed(current_series_id)
-            smccc(current_series_id)
-            show_cached_remaining_fixtures_by_series(current_series_id)
-    
-    
-        # League tabs - dynamically call league_tab() with appropriate matchtype_id
-        for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
-            with tabs[i]:
-                league_tab(matchtype_ids[league_name], league_name, days_left)    
+        # ===== OVERVIEW (loads immediately) =====
+st.header("Overview")
+
+with st.expander("📊 Overview Data", expanded=True):
+
+    fetch_cached_series_standings(current_series_id)
+
+    if st.checkbox("Recent Results", key="overview_results"):
+        smccc(current_series_id)
+
+    if st.checkbox("Remaining Fixtures (Series)", key="overview_fixtures"):
+        show_cached_remaining_fixtures_by_series(current_series_id)
+
+
+# ===== LEAGUES (lazy loaded) =====
+st.header("Leagues")
+
+for league_name, matchtype_id in matchtype_ids.items():
+    league_section(matchtype_id, league_name, days_left)
 
     
     #2025 - SERIES 4 LEAGUE DATA DISPLAY       
