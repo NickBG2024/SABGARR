@@ -31,6 +31,7 @@ st.sidebar.markdown(
 )
 
 days_left = 0
+current_series_id = 10
 
 def league_section(matchtype_id, league_title, days_left):
     with st.expander(f"🏆 {league_title}", expanded=False):
