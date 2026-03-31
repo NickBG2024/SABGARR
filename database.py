@@ -122,7 +122,7 @@ def show_player_of_the_year(season_id):
 
     # ----- Total Matches + Average PR -----
     summary = (
-        df.groupby(["PlayerID", "PlayerName"])
+        df.groupby(["PlayerName"])
           .agg(
               Matches=("PlayerPR", "count"),
               AveragePR=("PlayerPR", "mean")
@@ -134,7 +134,7 @@ def show_player_of_the_year(season_id):
     # ----- Per-Series PR averages -----
     pivot = (
         df.pivot_table(
-            index=["PlayerID", "PlayerName"],
+            index=["PlayerName"],
             columns="SeriesTitle",
             values="PlayerPR",
             aggfunc="mean"
@@ -144,7 +144,7 @@ def show_player_of_the_year(season_id):
     )
 
     # ----- Merge totals + per-Series PR columns -----
-    standings = summary.merge(pivot, on=["PlayerID", "PlayerName"], how="left")
+    standings = summary.merge(pivot, on=["PlayerName"], how="left")
 
     # Sort lowest PR first (best)
     standings = standings.sort_values("AveragePR").reset_index(drop=True)
