@@ -129,7 +129,7 @@ def render_series_header(series_name, config):
 
     if total_fixtures:
         percentage = (matches_played / total_fixtures) * 100
-        metric_value = f"{matches_played}/{total_fixtures}"
+        metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
     else:
         percentage = 0
         metric_value = "0/0"
@@ -140,9 +140,13 @@ def render_series_header(series_name, config):
     col1, col2 = st.columns(2)
 
     col1.title("Round Robin Leagues!")
-    col2.metric("Progress", metric_value, f"{percentage:.1f}%")
-    col2.write(f"Days remaining: {days_left}")
+    col2.metric("Series Progress", metric_value, f"{percentage:.1f}%")
 
+    if "end_date" in config:
+        end_date_str = config["end_date"].strftime("%d %B %Y")
+        col2.write(f"Deadline: {end_date_str} (Days remaining: {days_left})")
+    else:
+        col2.write(f"Days remaining: {days_left}")
     return days_left
 
 
