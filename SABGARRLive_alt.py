@@ -143,10 +143,17 @@ def render_series_header(series_name, config):
     col2.metric("Series Progress", metric_value,match_count_yesterday)
 
     if "end_date" in config:
-        end_date_str = config["end_date"].strftime("%d %B %Y")
-        col2.write(f"Deadline: {end_date_str} (Days remaining: {days_left})")
+        end_date = config["end_date"]
+        end_date_str = end_date.strftime("%d %B %Y")
+    
+        if days_left > 0:
+            col2.write(f"Deadline: {end_date_str} (Days remaining: {days_left})")
+        elif days_left == 0:
+            col2.write(f"Deadline: {end_date_str} (Ends today)")
+        else:
+            col2.write(f"Deadline: {end_date_str} (Series complete)")
     else:
-        col2.write(f"Days remaining: {days_left}")
+        col2.write("No deadline set")
     return days_left
 
 
