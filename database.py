@@ -84,7 +84,6 @@ def get_player_pr_for_season(season_id):
             )
 
             SELECT
-                p.PlayerID,
                 p.Name AS PlayerName,
                 pp.SeriesID,
                 pp.SeriesTitle,
@@ -98,7 +97,7 @@ def get_player_pr_for_season(season_id):
 
         rows = cursor.fetchall()
         df = pd.DataFrame(rows, columns=[
-            "PlayerID", "PlayerName", 
+            "PlayerName", 
             "SeriesID", "SeriesTitle", 
             "PlayerPR", "SeasonID"
         ])
