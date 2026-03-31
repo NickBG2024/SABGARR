@@ -140,7 +140,7 @@ def render_series_header(series_name, config):
     col1, col2 = st.columns(2)
 
     col1.title("Round Robin Leagues!")
-    col2.metric("Series Progress", metric_value, f"{percentage:.1f}%")
+    col2.metric("Series Progress", metric_value,match_count_yesterday)
 
     if "end_date" in config:
         end_date_str = config["end_date"].strftime("%d %B %Y")
