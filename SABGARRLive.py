@@ -63,6 +63,79 @@ def league_tab(matchtype_id,league_title,days_left):
 
 def show_series_stats_page(series_choice):    
 
+    #2026 - SERIES 2 LEAGUE DATA DISPLAY       
+    if series_choice == "2026 - Series 2":
+        st.write("Loading data for the 2026 - S2 series...")
+    
+        #Initialisation variables:
+        current_series_id = 11
+        matches_played = get_matchcount_by_series(current_series_id)
+        total_fixtures = get_fixturescount_by_series(current_series_id)
+        # Get today and yesterday's date
+        today = date.today()
+        yesterday = today - timedelta(days=1)
+        # Fetch match count for yesterday
+        match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), current_series_id)
+        
+        # Calculate days left until end of series 2 (23 Jun, 2026)
+        #today = date.today()
+        end_date = date(2026, 6, 23)
+        days_left = (end_date - today).days
+        
+        if total_fixtures !=0:
+            percentage = (matches_played / total_fixtures) * 100
+            metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+        else:
+            percentage = 0
+            metric_value = f"{matches_played}/{total_fixtures} ({percentage:.1f}%)"
+        
+        # Public-facing app for RR Leagues
+        st.title("SABGA Backgammon presents...") 
+        col1, col2 = st.columns(2)
+        col1.title("Round Robin Leagues!")
+        col2.metric("Series 2 progress:",metric_value,match_count_yesterday)
+        col2.write("Deadline: 23 June 2026")
+        #standings = get_sorting_standings()
+    
+        # Define tab names
+        tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League","Guppy Group Yellow","Guppy Group Blue","Guppy Group Red","Guppy Group Green"]
+    
+        # Define corresponding matchtype IDs (adjust these based on your database)
+        matchtype_ids = {
+            "A-League": 66,
+            "B-League": 67,
+            "C-League": 68,
+            "D-League": 69,
+            "E-League": 70,
+            "F-League": 71,
+            "Guppy Group Yellow": 72,
+            "Guppy Group Blue": 73,
+            "Guppy Group Red": 74,
+            "Guppy Group Green": 75
+        }
+        
+        # Create tabs
+        tabs = st.tabs(tab_names)
+        
+        # Overview tab
+        with tabs[0]:
+            st.header("Overview")
+            pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/12/SABGA-Online-Backgammon-Round-Robin-Leagues-2026-rules-etc-v1.pdf"
+            st.markdown("**The 2026 Round Robin leagues kick off with Series 2, taking place 3 April 2026 - 23 June 2026, with 97 players competing in nine league groups (A-F and 4 Guppy Groups). The top five leagues play matches to 11 points. The next two leagues, E and F, play to 9 points. There are also three 'Guppy' groups for new players.**")
+            st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2026 - rules etc v1.1.pdf]({pdf_url})", unsafe_allow_html=True)
+            st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
+            
+            fetch_cached_series_standings(current_series_id)
+            #get_series_completed_matches_detailed(current_series_id)
+            smccc(current_series_id)
+            show_cached_remaining_fixtures_by_series(current_series_id)
+    
+    
+        # League tabs - dynamically call league_tab() with appropriate matchtype_id
+        for i, league_name in enumerate(tab_names[1:], start=1):  # Skip "OVERVIEW"
+            with tabs[i]:
+                league_tab(matchtype_ids[league_name], league_name, days_left)    
+
     #2026 - SERIES 1 LEAGUE DATA DISPLAY       
     if series_choice == "2026 - Series 1":
         st.write("Loading data for the 2026 - S1 series...")
@@ -457,8 +530,8 @@ if view_option == "League Standings 📊":
     st.sidebar.markdown("Select the Series to display:")
     series_choice = st.sidebar.radio(
         "Select a series:",
-        ["2026 - Series 1","2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
-        index=0 
+        ["2026 - Series 2","2026 - Series 1","2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
+        index=1 
     )
     show_series_stats_page(series_choice)
     
