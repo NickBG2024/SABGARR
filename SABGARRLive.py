@@ -531,7 +531,7 @@ if view_option == "League Standings 📊":
     series_choice = st.sidebar.radio(
         "Select a series:",
         ["2026 - Series 2","2026 - Series 1","2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
-        index=1 
+        index=0 
     )
     show_series_stats_page(series_choice)
     
