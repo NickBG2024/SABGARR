@@ -98,7 +98,7 @@ def show_series_stats_page(series_choice):
         #standings = get_sorting_standings()
     
         # Define tab names
-        tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League","Guppy Group Yellow","Guppy Group Blue","Guppy Group Red","Guppy Group Green"]
+        tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League","G-League","Guppy Group Yellow","Guppy Group Blue","Guppy Group Red"]
     
         # Define corresponding matchtype IDs (adjust these based on your database)
         matchtype_ids = {
@@ -108,10 +108,10 @@ def show_series_stats_page(series_choice):
             "D-League": 69,
             "E-League": 70,
             "F-League": 71,
+            "G-League": 76,
             "Guppy Group Yellow": 72,
             "Guppy Group Blue": 73,
-            "Guppy Group Red": 74,
-            "Guppy Group Green": 75
+            "Guppy Group Red": 74
         }
         
         # Create tabs
@@ -120,9 +120,9 @@ def show_series_stats_page(series_choice):
         # Overview tab
         with tabs[0]:
             st.header("Overview")
-            pdf_url = "https://www.sabga.co.za/wp-content/uploads/2025/12/SABGA-Online-Backgammon-Round-Robin-Leagues-2026-rules-etc-v1.pdf"
+            pdf_url = "https://www.sabga.co.za/wp-content/uploads/2026/03/SABGA-Round-Robin-Online-Leagues-2026-rules-etc-v6.1.pdf"
             st.markdown("**The 2026 Round Robin leagues kick off with Series 2, taking place 3 April 2026 - 23 June 2026, with 97 players competing in nine league groups (A-F and 4 Guppy Groups). The top five leagues play matches to 11 points. The next two leagues, E and F, play to 9 points. There are also three 'Guppy' groups for new players.**")
-            st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2026 - rules etc v1.1.pdf]({pdf_url})", unsafe_allow_html=True)
+            st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2026 - rules etc v6.1.pdf]({pdf_url})", unsafe_allow_html=True)
             st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
             
             fetch_cached_series_standings(current_series_id)
