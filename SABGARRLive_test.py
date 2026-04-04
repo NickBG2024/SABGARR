@@ -453,7 +453,7 @@ if view_option == "League Standings 📅":
     st.sidebar.markdown("Select the Series to display:")
     series_choice = st.sidebar.radio(
         "Select a series:",
-        ["2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
+        [2026 - Series 1","2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
         index=0
     )
     # Call your Series Stats logic here
@@ -466,7 +466,7 @@ elif view_option == "Series Statistics 📊":
     st.sidebar.markdown("Select the Series to analyze:")
     series_choice = st.sidebar.radio(
         "Select a series:",
-        ["2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
+        [2026 - Series 1","2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
         index=0
     )
     show_series_statistics_page(series_choice)
