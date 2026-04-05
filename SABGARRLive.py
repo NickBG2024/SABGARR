@@ -110,8 +110,8 @@ def show_series_stats_page(series_choice):
             "F-League": 71,
             "G-League": 76,
             "Guppy Group Yellow": 72,
-            "Guppy Group Blue": 73,
-            "Guppy Group Red": 74
+            "Guppy Group Red": 73,
+            "Guppy Group Blue": 74
         }
         
         # Create tabs
