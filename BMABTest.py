@@ -29,7 +29,7 @@ match_count_yesterday = get_matchcount_by_date_and_matchtype(yesterday.strftime(
 # Public-facing app for all users
 st.title("SABGA Backgammon presents...") 
 col1, col2 = st.columns(2)
-col1.title("DC's "BMAB Test" Live League 2026: S1!")
+col1.title("DC's '"BMAB Test'" Live League 2026: S1!")
 col2.metric("Progress...",metric_value, match_count_yesterday)
 #standings = get_sorting_standings()
 
