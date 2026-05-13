@@ -6,6 +6,8 @@ import streamlit as st
 import pandas as pd
 
 from database import (
+    get_remaining_fixtures_for_admin,
+    insert_match_result_admin,
     get_matchcount_by_date_and_matchtype,
     display_matchtype_standings_with_points,
     get_matchcount_by_matchtype,
@@ -158,4 +160,97 @@ if st.session_state.admin_logged_in:
 
     st.success("You are logged in as administrator.")
 
-    st.write("This is where we will add match result entry.")
+    st.subheader("Enter Match Result")
+
+remaining_fixtures = get_remaining_fixtures_for_admin(match_type_id)
+
+if not remaining_fixtures:
+
+    st.success("All fixtures completed.")
+
+else:
+
+    fixture_options = {}
+
+    for fixture in remaining_fixtures:
+
+        label = (
+            f"{fixture['Player1Name']} "
+            f"vs "
+            f"{fixture['Player2Name']}"
+        )
+
+        fixture_options[label] = fixture
+
+    selected_label = st.selectbox(
+        "Select Fixture",
+        list(fixture_options.keys())
+    )
+
+    selected_fixture = fixture_options[selected_label]
+
+    st.markdown("---")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        player1_points = st.number_input(
+            f"{selected_fixture['Player1Name']} Points",
+            min_value=0,
+            max_value=25,
+            value=0
+        )
+
+        player1_pr = st.number_input(
+            f"{selected_fixture['Player1Name']} PR",
+            min_value=0.0,
+            max_value=50.0,
+            value=0.0,
+            step=0.1
+        )
+
+    with col2:
+
+        player2_points = st.number_input(
+            f"{selected_fixture['Player2Name']} Points",
+            min_value=0,
+            max_value=25,
+            value=0
+        )
+
+        player2_pr = st.number_input(
+            f"{selected_fixture['Player2Name']} PR",
+            min_value=0.0,
+            max_value=50.0,
+            value=0.0,
+            step=0.1
+        )
+
+    if st.button("Submit Result"):
+
+        if player1_points == player2_points:
+
+            st.error("Scores cannot be equal.")
+
+        else:
+
+            success, message = insert_match_result_admin(
+                fixture_id=selected_fixture["FixtureID"],
+                match_type_id=match_type_id,
+                player1_id=selected_fixture["Player1ID"],
+                player2_id=selected_fixture["Player2ID"],
+                player1_points=player1_points,
+                player2_points=player2_points,
+                player1_pr=player1_pr,
+                player2_pr=player2_pr
+            )
+
+            if success:
+
+                st.success(message)
+                st.rerun()
+
+            else:
+
+                st.error(message)
