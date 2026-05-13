@@ -111,6 +111,128 @@ def get_player_pr_for_season(season_id):
         cursor.close()
         conn.close()
 
+def get_remaining_fixtures_for_admin(match_type_id):
+
+    conn = create_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT
+            f.FixtureID,
+            f.Player1ID,
+            f.Player2ID,
+            p1.Nickname AS Player1Name,
+            p2.Nickname AS Player2Name
+        FROM Fixtures f
+        LEFT JOIN Players p1 ON f.Player1ID = p1.PlayerID
+        LEFT JOIN Players p2 ON f.Player2ID = p2.PlayerID
+        WHERE f.MatchTypeID = %s
+        AND f.Completed = 0
+        ORDER BY p1.Nickname, p2.Nickname
+    """
+
+    cursor.execute(query, (match_type_id,))
+    fixtures = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return fixtures
+
+
+def insert_match_result_admin(
+    fixture_id,
+    match_type_id,
+    player1_id,
+    player2_id,
+    player1_points,
+    player2_points,
+    player1_pr,
+    player2_pr
+):
+
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+
+        # Prevent duplicates
+        duplicate_query = """
+            SELECT MatchResultID
+            FROM MatchResults
+            WHERE FixtureID = %s
+        """
+
+        cursor.execute(duplicate_query, (fixture_id,))
+        existing = cursor.fetchone()
+
+        if existing:
+            return False, "Result already exists for this fixture."
+
+        # Insert result
+        insert_query = """
+            INSERT INTO MatchResults (
+                Date,
+                TimeCompleted,
+                MatchTypeID,
+                Player1ID,
+                Player2ID,
+                Player1Points,
+                Player2Points,
+                Player1PR,
+                Player2PR,
+                Player1Luck,
+                Player2Luck,
+                FixtureID
+            )
+            VALUES (
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s,
+                %s, %s, %s
+            )
+        """
+
+        today = datetime.now().date()
+        current_time = datetime.now().time()
+
+        cursor.execute(insert_query, (
+            today,
+            current_time,
+            match_type_id,
+            player1_id,
+            player2_id,
+            player1_points,
+            player2_points,
+            player1_pr,
+            player2_pr,
+            None,
+            None,
+            fixture_id
+        ))
+
+        # Mark fixture completed
+        update_query = """
+            UPDATE Fixtures
+            SET Completed = 1
+            WHERE FixtureID = %s
+        """
+
+        cursor.execute(update_query, (fixture_id,))
+
+        conn.commit()
+
+        return True, "Result successfully entered."
+
+    except Exception as e:
+
+        conn.rollback()
+        return False, str(e)
+
+    finally:
+
+        cursor.close()
+        conn.close()
+        
 def show_player_of_the_year(season_id):
     st.subheader("🏆 Player of the Year — PR Standings")
 
