@@ -54,7 +54,7 @@ from datetime import datetime, timedelta, timezone, date
 # ADMIN LOGIN CONFIG
 # =========================================================
 
-ADMIN_PASSWORD = "yourpasswordhere"
+ADMIN_PASSWORD = "admin!"
 
 if "admin_logged_in" not in st.session_state:
     st.session_state.admin_logged_in = False
