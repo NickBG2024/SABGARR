@@ -3703,7 +3703,7 @@ def fetch_cached_series_standings_with_League(series_id):
                 pr_wins = int(row[8] or 0)
                 avg_luck = float(row[9]) if row[9] is not None else None
                 points_pct = round((points / (games_played * 3)) * 100, 2) if games_played > 0 else 0.0     
-                current_league = int(row[10] or "")
+                current_league = row[10] or ""
 
                 formatted_stats.append([
                     name_nickname, current_league, games_played, points, points_pct, wins,
