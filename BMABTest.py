@@ -9,6 +9,7 @@ from database import (
     get_remaining_fixtures_for_admin,
     insert_match_result_admin,
     get_matchcount_by_date_and_matchtype,
+    display_matchtype_standings_with_points_live,
     display_matchtype_standings_with_points,
     get_matchcount_by_matchtype,
     get_fixturescount_by_matchtype,
@@ -141,7 +142,7 @@ with tab1:
     st.header("Player Standings - ordered by Points")
     st.write("R500 entry, eventual prize: Africa Open entry!")
 
-    display_matchtype_standings_with_points(match_type_id)
+    display_matchtype_standings_with_points_live(match_type_id)
 
 with tab2:
     display_match_grid(match_type_id)
