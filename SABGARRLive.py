@@ -517,7 +517,7 @@ def show_series_stats_page(series_choice):
         #show_matches_completed_by_series(series_id)
 
 st.sidebar.title("ROUND ROBIN DATA:")
-st.sidebar.write(f"Queries this run: {query_count}")
+#st.sidebar.write(f"Queries this run: {query_count}")
 
 # Add "View Player Statistics" as a navigation option
 view_option = st.sidebar.radio(
@@ -542,11 +542,11 @@ elif view_option == "Player Stats 👤":
     st.stop()
 
 elif view_option == "Season (year) Stats 📅":
-    st.sidebar.markdown("Select the Season to analyze:")
+    st.sidebar.markdown("Select a Season:")
     
     # Radio button for season selection
     season_choice = st.sidebar.radio(
-        "Select a season:",
+        "",
         ["2026", "2025"],
         index=0
     )
