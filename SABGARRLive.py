@@ -546,7 +546,7 @@ elif view_option == "Season (year) Stats 📅":
     
     # Radio button for season selection
     season_choice = st.sidebar.radio(
-        "Select a season:",
+        "Select a Season:",
         ["2026", "2025"],
         index=0
     )
