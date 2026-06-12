@@ -528,9 +528,9 @@ view_option = st.sidebar.radio(
 )
 
 if view_option == "League Standings 📊":
-    st.sidebar.markdown("Select the Series to display:")
+    #st.sidebar.markdown("Select the Series to display:")
     series_choice = st.sidebar.radio(
-        "Select a series:",
+        "Select a Series:",
         ["2026 - Series 2","2026 - Series 1","2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
         index=0 
     )
@@ -542,11 +542,11 @@ elif view_option == "Player Stats 👤":
     st.stop()
 
 elif view_option == "Season (year) Stats 📅":
-    st.sidebar.markdown("Select a Season:")
+    #st.sidebar.markdown("Select a Season:")
     
     # Radio button for season selection
     season_choice = st.sidebar.radio(
-        "",
+        "Select a season:",
         ["2026", "2025"],
         index=0
     )
