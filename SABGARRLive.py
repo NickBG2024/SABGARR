@@ -521,7 +521,7 @@ st.sidebar.title("ROUND ROBIN DATA:")
 
 # Add "View Player Statistics" as a navigation option
 view_option = st.sidebar.radio(
-    "Select what to view:",
+    "",
     ["League Standings 📊", "Player Stats 👤","Season (year) Stats 📅"],
     #["Series Statistics", "Player Statistics","Series Statistics","Season (year) Statistics "], 
     index=0  # default to Series Stats
