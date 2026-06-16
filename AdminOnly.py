@@ -30,7 +30,7 @@ from database import (
     add_match_type_to_series,
     remove_match_type_from_series,
     get_series,
-    get_series_s,
+    #get_series_s,
     update__status,
     update_series_title,
     update_match_type_in_series,
