@@ -30,8 +30,8 @@ from database import (
     add_match_type_to_series,
     remove_match_type_from_series,
     get_series,
-    get_series_match_types,
-    update_match_type_status,
+    get_series_s,
+    update__status,
     update_series_title,
     update_match_type_in_series,
     update_fixture,
@@ -424,6 +424,11 @@ if show_add_match_type_form:
             "Match Type Identifier",
             help="Enter a unique identifier for the match type. Example: 'league', 'friendly'."
         )
+        start_date = st.date_input(
+            "Start Date",
+            value=None,
+            help="Optional start date for this match type."
+        )
         active = st.checkbox("Active", value=True)
 
         # Validation and submission
@@ -437,7 +442,7 @@ if show_add_match_type_form:
                 st.error("Match Type Identifier should not contain spaces.")
             else:
                 # Add to database
-                add_match_type(match_type_title, match_type_identifier, active)
+                add_match_type(match_type_title, match_type_identifier, active,start_date)
                 st.success(f"Match Type '{match_type_title}' with identifier '{match_type_identifier}' added successfully!")
                 match_type_form_placeholder.empty()  # Clear form
                 st.session_state["key"] = None
