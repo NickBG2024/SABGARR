@@ -7249,14 +7249,14 @@ def add_player(name, nickname, email):
     conn.close()
 
 # Insert a new match type
-def add_match_type(match_type_title, match_type_identifier, active):
+def add_match_type(match_type_title, match_type_identifier, active, start_date):
     conn = create_connection()
     cursor = conn.cursor()
     
     cursor.execute('''
-        INSERT INTO MatchType (MatchTypeTitle, Identifier, Active)
-        VALUES (%s, %s, %s)
-    ''', (match_type_title, match_type_identifier, active))
+        INSERT INTO MatchType (MatchTypeTitle, Identifier, Active, StartDate)
+        VALUES (%s, %s, %s,%s)
+    ''', (match_type_title, match_type_identifier, active, start_date))
     
     conn.commit()
     cursor.close()
