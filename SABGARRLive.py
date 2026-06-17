@@ -65,10 +65,10 @@ def show_series_stats_page(series_choice):
 
     #2026 - SERIES 3 LEAGUE DATA DISPLAY       
     if series_choice == "2026 - Series 3":
-        st.write("Loading data for the 2026 - S2 series...")
+        st.write("Loading data for the 2026 - S3 series...")
     
         #Initialisation variables:
-        current_series_id = 11
+        current_series_id = 12
         matches_played = get_matchcount_by_series(current_series_id)
         total_fixtures = get_fixturescount_by_series(current_series_id)
         # Get today and yesterday's date
@@ -77,9 +77,9 @@ def show_series_stats_page(series_choice):
         # Fetch match count for yesterday
         match_count_yesterday = get_matchcount_by_date_and_series(yesterday.strftime("%Y-%m-%d"), current_series_id)
         
-        # Calculate days left until end of series 2 (23 Jun, 2026)
+        # Calculate days left until end of series 3 (13 Sep, 2026)
         #today = date.today()
-        end_date = date(2026, 6, 23)
+        end_date = date(2026, 9, 13)
         days_left = (end_date - today).days
         
         if total_fixtures !=0:
@@ -93,8 +93,8 @@ def show_series_stats_page(series_choice):
         st.title("SABGA Backgammon presents...") 
         col1, col2 = st.columns(2)
         col1.title("Round Robin Leagues!")
-        col2.metric("Series 2 progress:",metric_value,match_count_yesterday)
-        col2.write("Deadline: 23 June 2026")
+        col2.metric("Series 3 progress:",metric_value,match_count_yesterday)
+        col2.write("Deadline: 13 Sept 2026")
         #standings = get_sorting_standings()
     
         # Define tab names
@@ -102,16 +102,16 @@ def show_series_stats_page(series_choice):
     
         # Define corresponding matchtype IDs (adjust these based on your database)
         matchtype_ids = {
-            "A-League": 66,
-            "B-League": 67,
-            "C-League": 68,
-            "D-League": 69,
-            "E-League": 70,
-            "F-League": 71,
-            "G-League": 76,
-            "Guppy Group Yellow": 72,
-            "Guppy Group Red": 73,
-            "Guppy Group Blue": 74
+            "A-League": 78,
+            "B-League": 80,
+            "C-League": 81,
+            "D-League": 82,
+            "E-League": 83,
+            "F-League": 85,
+            "G-League": 86,
+            "Guppy Group Yellow": 90,
+            "Guppy Group Red": 89,
+            "Guppy Group Blue": 87
         }
         
         # Create tabs
@@ -121,7 +121,7 @@ def show_series_stats_page(series_choice):
         with tabs[0]:
             st.header("Overview")
             pdf_url = "https://www.sabga.co.za/wp-content/uploads/2026/03/SABGA-Round-Robin-Online-Leagues-2026-rules-etc-v6.1.pdf"
-            st.markdown("**The 2026 Round Robin leagues kick off with Series 2, taking place 3 April 2026 - 23 June 2026, with 96 players competing across ten league groups (A-G and 3 Guppy Groups). The top five leagues play matches to 11 points. The next three leagues, E, F and G play to 9 points. There are also three 'Guppy' groups for new players.**")
+            st.markdown("**The 2026 Round Robin leagues continues with Series 3, taking place 24 June 2026 - 13 Sept 2026, with 96 players competing across ten league groups (A-G and 3 Guppy Groups). The top five leagues play matches to 11 points. The next three leagues, E, F and G play to 9 points. There are also three 'Guppy' groups for new players.**")
             st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2026 - rules etc v6.1.pdf]({pdf_url})", unsafe_allow_html=True)
             st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
 
@@ -195,7 +195,7 @@ def show_series_stats_page(series_choice):
         with tabs[0]:
             st.header("Overview")
             pdf_url = "https://www.sabga.co.za/wp-content/uploads/2026/03/SABGA-Round-Robin-Online-Leagues-2026-rules-etc-v6.1.pdf"
-            st.markdown("**The 2026 Round Robin leagues kick off with Series 2, taking place 3 April 2026 - 23 June 2026, with 96 players competing across ten league groups (A-G and 3 Guppy Groups). The top five leagues play matches to 11 points. The next three leagues, E, F and G play to 9 points. There are also three 'Guppy' groups for new players.**")
+            st.markdown("**The 2026 Round Robin leagues resumes with Series 2, taking place 3 April 2026 - 23 June 2026, with 96 players competing across ten league groups (A-G and 3 Guppy Groups). The top five leagues play matches to 11 points. The next three leagues, E, F and G play to 9 points. There are also three 'Guppy' groups for new players.**")
             st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2026 - rules etc v6.1.pdf]({pdf_url})", unsafe_allow_html=True)
             st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
 
@@ -605,8 +605,8 @@ if view_option == "League Standings 📊":
     #st.sidebar.markdown("Select the Series to display:")
     series_choice = st.sidebar.radio(
         "Select a Series:",
-        ["2026 - Series 2","2026 - Series 1","2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
-        index=0 
+        ["2026 - Series 3","2026 - Series 2","2026 - Series 1","2025 - Series 4", "2025 - Series 3", "2025 - Series 2", "2025 - Series 1", "2024 - Sorting League"],
+        index=1 
     )
     show_series_stats_page(series_choice)
     
