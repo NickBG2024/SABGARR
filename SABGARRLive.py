@@ -98,7 +98,7 @@ def show_series_stats_page(series_choice):
         #standings = get_sorting_standings()
     
         # Define tab names
-        tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League","G-League","Guppy Group Yellow","Guppy Group Blue","Guppy Group Red"]
+        tab_names = ["OVERVIEW", "A-League", "B-League", "C-League", "D-League", "E-League", "F-League","G-League","Guppy Group Yellow","Guppy Group Blue","Guppy Group Red","Guppy Group Green"]
     
         # Define corresponding matchtype IDs (adjust these based on your database)
         matchtype_ids = {
@@ -111,7 +111,8 @@ def show_series_stats_page(series_choice):
             "G-League": 86,
             "Guppy Group Yellow": 90,
             "Guppy Group Red": 89,
-            "Guppy Group Blue": 87
+            "Guppy Group Blue": 87,
+            "Guppy Group Green": 75
         }
         
         # Create tabs
@@ -121,7 +122,7 @@ def show_series_stats_page(series_choice):
         with tabs[0]:
             st.header("Overview")
             pdf_url = "https://www.sabga.co.za/wp-content/uploads/2026/03/SABGA-Round-Robin-Online-Leagues-2026-rules-etc-v6.1.pdf"
-            st.markdown("**The 2026 Round Robin leagues continues with Series 3, taking place 24 June 2026 - 13 Sept 2026, with 96 players competing across ten league groups (A-G and 3 Guppy Groups). The top five leagues play matches to 11 points. The next three leagues, E, F and G play to 9 points. There are also three 'Guppy' groups for new players.**")
+            st.markdown("**The 2026 Round Robin leagues continues with Series 3, taking place 24 June 2026 - 13 Sept 2026, with 102 players competing across ten league groups (A-G and 4 Guppy Groups). The top five leagues play matches to 11 points. The next three leagues, E, F and G play to 9 points. There are also three 'Guppy' groups for new players.**")
             st.markdown(f"All league information (rules, etc) can be found here: [SABGA Round Robin Leagues 2026 - rules etc v6.1.pdf]({pdf_url})", unsafe_allow_html=True)
             st.write("This tab offers an overview: a table showing all players, recent results and remaining fixtures.")
 
