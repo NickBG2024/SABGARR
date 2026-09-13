@@ -541,6 +541,8 @@ def show_season_statistics_page(season_choice):
 
 def show_series_statistics_page(series_choice):
     series_map = {
+        "2026 - Series 4": 13,
+        "2026 - Series 3": 12,
         "2026 - Series 2": 11,
         "2026 - Series 1": 10,
         "2025 - Series 4": 8,
