@@ -127,8 +127,8 @@ if 'form_updated' in st.session_state and st.session_state['form_updated']:
     del st.session_state['form_updated']
     st.rerun()
 
-current_series_id = 10
-non_league_id = 65  # 2025NonLeague
+current_series_id = 13
+non_league_id = 65  # 2026NonLeague
 matches_played = get_matchcount_by_series(current_series_id)
 total_fixtures = get_fixturescount_by_series(current_series_id)
 percentage = (matches_played / total_fixtures) * 100
