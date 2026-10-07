@@ -233,3 +233,11 @@ the public REST endpoint continue to receive the generic error only.
 Use the existing RO account and database hostname shown in your Xneelo panel,
 with the reset password for that RO account. There is no need to create an
 additional user if the RO account already has SELECT access to the required tables.
+
+## Compact standings — version 0.1.2
+
+Upload `sabga-leagues-0.1.2.zip` and choose **Replace current with uploaded**.
+The player column now follows the longest displayed name (including nickname)
+in the selected group. Numeric columns use tighter spacing, and the fixed
+1030-pixel minimum table width is removed. Smaller screens retain horizontal
+scrolling where needed. No database or shortcode changes are required.

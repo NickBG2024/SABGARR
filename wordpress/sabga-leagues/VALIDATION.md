@@ -1,7 +1,17 @@
-# Validation for version 0.1.1
+# Validation for version 0.1.2
 
 Completed 6 October 2026 against source commit
 `94a163f8bd968583c1f71a2e636b5b86e9530e04`.
+
+## Compact table update — 7 October 2026
+
+Removed the fixed table minimum, reduced horizontal cell padding from 10 to 6
+pixels and constrained the nowrap player column to its intrinsic content width.
+No SQL, data processing or JavaScript behaviour changed. The PHP harness was
+rerun with 85 checks passing. Browser layout verification could not run because
+the local Chromium executable crashed on startup (SIGSEGV), before loading any
+page. The 0.1.0 browser results below do not validate this CSS update. Confirm
+long-name E-League layout and group switching after uploading to WordPress.
 
 ## Diagnostic update — 7 October 2026
 

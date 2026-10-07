@@ -14,12 +14,13 @@
 .sabga-leagues .sabga-leagues__status { color:#56645c; min-height:22px; font-size:12px; margin:8px 0; }
 .sabga-leagues .sabga-leagues__group { font-size:20px; color:var(--sabga-ink); margin:18px 0 12px; }
 .sabga-leagues .sabga-leagues__scroll { max-width:100%; overflow:auto; border:1px solid var(--sabga-line); border-radius:8px; }
-.sabga-leagues table { border-collapse:collapse; width:100%; min-width:1030px; margin:0; font-size:13px; table-layout:auto; border:0; }
-.sabga-leagues th, .sabga-leagues td { padding:12px 10px; text-align:right; white-space:nowrap; border:0; border-bottom:1px solid #edf0ed; vertical-align:middle; background:transparent; }
+.sabga-leagues table { border-collapse:collapse; width:100%; min-width:0; margin:0; font-size:13px; table-layout:auto; border:0; }
+.sabga-leagues th, .sabga-leagues td { padding:10px 6px; text-align:right; white-space:nowrap; border:0; border-bottom:1px solid #edf0ed; vertical-align:middle; background:transparent; }
 .sabga-leagues thead th { background:#edf2ee; color:#345443; font-weight:700; font-size:12px; }
 .sabga-leagues tbody tr:nth-child(even) { background:#fafbf9; }
 .sabga-leagues tbody tr:hover { background:#f0f4ed; }
-.sabga-leagues tbody th, .sabga-leagues thead th:nth-child(2) { text-align:left; }
+/* Intrinsic nowrap width follows the longest displayed player in each group. */
+.sabga-leagues tbody th, .sabga-leagues thead th:nth-child(2) { text-align:left; width:1%; }
 .sabga-leagues tbody td:first-child { font-weight:700; color:#6b5530; }
 .sabga-leagues .sabga-leagues__note, .sabga-leagues .sabga-leagues__timestamp { color:#5d6a62; font-size:12px; margin:14px 0 0; }
 .sabga-leagues .sabga-leagues__error { color:#862a25; background:#fff0ee; padding:12px; border-radius:6px; }

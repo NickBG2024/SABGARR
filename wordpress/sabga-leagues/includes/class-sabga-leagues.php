@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) { exit; }
 
 final class SABGA_Leagues {
-    const VERSION = '0.1.1';
+    const VERSION = '0.1.2';
     private static $last_diagnostic = '';
     const CACHE_SECONDS = 60;
     private static $plugin_file;
