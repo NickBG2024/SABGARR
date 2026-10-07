@@ -104,4 +104,22 @@ check(SABGA_Leagues::payload(91) === array('cached'=>true), 'Cache hit does not 
 $failure = SABGA_Leagues::payload(91, true);
 check(is_wp_error($failure), 'Fresh connection bypasses cache');
 check(strpos($failure->get_error_message(), 'TEST_SECRET') === false && strpos($failure->get_error_message(), '127.0.0.1') === false, 'No driver/credential leak');
+$diagnostic = new ReflectionMethod('SABGA_Leagues', 'diagnostic');
+$diagnostic->setAccessible(true);
+foreach (array(1045,1044,1049,1142,1143,1146,1054,2002,2003,2005,2026,9999) as $code) {
+    $exception = new PDOException('TEST_SECRET private host SQL text');
+    $exception->errorInfo = array('HY000', $code, 'TEST_SECRET private driver text');
+    $detail = $diagnostic->invoke(null, $exception, 'connection');
+    check(strpos($detail, 'MySQL ' . $code) !== false, 'Diagnostic error number');
+    check(strpos($detail, 'TEST_SECRET') === false && strpos($detail, 'private') === false, 'Diagnostic discards driver text');
+}
+$exception->errorInfo = array('SECRET_UNTRUSTED', 'SECRET_UNTRUSTED', 'TEST_SECRET');
+check(strpos($diagnostic->invoke(null, $exception, 'standings query'), 'UNTRUSTED') === false, 'Invalid driver codes discarded');
+check($failure->get_error_data() === array('status'=>503), 'Public error contains no diagnostics');
+$last = new ReflectionProperty('SABGA_Leagues', 'last_diagnostic');
+$last->setAccessible(true);
+check(strpos($last->getValue(), 'Diagnostic: connection') !== false, 'Real connection failure recorded privately');
+$GLOBALS['test_mode'] = 'demo';
+SABGA_Leagues::payload(91);
+check($last->getValue() === '', 'Each request resets diagnostic');
 echo "PASS: $checks PHP harness checks\n";

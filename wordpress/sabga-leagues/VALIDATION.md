@@ -1,9 +1,19 @@
-# Validation for version 0.1.0
+# Validation for version 0.1.1
 
 Completed 6 October 2026 against source commit
 `94a163f8bd968583c1f71a2e636b5b86e9530e04`.
 
-## Checks completed
+## Diagnostic update — 7 October 2026
+
+85 PHP harness checks and PHP syntax validation passed, including fixed guidance
+for authentication, access, missing tables/columns, networking and TLS errors;
+untrusted driver messages and codes are excluded; public errors retain only
+HTTP status data; private diagnostics reset on every payload call. A real
+local connection refusal was recorded privately. SQL parity was rerun and passed.
+The browser assets are unchanged; the browser results below were obtained for
+0.1.0. No live Xneelo connection has been tested from this workspace.
+
+## Original display checks completed
 
 - PHP 8.3.6 syntax checks passed for the entrypoint, plugin class and test harness.
 - 57 isolated PHP harness checks passed: shortcode registration, all 11 groups,

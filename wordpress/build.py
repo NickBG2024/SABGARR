@@ -4,6 +4,7 @@ Usage: python3 wordpress/build.py --output-dir /absolute/path/to/output
 import argparse
 import hashlib
 import pathlib
+import re
 import shutil
 import zipfile
 
@@ -12,7 +13,8 @@ parser.add_argument('--output-dir', type=pathlib.Path, required=True)
 args = parser.parse_args()
 source = pathlib.Path(__file__).resolve().parent / 'sabga-leagues'
 args.output_dir.mkdir(parents=True, exist_ok=True)
-archive = args.output_dir / 'sabga-leagues-0.1.0.zip'
+version = re.search(r'Version: ([0-9.]+)', (source / 'sabga-leagues.php').read_text()).group(1)
+archive = args.output_dir / f'sabga-leagues-{version}.zip'
 with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as package:
     for file in sorted(source.rglob('*')):
         if not file.is_file():

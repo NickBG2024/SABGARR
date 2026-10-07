@@ -216,3 +216,20 @@ WordPress API references:
 - https://developer.wordpress.org/apis/transients/
 
 Tests and their actual results are recorded separately in `VALIDATION.md`.
+
+## Updating to 0.1.1 and diagnosing a failed connection
+
+Upload `sabga-leagues-0.1.1.zip` in **Plugins > Add New > Upload Plugin**.
+Choose **Replace current with uploaded** when WordPress finds the existing
+plugin. The existing shortcode, display mode and wp-config.php constants remain
+in place. Then open **Settings > SABGA Leagues**, save Live mode if necessary,
+and click **Test live A-League connection**.
+
+A failed test now adds an administrator-only diagnostic with the operation,
+SQLSTATE, MySQL error number and guidance. Copy that diagnostic for support.
+Do not send your password or the contents of wp-config.php. Public pages and
+the public REST endpoint continue to receive the generic error only.
+
+Use the existing RO account and database hostname shown in your Xneelo panel,
+with the reset password for that RO account. There is no need to create an
+additional user if the RO account already has SELECT access to the required tables.

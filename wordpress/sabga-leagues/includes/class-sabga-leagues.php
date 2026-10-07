@@ -2,7 +2,8 @@
 if (!defined('ABSPATH')) { exit; }
 
 final class SABGA_Leagues {
-    const VERSION = '0.1.0';
+    const VERSION = '0.1.1';
+    private static $last_diagnostic = '';
     const CACHE_SECONDS = 60;
     private static $plugin_file;
 
@@ -115,7 +116,30 @@ final class SABGA_Leagues {
         return $rows;
     }
 
+    // Only fixed guidance and validated numeric codes are retained; never driver messages.
+    private static function diagnostic($error, $stage) {
+        $info = $error instanceof PDOException && is_array($error->errorInfo) ? $error->errorInfo : array();
+        $state = isset($info[0]) && preg_match('/^[A-Z0-9]{5}$/D', (string) $info[0]) ? $info[0] : 'unknown';
+        $code = isset($info[1]) && is_numeric($info[1]) ? (int) $info[1] : 0;
+        $help = array(
+            1045 => 'Authentication rejected. Check the RO username and its reset password in wp-config.php; confirm the account can connect from this WordPress server.',
+            1044 => 'Database access denied. Check that the RO account has access to the configured league database.',
+            1049 => 'Database not found. Check the league database name in wp-config.php.',
+            1142 => 'Table access denied. The RO account needs SELECT permission on Players, Fixtures and MatchTypePlayerStats.',
+            1143 => 'Column access denied. The RO account needs SELECT permission on the standings columns.',
+            1146 => 'A required table is missing. Confirm Players, Fixtures and MatchTypePlayerStats exist in the configured database with exactly that letter casing.',
+            1054 => 'A standings column is missing. Confirm this database has the same table structure as the live Streamlit database.',
+            2002 => 'Database connection failed. Verify the league hostname and port; ask Xneelo whether this WordPress server can reach the database.',
+            2003 => 'Database server could not be reached. Check the hostname, port and hosting connection restrictions.',
+            2005 => 'Database hostname could not be resolved. Check the league hostname in wp-config.php.',
+            2026 => 'Database TLS connection failed. Ask Xneelo about the required TLS settings and CA certificate.',
+        );
+        $guidance = $help[$code] ?? 'The database operation failed. Share this diagnostic code so we can check the next step.';
+        return 'Diagnostic: ' . $stage . '; SQLSTATE ' . $state . '; MySQL ' . ($code ?: 'unknown') . '. ' . $guidance;
+    }
+
     public static function payload($id, $fresh = false) {
+        self::$last_diagnostic = '';
         if (!self::valid_group($id)) {
             return new WP_Error('sabga_invalid_group', 'Choose a valid current league group.', array('status' => 400));
         }
@@ -145,10 +169,12 @@ final class SABGA_Leagues {
             $options[PDO::MYSQL_ATTR_SSL_CA] = SABGA_LEAGUES_DB_SSL_CA;
             $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
         }
+        $stage = 'connection';
         try {
             $dsn = 'mysql:host=' . SABGA_LEAGUES_DB_HOST . ';port=' . $port .
                 ';dbname=' . SABGA_LEAGUES_DB_NAME . ';charset=utf8mb4';
             $db = new PDO($dsn, SABGA_LEAGUES_DB_USER, SABGA_LEAGUES_DB_PASSWORD, $options);
+            $stage = 'standings query';
             $statement = $db->prepare(self::standings_sql());
             $statement->execute(array($id, $id));
             $rows = $statement->fetchAll();
@@ -158,6 +184,7 @@ final class SABGA_Leagues {
             set_transient($key, $payload, self::CACHE_SECONDS);
             return $payload;
         } catch (Throwable $error) {
+            self::$last_diagnostic = self::diagnostic($error, $stage);
             // Do not expose hostnames, SQL, credentials or driver exception messages.
             return new WP_Error('sabga_database', 'Unable to read league standings. Ask the site administrator to check the database connection and table permissions.', array('status' => 503));
         }
@@ -319,7 +346,10 @@ final class SABGA_Leagues {
             } else {
                 $start = microtime(true);
                 $data = self::payload(91, true);
-                if (is_wp_error($data)) { $type = 'error'; $message = $data->get_error_message(); }
+                if (is_wp_error($data)) {
+                    $type = 'error'; $message = $data->get_error_message();
+                    if (self::$last_diagnostic !== '') { $message .= ' ' . self::$last_diagnostic; }
+                }
                 else { $message = 'Live SELECT succeeded: ' . count($data['standings']) . ' A-League players in ' . round((microtime(true) - $start) * 1000) . ' ms. Compare these results with Streamlit.'; }
             }
         } elseif ($operation !== 'clear') {
