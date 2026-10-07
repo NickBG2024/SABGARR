@@ -241,3 +241,22 @@ The player column now follows the longest displayed name (including nickname)
 in the selected group. Numeric columns use tighter spacing, and the fixed
 1030-pixel minimum table width is removed. Smaller screens retain horizontal
 scrolling where needed. No database or shortcode changes are required.
+
+## Compact grid and league summaries — version 0.1.3
+
+Upload `sabga-leagues-0.1.3.zip` and replace the installed version. The table
+uses intrinsic content widths rather than expanding to fill the page, with
+tighter rows and subtle column borders. Four summaries show matches completed
+out of all fixtures, outstanding matches, match-average PR and the deadline.
+Counts use Fixtures.Completed, and PR uses AVG((Player1PR + Player2PR) / 2)
+from MatchResults, matching Streamlit. NULL PR pairs are excluded, and no PR
+data displays a dash. Summary reads share the standings connection and cache.
+The RO account now also needs SELECT on MatchResults. A summary query failure
+leaves standings visible with a summary-unavailable notice.
+
+The current Series 4 deadline is 6 December 2026, copied from Streamlit. This
+release is still current-series only. Before historical navigation, introduce
+a nullable DeadlineDate DATE on Series (after checking the actual schema),
+backfill verified dates and have both apps read it. Do not create stored
+match-count or PR fields: those values can be calculated from existing data.
+No database migrations are performed by this release.

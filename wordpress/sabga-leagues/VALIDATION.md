@@ -1,7 +1,17 @@
-# Validation for version 0.1.2
+# Validation for version 0.1.3
 
 Completed 6 October 2026 against source commit
 `94a163f8bd968583c1f71a2e636b5b86e9530e04`.
+
+## Summary and compact grid update — 7 October 2026
+
+91 PHP harness checks passed, with additional checks for summary counts,
+progress, absent PR, zero fixtures, current deadline and server-rendered metric
+markup. PHP and JavaScript syntax checks passed. SQL was checked with synthetic
+fixtures/results for completed counts, group isolation and NULL PR pairs.
+The summary query matches the existing Streamlit formula. New production
+MatchResults read permissions and actual layout still require the WordPress
+upload test. Local browser startup remains blocked by the crash noted below.
 
 ## Compact table update — 7 October 2026
 

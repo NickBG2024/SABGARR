@@ -22,6 +22,12 @@
         // Public payload is always revalidated through the endpoint. This also
         // prevents a page-cache copy from staying stale after a result update.
         function render(data) {
+            const summary = data.summary;
+            root.querySelector('[data-metric="progress"]').textContent = summary ? summary.completed + ' / ' + summary.total : '—';
+            root.querySelector('[data-metric="outstanding"]').textContent = summary ? summary.outstanding : '—';
+            root.querySelector('[data-metric="average_pr"]').textContent = summary && summary.average_pr !== null ? Number(summary.average_pr).toFixed(2) : '—';
+            root.querySelector('[data-metric="deadline"]').textContent = data.deadline || '—';
+            root.querySelector('.sabga-leagues__summary-warning').hidden = !!summary;
             const body = document.createElement('tbody');
             data.standings.forEach(function (row) {
                 const tr = document.createElement('tr');
@@ -70,6 +76,8 @@
                 }
             } catch (exception) {
                 if (current !== sequence) return;
+                root.querySelectorAll('[data-metric]').forEach(el => { el.textContent = '—'; });
+                root.querySelector('.sabga-leagues__summary-warning').hidden = true;
                 // Remove old rows, so they cannot be mistaken for the new group.
                 table.querySelector('tbody').replaceChildren();
                 root.querySelector('.sabga-leagues__group').textContent = select.options[select.selectedIndex].text;

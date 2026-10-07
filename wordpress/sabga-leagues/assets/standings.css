@@ -14,8 +14,8 @@
 .sabga-leagues .sabga-leagues__status { color:#56645c; min-height:22px; font-size:12px; margin:8px 0; }
 .sabga-leagues .sabga-leagues__group { font-size:20px; color:var(--sabga-ink); margin:18px 0 12px; }
 .sabga-leagues .sabga-leagues__scroll { max-width:100%; overflow:auto; border:1px solid var(--sabga-line); border-radius:8px; }
-.sabga-leagues table { border-collapse:collapse; width:100%; min-width:0; margin:0; font-size:13px; table-layout:auto; border:0; }
-.sabga-leagues th, .sabga-leagues td { padding:10px 6px; text-align:right; white-space:nowrap; border:0; border-bottom:1px solid #edf0ed; vertical-align:middle; background:transparent; }
+.sabga-leagues table { border-collapse:collapse; width:max-content; min-width:0; margin:0; font-size:13px; table-layout:auto; border:0; }
+.sabga-leagues th, .sabga-leagues td { padding:7px 6px; text-align:right; white-space:nowrap; border:0; border-bottom:1px solid #e3e7e3; border-right:1px solid #e3e7e3; vertical-align:middle; background:transparent; }
 .sabga-leagues thead th { background:#edf2ee; color:#345443; font-weight:700; font-size:12px; }
 .sabga-leagues tbody tr:nth-child(even) { background:#fafbf9; }
 .sabga-leagues tbody tr:hover { background:#f0f4ed; }
@@ -27,3 +27,9 @@
 .sabga-leagues .sabga-leagues__warning, .sabga-leagues .sabga-leagues__empty { font-size:13px; color:#725710; }
 .sabga-leagues .sabga-leagues__sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @media(max-width:600px) { .sabga-leagues .sabga-leagues__controls { align-items:stretch; } .sabga-leagues label { width:100%; } .sabga-leagues select { flex:1; min-width:160px; } }
+
+.sabga-leagues .sabga-leagues__metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; max-width:850px; margin:20px 0; }
+.sabga-leagues .sabga-leagues__metrics dt { color:#56645c; font-size:13px; font-weight:400; }
+.sabga-leagues .sabga-leagues__metrics dd { margin:4px 0 0; color:var(--sabga-ink); font-size:clamp(20px,3vw,28px); font-weight:600; line-height:1.3; }
+.sabga-leagues .sabga-leagues__summary-warning { color:#725710; font-size:13px; }
+@media(max-width:600px) { .sabga-leagues .sabga-leagues__metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }

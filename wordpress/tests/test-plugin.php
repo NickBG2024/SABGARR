@@ -122,4 +122,11 @@ check(strpos($last->getValue(), 'Diagnostic: connection') !== false, 'Real conne
 $GLOBALS['test_mode'] = 'demo';
 SABGA_Leagues::payload(91);
 check($last->getValue() === '', 'Each request resets diagnostic');
+$summary = SABGA_Leagues::normalize_summary(array('total'=>45,'completed'=>6,'average_pr'=>5.47));
+check($summary['outstanding'] === 39 && $summary['completed'] === 6, 'Summary counts');
+check(abs($summary['percentage'] - 13.333333) < 0.001, 'Summary progress');
+check(SABGA_Leagues::normalize_summary(array('total'=>0,'completed'=>0,'average_pr'=>null))['average_pr'] === null, 'Missing summary PR');
+check(SABGA_Leagues::normalize_summary(array('total'=>0,'completed'=>0,'average_pr'=>null))['percentage'] === 0, 'Zero fixture summary');
+check(SABGA_Leagues::payload(91)['deadline'] === '6 Dec 2026', 'Current deadline');
+check(strpos(SABGA_Leagues::shortcode(), 'data-metric="progress"') !== false, 'Server summary markup');
 echo "PASS: $checks PHP harness checks\n";

@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) { exit; }
 
 final class SABGA_Leagues {
-    const VERSION = '0.1.2';
+    const VERSION = '0.1.3';
     private static $last_diagnostic = '';
     const CACHE_SECONDS = 60;
     private static $plugin_file;
@@ -179,8 +179,17 @@ final class SABGA_Leagues {
             $statement->execute(array($id, $id));
             $rows = $statement->fetchAll();
             $statement = null;
+            // Summary failure must not hide otherwise usable standings.
+            $summary = null;
+            try {
+                $statement = $db->prepare(self::summary_sql());
+                $statement->execute(array($id, $id));
+                $summary = self::normalize_summary($statement->fetch());
+            } catch (Throwable $summary_error) { /* Public summary stays unavailable. */ }
+            $statement = null;
             $db = null;
             $payload = self::wrap($id, $rows, 'live');
+            $payload['summary'] = $summary;
             set_transient($key, $payload, self::CACHE_SECONDS);
             return $payload;
         } catch (Throwable $error) {
@@ -190,9 +199,27 @@ final class SABGA_Leagues {
         }
     }
 
+    public static function summary_sql() {
+        // Same match counts and match-average PR formula as Streamlit.
+        return 'SELECT COUNT(*) AS total, COALESCE(SUM(CASE WHEN Completed = 1 THEN 1 ELSE 0 END), 0) AS completed,
+            (SELECT AVG((Player1PR + Player2PR) / 2) FROM MatchResults WHERE MatchTypeID = ?) AS average_pr
+            FROM Fixtures WHERE MatchTypeID = ?';
+    }
+
+    public static function normalize_summary($row) {
+        if (!is_array($row)) { return null; }
+        $total = (int) $row['total']; $completed = (int) $row['completed'];
+        return array('total' => $total, 'completed' => $completed,
+            'outstanding' => max(0, $total - $completed),
+            'percentage' => $total > 0 ? $completed / $total * 100 : 0,
+            'average_pr' => $row['average_pr'] === null ? null : (float) $row['average_pr']);
+    }
+
     private static function wrap($id, $rows, $mode) {
         return array('mode' => $mode, 'group_id' => $id, 'group' => self::groups()[$id],
             'series' => '2026 · Series 4', 'fetched_at' => gmdate('c'),
+            'deadline' => '6 Dec 2026',
+            'summary' => $mode === 'demo' ? self::normalize_summary(array('total'=>45, 'completed'=>6, 'average_pr'=>5.47)) : null,
             'cache_seconds' => self::CACHE_SECONDS, 'standings' => self::normalize($rows));
     }
 
@@ -279,6 +306,13 @@ final class SABGA_Leagues {
             </form>
             <p class="sabga-leagues__status" role="status" aria-live="polite"></p>
             <p class="sabga-leagues__error" role="alert" <?php echo is_wp_error($data) ? '' : 'hidden'; ?>><?php echo is_wp_error($data) ? esc_html($data->get_error_message()) : ''; ?></p>
+            <dl class="sabga-leagues__metrics">
+                <div><dt>Matches played</dt><dd data-metric="progress"><?php echo !is_wp_error($data) && $data['summary'] !== null ? esc_html($data['summary']['completed'] . ' / ' . $data['summary']['total']) : '—'; ?></dd></div>
+                <div><dt>Outstanding</dt><dd data-metric="outstanding"><?php echo !is_wp_error($data) && $data['summary'] !== null ? esc_html($data['summary']['outstanding']) : '—'; ?></dd></div>
+                <div><dt>Average PR</dt><dd data-metric="average_pr"><?php echo !is_wp_error($data) && $data['summary'] !== null && $data['summary']['average_pr'] !== null ? esc_html(number_format($data['summary']['average_pr'], 2, '.', '')) : '—'; ?></dd></div>
+                <div><dt>Deadline</dt><dd data-metric="deadline">6 Dec 2026</dd></div>
+            </dl>
+            <p class="sabga-leagues__summary-warning" <?php echo !is_wp_error($data) && $data['summary'] === null ? '' : 'hidden'; ?>>League summary unavailable.</p>
             <h3 class="sabga-leagues__group"><?php echo esc_html(self::groups()[$id]); ?></h3>
             <div class="sabga-leagues__scroll" tabindex="0" role="region" aria-label="Standings table; scroll horizontally for more columns">
                 <table>
