@@ -1,0 +1,5 @@
+tests/preview.html
+tests/payload-*.json
+tests/*-preview.png
+
+tests/history-preview.html

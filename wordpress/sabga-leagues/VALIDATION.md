@@ -1,0 +1,129 @@
+# Validation for version 0.2.0
+
+Completed 6 October 2026 against source commit
+`94a163f8bd968583c1f71a2e636b5b86e9530e04`.
+
+## Historical Records draft — 8 October 2026
+
+- 128 isolated PHP checks passed, including the current plugin checks and new
+  archive shortcode, catalog defaults, current-series exclusion, season/series/
+  group membership validation, malformed IDs, annual weighted PR, distinct
+  players with matching names, missing PRs, demo labelling and HTML escaping.
+- Synthetic SQLite checks passed for all four archive SQL queries: duplicate
+  relationship handling, season isolation, NULL PR exclusion, weighted means,
+  historical league membership, match/PR wins, empty selections and SELECT-only
+  statements. SQLite does not prove Xneelo MySQL schema compatibility.
+- Chromium 153 archive checks passed for all four tabs, dependent selectors,
+  group/player AJAX, failure clearing and retry, malicious player text rendered
+  safely, no page-wide mobile overflow, and no-JavaScript season/series forms.
+  Desktop and mobile previews were visually inspected.
+- The current standings browser checks were rerun and passed all 17 simulated
+  API requests. Initial failure was caused by an old generated preview; after
+  regenerating current markup/payloads the test passed.
+- PHP and JavaScript syntax checks passed. No production credentials were used.
+
+Live archive table permissions, actual Season schema/year labels, equality
+with real Streamlit records, and the site's theme/page-cache environment still
+require the installation preview described in IMPLEMENTATION.md. Charts,
+official winner records and match-level history are not included in this draft.
+
+## Summary and compact grid update — 7 October 2026
+
+91 PHP harness checks passed, with additional checks for summary counts,
+progress, absent PR, zero fixtures, current deadline and server-rendered metric
+markup. PHP and JavaScript syntax checks passed. SQL was checked with synthetic
+fixtures/results for completed counts, group isolation and NULL PR pairs.
+The summary query matches the existing Streamlit formula. New production
+MatchResults read permissions and actual layout still require the WordPress
+upload test. Local browser startup remains blocked by the crash noted below.
+
+## Compact table update — 7 October 2026
+
+Removed the fixed table minimum, reduced horizontal cell padding from 10 to 6
+pixels and constrained the nowrap player column to its intrinsic content width.
+No SQL, data processing or JavaScript behaviour changed. The PHP harness was
+rerun with 85 checks passing. Browser layout verification could not run because
+the local Chromium executable crashed on startup (SIGSEGV), before loading any
+page. The 0.1.0 browser results below do not validate this CSS update. Confirm
+long-name E-League layout and group switching after uploading to WordPress.
+
+## Diagnostic update — 7 October 2026
+
+85 PHP harness checks and PHP syntax validation passed, including fixed guidance
+for authentication, access, missing tables/columns, networking and TLS errors;
+untrusted driver messages and codes are excluded; public errors retain only
+HTTP status data; private diagnostics reset on every payload call. A real
+local connection refusal was recorded privately. SQL parity was rerun and passed.
+The browser assets are unchanged; the browser results below were obtained for
+0.1.0. No live Xneelo connection has been tested from this workspace.
+
+## Original display checks completed
+
+- PHP 8.3.6 syntax checks passed for the entrypoint, plugin class and test harness.
+- 57 isolated PHP harness checks passed: shortcode registration, all 11 groups,
+  invalid/array/SQL-like inputs, points percentage, NULL vs zero PR, missing
+  precomputed rows, demo labels, accessible headings, group links, default
+  numeric permalink fallback, REST validation and GET-only registration,
+  cache hit/bypass, admin capability guard, missing credentials, connection
+  failure and no credential/hostname leakage in returned errors.
+- SQL parity passed using SQLite with synthetic data. The actual query from
+  `database.py:display_cached_matchtype_standings` and this plugin's query
+  produced the same ordered rows and all 11 displayed data fields. Fixtures
+  included duplicate appearances, a player with no statistics row, zero-game
+  players, NULL PR/luck and an unrelated league. Every tiebreak step was covered.
+- JavaScript syntax check passed.
+- Chromium 153 through Playwright passed 17 simulated API requests: all 11 group
+  selectors, table rows, missing PR, shareable URL changes, rapid-selection race,
+  player-name HTML injection rendered as plain text, failed request clearing
+  old rows, retry recovery, and mobile scrolling without page-wide overflow.
+  Viewports: 1280×900 and 390×844. No browser JavaScript errors were recorded.
+- ZIP builder checks archive integrity and the expected top-level plugin folder.
+
+## What these checks do not prove
+
+The PHP harness substitutes WordPress functions; it is not a full WordPress
+installation. The browser uses actual PHP-rendered markup, CSS and JavaScript,
+with generated demo payloads replacing network responses. The SQL comparison
+uses SQLite, not Xneelo's MySQL. No production credentials were used.
+
+The following still require the private WordPress test described in the guide:
+
+- Installation and activation in your actual WordPress/theme/plugin environment.
+- Xneelo connectivity, PDO extension availability, MySQL version and permissions.
+- Real standings equality and upstream statistics refresh after a new result.
+- End-to-end speed improvement compared with the live Streamlit app.
+- Hosting-specific caching, REST restrictions and TLS configuration.
+
+## Reproduce locally
+
+From the repository root, using PHP with PDO MySQL, Python 3 and Node with
+Playwright plus an available Chromium installation:
+
+```sh
+php -l wordpress/sabga-leagues/sabga-leagues.php
+php -l wordpress/sabga-leagues/includes/class-sabga-leagues.php
+php wordpress/tests/test-plugin.php
+python3 wordpress/tests/test-sql.py
+node --check wordpress/sabga-leagues/assets/standings.js
+php wordpress/tests/test-plugin.php --render > wordpress/tests/preview.html
+for id in 91 92 93 94 95 96 97 98 99 100 101; do
+  php wordpress/tests/test-plugin.php --payload "$id" > "wordpress/tests/payload-$id.json"
+done
+```
+
+In one terminal, serve `wordpress`:
+
+```sh
+python3 -m http.server 8765 --bind 127.0.0.1 --directory wordpress
+```
+
+In another, run:
+
+```sh
+node wordpress/tests/test-browser.cjs
+python3 wordpress/build.py --output-dir /absolute/path/to/output
+```
+
+If using a separate Chromium binary, set `CHROMIUM_EXECUTABLE_PATH` before the
+browser command. The harness's live-connection failure test deliberately uses
+local port 1 and fake credentials. It never uses production credentials.
