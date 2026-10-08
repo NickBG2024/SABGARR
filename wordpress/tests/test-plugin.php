@@ -3,7 +3,7 @@
 define('ABSPATH', __DIR__);
 $GLOBALS['test_mode'] = 'demo';
 $GLOBALS['test_cache'] = array();
-function add_shortcode($name, $callback) { $GLOBALS['shortcode'] = $name; }
+function add_shortcode($name, $callback) { $GLOBALS['shortcodes'][$name]=$callback; if ($name==='sabga_leagues') $GLOBALS['shortcode'] = $name; }
 function add_action($name, $callback) {}
 function get_option($key, $default = false) { return $key === 'sabga_leagues_mode' ? $GLOBALS['test_mode'] : $default; }
 function get_transient($key) { return $GLOBALS['test_cache'][$key] ?? false; }
@@ -38,7 +38,21 @@ class WP_REST_Response {
     function __construct($data) { $this->data = $data; }
     function header($name, $value) { $this->headers[$name] = $value; }
 }
+function add_query_arg($args) { $args=array_filter($args,function($v){return $v!==false;}); return '?' . http_build_query($args); }
 require __DIR__ . '/../sabga-leagues/sabga-leagues.php';
+if (isset($argv[1]) && $argv[1] === '--history-sql') {
+    echo json_encode(array('catalog'=>SABGA_History::catalog_sql(),'annual'=>SABGA_History::player_pr_sql(),'pr'=>SABGA_History::pr_sql(),'player'=>SABGA_History::player_sql()));exit;
+}
+if (isset($argv[1]) && $argv[1] === '--history-report') {
+    echo json_encode(SABGA_History::report(isset($argv[2]) && substr($argv[2],0,1)==='{' ? json_decode($argv[2],true) : array('tab'=>$argv[2] ?? 'standings')));exit;
+}
+if (isset($argv[1]) && $argv[1] === '--render-history') {
+    if(isset($argv[2])) { if(strpos($argv[2],'=')!==false){parse_str($argv[2],$_GET);}else{$_GET['sabga_history_tab']=$argv[2];} }
+    echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="../sabga-leagues/assets/history.css"></head><body style="margin:24px;background:#f5f5ef;font-family:Arial,sans-serif"><main style="max-width:1000px;margin:auto">';
+    echo SABGA_History::shortcode();
+    echo '</main><script src="../sabga-leagues/assets/history.js"></script></body></html>'; exit;
+}
+
 if (isset($argv[1]) && $argv[1] === '--render') {
     echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SABGA League Test</title><link rel="stylesheet" href="../sabga-leagues/assets/standings.css"></head><body style="margin:24px;background:#f5f5ef;font-family:Arial,sans-serif"><main style="max-width:1200px;margin:auto">';
     echo SABGA_Leagues::shortcode();
@@ -129,4 +143,35 @@ check(SABGA_Leagues::normalize_summary(array('total'=>0,'completed'=>0,'average_
 check(SABGA_Leagues::normalize_summary(array('total'=>0,'completed'=>0,'average_pr'=>null))['percentage'] === 0, 'Zero fixture summary');
 check(SABGA_Leagues::payload(91)['deadline'] === '6 Dec 2026', 'Current deadline');
 check(strpos(SABGA_Leagues::shortcode(), 'data-metric="progress"') !== false, 'Server summary markup');
+check(isset($GLOBALS['shortcodes']['sabga_history']), 'History shortcode registration');
+$catalog=SABGA_History::catalog();
+$chosen=SABGA_History::select($catalog,array());
+check($chosen['season']===2 && $chosen['series']===12, 'Defaults to latest past series');
+check(is_wp_error(SABGA_History::select($catalog,array('tab'=>'<script>'))), 'Reject unknown tab');
+check(is_wp_error(SABGA_History::select($catalog,array('season'=>array(2)))), 'Reject array season');
+check(is_wp_error(SABGA_History::select($catalog,array('season'=>'2 OR 1=1'))), 'Reject SQL-like season');
+check(is_wp_error(SABGA_History::select($catalog,array('season'=>1,'series'=>12))), 'Reject series from another season');
+check(is_wp_error(SABGA_History::select($catalog,array('series'=>13))), 'Exclude current series from previous standings');
+check(is_wp_error(SABGA_History::select($catalog,array('series'=>12,'group'=>51))), 'Reject group from another series');
+check(is_wp_error(SABGA_History::select($catalog,array('tab'=>'players','player'=>'invalid'))), 'Reject invalid player ID');
+check(SABGA_History::season_label(1)==='2025' && SABGA_History::season_label(3)==='Season 3', 'Known and unknown season labels');
+$annual=SABGA_History::annual_table(array(
+    array('player_id'=>1,'name'=>'Same name','nickname'=>'one','series_id'=>5,'matches'=>1,'average_pr'=>2),
+    array('player_id'=>1,'name'=>'Same name','nickname'=>'one','series_id'=>8,'matches'=>3,'average_pr'=>6),
+    array('player_id'=>2,'name'=>'Same name','nickname'=>'two','series_id'=>5,'matches'=>1,'average_pr'=>4)
+),array(5=>'S1',8=>'S4'));
+check(count($annual)===2 && $annual[0][0]==='Same name (two)', 'Distinct players sharing name and lower PR sorting');
+check($annual[1][2]==='5.00', 'Annual PR weighted by recorded matches');
+check($annual[0][4]==='—', 'Missing series PR');
+foreach(array_keys(SABGA_History::tabs()) as $tab){
+    $r=SABGA_History::report(array('tab'=>$tab)); check(!is_wp_error($r) && count($r['rows'])>0,'Demo tab report');
+    $_GET['sabga_history_tab']=$tab; $html=SABGA_History::shortcode();
+    check(strpos($html,'All records below are fictional')!==false && strpos($html,'aria-current="page"')!==false,'Accessible labelled demo tab');
+    foreach($r['rows'] as $row){check(count($row)===count($r['columns']),'Report dimensions');}
+}
+unset($_GET['sabga_history_tab']);
+$html=SABGA_History::table(array('columns'=>array('<img src=x>'),'rows'=>array(array('<script>alert(1)</script>')),'note'=>'<b>unsafe</b>'));
+check(strpos($html,'<script>')===false && strpos($html,'<img src=x>')===false,'Escape all report content');
+$GLOBALS['test_mode']='live';
+$bad=SABGA_History::catalog();check(is_wp_error($bad) && strpos($bad->get_error_message(),'TEST_SECRET')===false,'Archive database failure hides driver details');
 echo "PASS: $checks PHP harness checks\n";

@@ -1,7 +1,31 @@
-# Validation for version 0.1.3
+# Validation for version 0.2.0
 
 Completed 6 October 2026 against source commit
 `94a163f8bd968583c1f71a2e636b5b86e9530e04`.
+
+## Historical Records draft — 8 October 2026
+
+- 128 isolated PHP checks passed, including the current plugin checks and new
+  archive shortcode, catalog defaults, current-series exclusion, season/series/
+  group membership validation, malformed IDs, annual weighted PR, distinct
+  players with matching names, missing PRs, demo labelling and HTML escaping.
+- Synthetic SQLite checks passed for all four archive SQL queries: duplicate
+  relationship handling, season isolation, NULL PR exclusion, weighted means,
+  historical league membership, match/PR wins, empty selections and SELECT-only
+  statements. SQLite does not prove Xneelo MySQL schema compatibility.
+- Chromium 153 archive checks passed for all four tabs, dependent selectors,
+  group/player AJAX, failure clearing and retry, malicious player text rendered
+  safely, no page-wide mobile overflow, and no-JavaScript season/series forms.
+  Desktop and mobile previews were visually inspected.
+- The current standings browser checks were rerun and passed all 17 simulated
+  API requests. Initial failure was caused by an old generated preview; after
+  regenerating current markup/payloads the test passed.
+- PHP and JavaScript syntax checks passed. No production credentials were used.
+
+Live archive table permissions, actual Season schema/year labels, equality
+with real Streamlit records, and the site's theme/page-cache environment still
+require the installation preview described in IMPLEMENTATION.md. Charts,
+official winner records and match-level history are not included in this draft.
 
 ## Summary and compact grid update — 7 October 2026
 

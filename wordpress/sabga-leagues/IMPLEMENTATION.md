@@ -260,3 +260,71 @@ a nullable DeadlineDate DATE on Series (after checking the actual schema),
 backfill verified dates and have both apps read it. Do not create stored
 match-count or PR fields: those values can be calculated from existing data.
 No database migrations are performed by this release.
+
+## Historical Records draft — version 0.2.0
+
+1. Upload `sabga-leagues-0.2.0.zip` through Plugins > Add New > Upload Plugin.
+   Choose **Replace current with uploaded**. Existing `[sabga_leagues]` pages
+   and server credentials continue to work.
+2. Create a **Historical Records** page using the same full-width/no-sidebar
+   layout as Current Standings. Add a Shortcode block containing:
+
+   ```text
+   [sabga_history]
+   ```
+
+3. Preview privately first. The plugin uses the same Live/Demo setting as
+   Current Standings. Leave Live selected to test archive data.
+4. Test every tab and compare with Streamlit, including a player who changed
+   groups. Confirm 2025 and 2026 mappings and the historical group names.
+5. Under Appearance > Menus (or the theme Navigation editor), add the new page
+   and Current Standings, then indent both beneath SABGA Round Robin Leagues.
+   Save the menu after checking their links. Menu editing is a separate
+   WordPress action; the plugin does not create pages or change your menu.
+
+### Included tabs
+
+- **Previous standings:** Season → Series → Group. Groups come from
+  SeriesMatchTypes and MatchType, not Players.CurrentLeague. The current
+  SeriesID 13 is excluded from this tab. The table reads MatchTypePlayerStats
+  with the same fixture-player inclusion and tiebreakers as current standings.
+  These are recorded statistics, not certified/frozen championship results.
+- **Player of the Year:** seasonal PR standings and per-series PR averages,
+  matching the existing Streamlit calculation. Match counts count recorded
+  individual PRs; averages are weighted by those counts and rounded to two
+  decimals before ordering. Separate player IDs stay separate even when names
+  match. No minimum-match eligibility rule is introduced. This is not an
+  official awards/winners register.
+- **League PR trends:** a matrix of groups × series for the selected season.
+  The calculation includes only results with both PRs, matching Streamlit.
+- **Player records:** season-specific matches, wins, losses, PR wins and average
+  PR by series and historical group. Players are limited to those with linked
+  results in the selected season.
+
+Current-season totals are explicitly provisional. Tabs are normal accessible
+links that also work without JavaScript. Season/series navigation reloads
+the page; group/player changes update only their report with JavaScript.
+Reports are cached for 60 seconds and revalidated after page load.
+
+### Database assumptions and read permissions
+
+This draft queries Players, Fixtures, MatchTypePlayerStats, MatchResults,
+Series, SeriesMatchTypes, SeasonSeries and MatchType. The existing RO account
+needs SELECT access to all eight tables. No schema changes or database writes
+are performed. An unavailable archive tab does not change Current Standings.
+If a tab fails, confirm table casing/columns against the code and RO access.
+
+Season IDs are read from SeasonSeries. The confirmed source mappings are
+SeasonID 1 = 2025 and SeasonID 2 = 2026. Other IDs display as “Season N” until
+the real Season table's name/year columns have been verified; this avoids
+guessing its schema or inventing year labels. Update this mapping when adding
+a season. Current SeriesID 13 remains the baseline for this draft, as in the
+existing current-standings plugin. Future automation should move current
+series status and deadlines into verified database metadata.
+
+### Follow-on components
+
+This draft provides the four functioning tab components. Confirmed annual
+award winners, historical match-by-match results, cross-season player profiles,
+PR charts and downloads remain follow-on work. Award eligibility must be
+confirmed before labelling a PR table leader as an official winner.
