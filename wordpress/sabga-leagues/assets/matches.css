@@ -1,0 +1,16 @@
+.sabga-matches[hidden], .sabga-history [hidden], .sabga-leagues [hidden] { display:none !important; }
+.sabga-matches__tabs { display:flex; flex-wrap:wrap; gap:6px; border-bottom:1px solid #dce4de; padding:10px 0; margin:16px 0; }
+.sabga-matches__tabs a { display:block; padding:9px 12px; min-height:44px; border-radius:6px; background:#edf2ee; color:#173629; font-size:14px; font-weight:600; text-decoration:none; }
+.sabga-matches__tabs a[aria-current] { color:#fff; background:#173629; }
+.sabga-matches { min-width:0; max-width:100%; }
+.sabga-matches__filter { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:12px 0; }
+.sabga-matches__status,.sabga-matches__note { color:#56645c; font-size:13px; }
+.sabga-matches__status { min-height:20px; }
+.sabga-matches__scroll { overflow:auto; max-width:100%; border:1px solid #dce4de; border-radius:7px; }
+.sabga-matches table { width:max-content; min-width:0; border-collapse:collapse; margin:0; table-layout:auto; border:0; font-size:13px; }
+.sabga-matches th,.sabga-matches td { padding:7px; white-space:nowrap; text-align:left; border:0; border-bottom:1px solid #e3e7e3; border-right:1px solid #e3e7e3; }
+.sabga-matches thead th { background:#edf2ee; color:#345443; font-weight:700; font-size:12px; }
+.sabga-matches tbody tr:nth-child(even) { background:#fafbf9; }
+.sabga-matches tbody tr:hover { background:#f0f4ed; }
+.sabga-matches caption { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+@media(max-width:600px) { .sabga-matches__filter label { width:100%; } .sabga-matches__filter select { min-width:0; flex:1; } }

@@ -1,5 +1,11 @@
 # SABGA league plugin: first test
 
+**Latest package: 0.3.0.** Upload it and choose **Replace current with uploaded**.
+Existing `[sabga_leagues]` and `[sabga_history]` shortcodes gain fixture/result
+views automatically. No new shortcode, credentials or database changes are
+required. See “Fixtures and Results — version 0.3.0” below.
+
+
 Version 0.1.0 · Prepared 6 October 2026
 
 This is an installable proof of concept for your existing WordPress website.
@@ -328,3 +334,57 @@ This draft provides the four functioning tab components. Confirmed annual
 award winners, historical match-by-match results, cross-season player profiles,
 PR charts and downloads remain follow-on work. Award eligibility must be
 confirmed before labelling a PR table leader as an official winner.
+
+## Fixtures and Results — version 0.3.0
+
+### Install and check
+
+1. Upload `sabga-leagues-0.3.0.zip` using Plugins > Add New > Upload Plugin.
+2. Choose **Replace current with uploaded**. Keep the current Live setting.
+3. Refresh Current Standings. Beneath the summaries, choose **Remaining
+   Fixtures** or **Results**. Filter by a player to find their pairings/results.
+4. On Historical Records, select **Previous standings**, then the season,
+   series and group. The same three league-view tabs are available there.
+5. Check one outstanding pairing, one completed match, both PRs and the
+   player filter against Streamlit. Test one previous series with unplayed
+   fixtures: those fixtures remain visible, labelled Unplayed.
+6. If the old display persists, hard-refresh and clear any WordPress page cache.
+
+The existing shortcodes, menu, server credentials and database are unchanged.
+No result-entry or fixture-editing functions are added. Fixtures are pairings,
+not scheduled appointments: the source Fixtures table has no match-date field.
+
+### Data rules
+
+- Remaining Fixtures reads Fixtures.Completed = 0, matching Streamlit.
+- Results reads MatchResults joined to a completed fixture with matching
+  FixtureID and MatchTypeID. Orphan results and results for open fixtures are
+  not presented as completed matches. Date descending, then MatchResultID
+  descending, gives stable newest-first ordering.
+- Player names, score and both PRs follow the MatchResults player order, even
+  when it differs from the fixture player order. Player 1 is not assumed to
+  be the winner. Missing scores or PRs display a dash. Zero PR remains zero.
+- A result against an open fixture is flagged **Result recorded; fixture still
+  open**. Completed fixtures without a linked result and unknown completion
+  flags produce a short notice. The plugin does not repair these records.
+- The player filter checks both sides of the pairing and includes players
+  with no results yet. Filter options are confined to the selected group.
+  Switching groups resets the filter. No email/contact fields are returned.
+- Historical group IDs must belong to the selected season and previous series;
+  they do not use a player's current league. The current-series baseline is
+  unchanged from 0.2.0.
+
+Match data is fetched when a match tab opens, cached server-side for 60 seconds
+and revalidated after loading a match-view page. Switching views, groups and
+filters cancels stale requests and clears old rows. Standard links and filter
+forms also work without JavaScript. Without JavaScript, submitting the league
+selector returns to standings; the match tabs then open the new group's data.
+
+The same RO account needs SELECT on Players, Fixtures and MatchResults. A
+match-view error leaves standings available. There is no database migration.
+Each group supports up to 2,000 fixtures/results; a larger group displays an
+explicit limit error rather than silently omitting rows. Pagination can be
+added if future competitions exceed that size.
+
+Cross-season player match histories and PR charts remain future extensions;
+match-by-match results for each selected historical league are now included.

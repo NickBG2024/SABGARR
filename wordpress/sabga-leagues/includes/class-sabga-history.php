@@ -22,7 +22,7 @@ final class SABGA_History {
             'pr'=>'League PR trends', 'players'=>'Player records');
     }
 
-    private static function connection() {
+    public static function connection() {
         if (!SABGA_Leagues::configured()) { throw new RuntimeException('Configuration unavailable'); }
         $port = defined('SABGA_LEAGUES_DB_PORT') ? (int) SABGA_LEAGUES_DB_PORT : 3306;
         if ($port < 1 || $port > 65535 || preg_match('/[;\x00-\x1f]/', SABGA_LEAGUES_DB_HOST . SABGA_LEAGUES_DB_NAME)) {
@@ -273,7 +273,9 @@ final class SABGA_History {
         <form method="get" class="sabga-history__report-form"><?php if(!get_option('permalink_structure') && get_queried_object_id()):?><input type="hidden" name="page_id" value="<?php echo esc_attr(get_queried_object_id()); ?>"><?php endif; ?><input type="hidden" name="sabga_history_tab" value="players"><input type="hidden" name="sabga_history_season" value="<?php echo esc_attr($sel['season']); ?>">
         <label for="<?php echo esc_attr($uid.'player'); ?>">Player</label><select id="<?php echo esc_attr($uid.'player'); ?>" name="sabga_history_player"><?php foreach($players as $r):?><option value="<?php echo esc_attr($r['id']); ?>" <?php selected($sel['player'] ?: ($players[0]['id'] ?? 0),$r['id']); ?>><?php echo esc_html($r['label']); ?></option><?php endforeach; ?></select><button type="submit">Show player</button></form>
         <?php endif; ?>
-        <p class="sabga-history__status" role="status" aria-live="polite"></p><div class="sabga-history__report"><?php echo self::table(self::report($input)); ?></div>
+        <?php $matches_context=array('scope'=>'history','season'=>$sel['season'],'series'=>$sel['series'],'group'=>$sel['group']); $with_matches=$sel['tab']==='standings' && $sel['has_previous']; if($with_matches){echo SABGA_Matches::nav($matches_context);} ?>
+        <p class="sabga-history__status" role="status" aria-live="polite"></p><div class="sabga-history__report" <?php echo $with_matches && SABGA_Matches::current_view('history')!=='standings'?'hidden':''; ?>><?php echo self::table(self::report($input)); ?></div>
+        <?php if($with_matches){echo SABGA_Matches::panel($matches_context);} ?>
         </section><?php return ob_get_clean();
     }
 }

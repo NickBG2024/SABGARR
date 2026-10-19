@@ -1,7 +1,32 @@
-# Validation for version 0.2.0
+# Validation for version 0.3.0
 
 Completed 6 October 2026 against source commit
 `94a163f8bd968583c1f71a2e636b5b86e9530e04`.
+
+## Fixtures and Results — 19 October 2026
+
+- 153 PHP harness checks passed, including current and historical match queries,
+  season/series/group membership, invalid/array/SQL-like input rejection,
+  player filtering from either position, score and PR order, missing PR,
+  empty reports, HTML escaping, explicit group-size limits, anomalies, NULL
+  completion flags and generic connection failures without private data.
+- Synthetic SQLite tests passed for fixture/result group isolation, completion
+  flags, results linked to another group, reversed result-player order, NULL
+  PR, stable date/ID ordering, orphan exclusion and SELECT-only operations.
+- Chromium 153 match-view tests passed: current and historical tabs, player
+  filter/reset on group change, scores/PRs, empty results, failed request
+  clearing and retry, rapid view-switch race, text injection safety, mobile
+  containment and no-JavaScript links/forms. Desktop/mobile layouts inspected.
+- Existing standings SQL parity and historical SQL tests passed. The current
+  standings browser suite passed all 17 simulated API requests, and the archive
+  browser suite passed. An initial old-test selector counted the new filter as
+  a league selector; it was scoped to the league selector before rerunning.
+- PHP/JavaScript syntax checks and installable ZIP integrity checks passed.
+
+The harness substitutes WordPress functions and browser responses use fictional
+PHP demo data. No production database credentials were used. Actual live
+fixtures/results, database permissions and theme/page-cache integration must
+still be checked after the WordPress upload. No production deployment was made.
 
 ## Historical Records draft — 8 October 2026
 

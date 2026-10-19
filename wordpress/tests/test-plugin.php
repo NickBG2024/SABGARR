@@ -40,6 +40,8 @@ class WP_REST_Response {
 }
 function add_query_arg($args) { $args=array_filter($args,function($v){return $v!==false;}); return '?' . http_build_query($args); }
 require __DIR__ . '/../sabga-leagues/sabga-leagues.php';
+if (isset($argv[1]) && $argv[1] === '--matches-sql') { echo json_encode(array('fixtures'=>SABGA_Matches::fixtures_sql(),'results'=>SABGA_Matches::results_sql()));exit; }
+if (isset($argv[1]) && $argv[1] === '--matches-report') { echo json_encode(SABGA_Matches::payload(json_decode($argv[2],true)));exit; }
 if (isset($argv[1]) && $argv[1] === '--history-sql') {
     echo json_encode(array('catalog'=>SABGA_History::catalog_sql(),'annual'=>SABGA_History::player_pr_sql(),'pr'=>SABGA_History::pr_sql(),'player'=>SABGA_History::player_sql()));exit;
 }
@@ -48,15 +50,16 @@ if (isset($argv[1]) && $argv[1] === '--history-report') {
 }
 if (isset($argv[1]) && $argv[1] === '--render-history') {
     if(isset($argv[2])) { if(strpos($argv[2],'=')!==false){parse_str($argv[2],$_GET);}else{$_GET['sabga_history_tab']=$argv[2];} }
-    echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="../sabga-leagues/assets/history.css"></head><body style="margin:24px;background:#f5f5ef;font-family:Arial,sans-serif"><main style="max-width:1000px;margin:auto">';
+    echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="../sabga-leagues/assets/history.css"><link rel="stylesheet" href="../sabga-leagues/assets/matches.css"></head><body style="margin:24px;background:#f5f5ef;font-family:Arial,sans-serif"><main style="max-width:1000px;margin:auto">';
     echo SABGA_History::shortcode();
-    echo '</main><script src="../sabga-leagues/assets/history.js"></script></body></html>'; exit;
+    echo '</main><script src="../sabga-leagues/assets/history.js"></script><script src="../sabga-leagues/assets/matches.js"></script></body></html>'; exit;
 }
 
 if (isset($argv[1]) && $argv[1] === '--render') {
-    echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SABGA League Test</title><link rel="stylesheet" href="../sabga-leagues/assets/standings.css"></head><body style="margin:24px;background:#f5f5ef;font-family:Arial,sans-serif"><main style="max-width:1200px;margin:auto">';
+    if(isset($argv[2]))parse_str($argv[2],$_GET);
+    echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SABGA League Test</title><link rel="stylesheet" href="../sabga-leagues/assets/standings.css"><link rel="stylesheet" href="../sabga-leagues/assets/matches.css"></head><body style="margin:24px;background:#f5f5ef;font-family:Arial,sans-serif"><main style="max-width:1200px;margin:auto">';
     echo SABGA_Leagues::shortcode();
-    echo '</main><script src="../sabga-leagues/assets/standings.js"></script></body></html>';
+    echo '</main><script src="../sabga-leagues/assets/standings.js"></script><script src="../sabga-leagues/assets/matches.js"></script></body></html>';
     exit;
 }
 if (isset($argv[1]) && $argv[1] === '--payload') {
@@ -174,4 +177,36 @@ $html=SABGA_History::table(array('columns'=>array('<img src=x>'),'rows'=>array(a
 check(strpos($html,'<script>')===false && strpos($html,'<img src=x>')===false,'Escape all report content');
 $GLOBALS['test_mode']='live';
 $bad=SABGA_History::catalog();check(is_wp_error($bad) && strpos($bad->get_error_message(),'TEST_SECRET')===false,'Archive database failure hides driver details');
+$GLOBALS['test_mode']='demo';
+foreach(array(array('scope'=>'current','group'=>91),array('scope'=>'history','season'=>2,'series'=>12,'group'=>121)) as $scope){
+    $remaining=SABGA_Matches::payload($scope+array('view'=>'remaining'));
+    check($remaining['count']===2 && $remaining['total']===2,'Current/historical unplayed fixtures');
+    $filtered=SABGA_Matches::payload($scope+array('view'=>'remaining','player'=>3));
+    check($filtered['count']===1 && $filtered['total']===2,'Player filter includes either participant');
+    $results=SABGA_Matches::payload($scope+array('view'=>'results'));
+    check($results['rows'][0][2]==='8 – 11' && $results['rows'][0][4]==='—' && $results['rows'][0][5]==='6.12','Score order and missing PR');
+    check(is_wp_error(SABGA_Matches::payload($scope+array('view'=>'results','player'=>999))),'Reject player outside group');
+}
+foreach(array(array('group'=>'91 OR 1=1'),array('group'=>array(91)),array('group'=>102),array('group'=>91,'view'=>'unknown'),array('group'=>91,'scope'=>array('current')),array('group'=>91,'player'=>array(1)),array('scope'=>'history','season'=>1,'series'=>12,'group'=>121),array('scope'=>'history','season'=>2,'series'=>12,'group'=>51),array('scope'=>'history','group'=>121)) as $invalid){
+    check(is_wp_error(SABGA_Matches::payload($invalid)),'Invalid match query rejected');
+}
+$fixture=array('fixture_id'=>1,'p1_id'=>1,'p2_id'=>2,'p1_name'=>'<script>bad</script>','p1_nickname'=>'one','p2_name'=>'Beta','p2_nickname'=>'two','completed'=>0,'has_result'=>1);
+$missing=$fixture;$missing['fixture_id']=2;$missing['completed']=1;$missing['has_result']=0;
+$anomaly=SABGA_Matches::format(array($fixture,$missing),array(),array('view'=>'remaining','scope'=>'history','player'=>0));
+check($anomaly['rows'][0][2]==='Result recorded; fixture still open','Open fixture with result not called unplayed');
+check(strpos($anomaly['note'],'no linked result')!==false && strpos($anomaly['note'],'previous series')!==false,'Historical anomalies explained');
+check(strpos(SABGA_Matches::table($anomaly),'<script>')===false,'Match HTML escapes player text');
+check(is_wp_error(SABGA_Matches::format(array_fill(0,2001,$fixture),array(),array('view'=>'remaining','scope'=>'current','player'=>0))),'Oversized groups fail explicitly without truncation');
+$unknown=$fixture;$unknown['completed']=null;
+$unknown_data=SABGA_Matches::format(array($unknown),array(),array('view'=>'remaining','scope'=>'current','player'=>0));
+check($unknown_data['count']===0 && strpos($unknown_data['note'],'unknown completion status')!==false,'NULL completion is not labelled unplayed');
+$empty=SABGA_Matches::format(array(),array(),array('view'=>'results','scope'=>'current','player'=>0));
+check($empty['count']===0 && strpos(SABGA_Matches::table($empty),'No recorded results')!==false,'Empty results message');
+$_GET['sabga_view']='results';
+$html=SABGA_Leagues::shortcode();
+check(strpos($html,'sabga-leagues__standings-panel" hidden')!==false && strpos($html,'PR 1')!==false,'Current server-rendered results');
+unset($_GET['sabga_view']);
+$GLOBALS['test_mode']='live';
+$fail=SABGA_Matches::payload(array('group'=>91));
+check(is_wp_error($fail) && $fail->get_error_data()===array('status'=>503) && strpos($fail->get_error_message(),'TEST_SECRET')===false,'Match errors hide connection details');
 echo "PASS: $checks PHP harness checks\n";

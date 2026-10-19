@@ -2,7 +2,7 @@
 /**
  * Plugin Name: SABGA League Standings
  * Description: Read-only SQL standings with a clearly labelled demo mode. Proof of concept for SABGA's WordPress league page.
- * Version: 0.2.0
+ * Version: 0.3.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: SABGA
@@ -16,3 +16,6 @@ SABGA_Leagues::boot(__FILE__);
 
 require_once __DIR__ . '/includes/class-sabga-history.php';
 SABGA_History::boot(__FILE__);
+
+require_once __DIR__ . '/includes/class-sabga-matches.php';
+SABGA_Matches::boot(__FILE__);

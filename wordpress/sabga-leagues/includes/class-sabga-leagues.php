@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) { exit; }
 
 final class SABGA_Leagues {
-    const VERSION = '0.2.0';
+    const VERSION = '0.3.0';
     private static $last_diagnostic = '';
     const CACHE_SECONDS = 60;
     private static $plugin_file;
@@ -313,6 +313,8 @@ final class SABGA_Leagues {
                 <div><dt>Deadline</dt><dd data-metric="deadline">6 Dec 2026</dd></div>
             </dl>
             <p class="sabga-leagues__summary-warning" <?php echo !is_wp_error($data) && $data['summary'] === null ? '' : 'hidden'; ?>>League summary unavailable.</p>
+            <?php echo SABGA_Matches::nav(array('scope'=>'current','group'=>$id)); ?>
+            <div class="sabga-leagues__standings-panel" <?php echo SABGA_Matches::current_view('current')!=='standings'?'hidden':''; ?>>
             <h3 class="sabga-leagues__group"><?php echo esc_html(self::groups()[$id]); ?></h3>
             <div class="sabga-leagues__scroll" tabindex="0" role="region" aria-label="Standings table; scroll horizontally for more columns">
                 <table>
@@ -328,6 +330,8 @@ final class SABGA_Leagues {
             <p class="sabga-leagues__warning" <?php echo !is_wp_error($data) && in_array(false, array_column($data['standings'], 'stats_available'), true) ? '' : 'hidden'; ?>>Some players have no precomputed statistics yet. Their standings show zero until the existing statistics process runs.</p>
             <p class="sabga-leagues__timestamp"><?php echo !is_wp_error($data) ? esc_html('Standings fetched ' . $data['fetched_at']) : ''; ?></p>
             <p class="sabga-leagues__note">Order: points, wins, PR wins, head-to-head score, average PR, then matches played. Points % = points ÷ (matches played × 3). Fetch time records when the website read the data; it is not the statistics calculation time.</p>
+            </div>
+            <?php echo SABGA_Matches::panel(array('scope'=>'current','group'=>$id)); ?>
         </section>
         <?php return ob_get_clean();
     }
@@ -390,7 +394,7 @@ final class SABGA_Leagues {
             $type = 'error'; $message = 'Unknown action.';
         }
         if ($operation === 'save' || $operation === 'clear') {
-            foreach (array_keys(self::groups()) as $id) { delete_transient(self::cache_key($id)); }
+            foreach (array_keys(self::groups()) as $id) { delete_transient(self::cache_key($id)); delete_transient(self::cache_key($id) . '_matches'); }
         }
         set_transient('sabga_lg_notice_' . get_current_user_id(), array('type' => $type, 'message' => $message), 60);
         wp_safe_redirect(admin_url('options-general.php?page=sabga-leagues'));
