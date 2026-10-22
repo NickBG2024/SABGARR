@@ -32,6 +32,20 @@
             const count = document.createElement('p'); count.textContent = data.count + ' of ' + data.total + ' matches'; report.appendChild(count);
             const note = document.createElement('p'); note.className = 'sabga-matches__note'; note.textContent = data.note; report.appendChild(note);
             if (!data.rows.length) { const empty = document.createElement('p'); empty.textContent = data.empty; report.appendChild(empty); return; }
+            if (data.layout === 'fixture-list') {
+                const copy=document.createElement('button'); copy.type='button'; copy.dataset.copyFixtures=''; copy.textContent='Copy fixtures'; report.appendChild(copy);
+                const copyStatus=document.createElement('p'); copyStatus.className='sabga-matches__copy-status'; copyStatus.setAttribute('role','status'); copyStatus.setAttribute('aria-live','polite'); report.appendChild(copyStatus);
+                const text=document.createElement('textarea'); text.dataset.copyText=''; text.className='sabga-matches__copy-text'; text.readOnly=true; text.hidden=true; text.setAttribute('aria-label','Fixtures to copy'); text.value=data.copy_text; report.appendChild(text);
+                const list=document.createElement('ul'); list.className='sabga-matches__fixture-list';
+                data.fixture_lines.forEach(line=>{const li=document.createElement('li');li.textContent=line;list.appendChild(li);}); report.appendChild(list);
+                const details=document.createElement('details'); details.className='sabga-matches__by-player';
+                const summary=document.createElement('summary');summary.textContent='View by player';details.appendChild(summary);
+                const note=document.createElement('p');note.className='sabga-matches__note';note.textContent='Each pairing appears under both players. Counts below are per player.';details.appendChild(note);
+                const dl=document.createElement('dl');data.fixture_groups.forEach(group=>{
+                    const item=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
+                    dt.textContent=group.player+' ('+group.opponents.length+' remaining)'; dd.textContent=group.opponents.join(', ');item.append(dt,dd);dl.appendChild(item);
+                });details.appendChild(dl);report.appendChild(details);return;
+            }
             const scroll = document.createElement('div'); scroll.className = 'sabga-matches__scroll'; scroll.tabIndex = 0;
             scroll.setAttribute('role','region'); scroll.setAttribute('aria-label','Fixtures and results; scroll for more columns');
             const table = document.createElement('table'), caption = document.createElement('caption'); caption.textContent = 'League matches'; table.appendChild(caption);
@@ -73,6 +87,13 @@
             context.group=Number(group.value);player.replaceChildren(new Option('All players','0'));report.replaceChildren();updateLinks();
             if(view!=='standings')load(true);
         });
+        panel.addEventListener('click',async event=>{
+            const button=event.target.closest('[data-copy-fixtures]'); if(!button || !panel.contains(button))return;
+            const text=report.querySelector('[data-copy-text]'), message=report.querySelector('.sabga-matches__copy-status');
+            try { await navigator.clipboard.writeText(text.value); message.textContent='Fixtures copied.'; }
+            catch(error) { text.hidden=false;text.focus();text.select();message.textContent='Select and copy the fixtures below.'; }
+        });
+        panel.querySelectorAll('[data-copy-fixtures]').forEach(button=>{button.hidden=false;});
         show(view,false);
     });
 })();

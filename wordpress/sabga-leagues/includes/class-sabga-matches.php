@@ -76,11 +76,19 @@ final class SABGA_Matches {
             if((int)$r['completed']===1 && !(int)$r['has_result']){$missing++;}
             if($r['completed']===null || !in_array((int)$r['completed'],array(0,1),true)){$unknown++;}
         }
-        $source=$selection['view']==='remaining'?$remaining:$results;$rows=array();
+        $source=$selection['view']==='remaining'?$remaining:$results;$rows=array();$lines=array();$groups=array();
         foreach($source as $r){
             if($selection['player'] && $selection['player']!==(int)$r['p1_id'] && $selection['player']!==(int)$r['p2_id']){continue;}
             if($selection['view']==='remaining'){
-                $rows[]=array(self::label($r,'p1'),self::label($r,'p2'),(int)$r['has_result']?'Result recorded; fixture still open':'Unplayed');
+                $warning=(int)$r['has_result']?'Result recorded; fixture still open':'';
+                $rows[]=array(self::label($r,'p1'),self::label($r,'p2'),$warning ?: 'Unplayed');
+                $lines[]=self::label($r,'p1').' vs '.self::label($r,'p2').($warning?' ['.$warning.']':'');
+                foreach(array('p1'=>'p2','p2'=>'p1') as $side=>$other){
+                    $pid=(int)$r[$side.'_id'];
+                    if($selection['player'] && $selection['player']!==$pid){continue;}
+                    if(!isset($groups[$pid])){$groups[$pid]=array('player'=>self::label($r,$side),'opponents'=>array());}
+                    $groups[$pid]['opponents'][]=self::label($r,$other).($warning?' ['.$warning.']':'');
+                }
             } else {
                 $score=($r['p1_score']===null?'—':(int)$r['p1_score']).' – '.($r['p2_score']===null?'—':(int)$r['p2_score']);
                 $rows[]=array($r['date'] ?: '—',self::label($r,'p1'),$score,self::label($r,'p2'),SABGA_History::decimal($r['p1_pr']),SABGA_History::decimal($r['p2_pr']));
@@ -90,7 +98,9 @@ final class SABGA_Matches {
         if($open_results){$note.=' '.$open_results.' open fixture(s) already have a result and need an administrator check.';}
         if($unknown){$note.=' '.$unknown.' fixture(s) have an unknown completion status.';}
         if($missing){$note.=' '.$missing.' completed fixture(s) have no linked result.';}
-        return array('columns'=>$selection['view']==='remaining'?array('Player 1','Player 2','Status'):array('Date','Player 1','Score','Player 2','PR 1','PR 2'),
+        uasort($groups,function($a,$b){return strcasecmp($a['player'],$b['player']);});
+        return array('layout'=>$selection['view']==='remaining'?'fixture-list':'table','fixture_lines'=>$lines,'fixture_groups'=>array_values($groups),'copy_text'=>implode("\n",$lines),
+            'columns'=>$selection['view']==='remaining'?array('Player 1','Player 2','Status'):array('Date','Player 1','Score','Player 2','PR 1','PR 2'),
             'rows'=>$rows,'players'=>array_values($players),'player'=>$selection['player'],'note'=>$note,
             'count'=>count($rows),'total'=>count($source),'empty'=>$selection['view']==='remaining'?'No outstanding fixtures for this selection.':'No recorded results for this selection.');
     }
@@ -153,6 +163,14 @@ final class SABGA_Matches {
     public static function table($data) {
         $html='<p>'.esc_html($data['count'].' of '.$data['total'].' matches').'</p><p class="sabga-matches__note">'.esc_html($data['note']).'</p>';
         if(!$data['rows']){return $html.'<p>'.esc_html($data['empty']).'</p>';}
+        if(($data['layout'] ?? '')==='fixture-list'){
+            $html.='<button type="button" class="sabga-matches__copy" data-copy-fixtures hidden>Copy fixtures</button><p class="sabga-matches__copy-status" role="status" aria-live="polite"></p>';
+            $html.='<textarea class="sabga-matches__copy-text" data-copy-text aria-label="Fixtures to copy" readonly hidden>'.esc_html($data['copy_text']).'</textarea>';
+            $html.='<ul class="sabga-matches__fixture-list">';foreach($data['fixture_lines'] as $line){$html.='<li>'.esc_html($line).'</li>';}$html.='</ul>';
+            $html.='<details class="sabga-matches__by-player"><summary>View by player</summary><p class="sabga-matches__note">Each pairing appears under both players. Counts below are per player.</p><dl>';
+            foreach($data['fixture_groups'] as $g){$html.='<div><dt>'.esc_html($g['player']).' <span>('.count($g['opponents']).' remaining)</span></dt><dd>'.esc_html(implode(', ',$g['opponents'])).'</dd></div>';}
+            return $html.'</dl></details>';
+        }
         $html.='<div class="sabga-matches__scroll" tabindex="0" role="region" aria-label="Fixtures and results; scroll for more columns"><table><caption>League matches</caption><thead><tr>';
         foreach($data['columns'] as $c){$html.='<th scope="col">'.esc_html($c).'</th>';}$html.='</tr></thead><tbody>';
         foreach($data['rows'] as $r){$html.='<tr>';foreach($r as $v){$html.='<td>'.esc_html($v).'</td>';}$html.='</tr>';}

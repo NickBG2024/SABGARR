@@ -1,7 +1,18 @@
-# Validation for version 0.3.0
+# Validation for version 0.3.1
 
 Completed 6 October 2026 against source commit
 `94a163f8bd968583c1f71a2e636b5b86e9530e04`.
+
+## Copyable fixture lists — 22 October 2026
+
+162 PHP checks passed. New cases cover plain versus lines, one copied line per
+fixture, grouped participants/counts, filtered copying, warning preservation,
+HTML escaping and the unchanged results table. PHP and JavaScript syntax pass.
+The match-view Chromium suite passed with clipboard read/write verification,
+optional grouped view, current/historical fixtures, filters, race cancellation,
+error retry, injection safety, mobile containment and no-JavaScript fallback.
+Desktop and mobile list previews were inspected. No live WordPress deployment
+or production database check was performed for this presentation update.
 
 ## Fixtures and Results — 19 October 2026
 

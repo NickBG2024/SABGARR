@@ -14,3 +14,14 @@
 .sabga-matches tbody tr:hover { background:#f0f4ed; }
 .sabga-matches caption { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @media(max-width:600px) { .sabga-matches__filter label { width:100%; } .sabga-matches__filter select { min-width:0; flex:1; } }
+
+.sabga-matches .sabga-matches__fixture-list { list-style:none; margin:12px 0 20px; padding:0; }
+.sabga-matches .sabga-matches__fixture-list li { padding:7px 0; border-bottom:1px solid #edf0ed; overflow-wrap:anywhere; font-size:14px; line-height:1.5; }
+.sabga-matches .sabga-matches__by-player { margin:16px 0; }
+.sabga-matches .sabga-matches__by-player summary { cursor:pointer; font-weight:600; padding:8px 0; }
+.sabga-matches .sabga-matches__by-player dl { margin:10px 0; }
+.sabga-matches .sabga-matches__by-player dl > div { padding:10px 0; border-bottom:1px solid #edf0ed; }
+.sabga-matches .sabga-matches__by-player dt { font-size:14px; font-weight:600; }
+.sabga-matches .sabga-matches__by-player dd { margin:4px 0 0; font-size:14px; line-height:1.6; overflow-wrap:anywhere; }
+.sabga-matches .sabga-matches__copy-text { display:block; width:100%; min-height:140px; padding:10px; white-space:pre-wrap; font:inherit; }
+.sabga-matches .sabga-matches__copy-status { font-size:13px; color:#56645c; }

@@ -1,6 +1,6 @@
 # SABGA league plugin: first test
 
-**Latest package: 0.3.0.** Upload it and choose **Replace current with uploaded**.
+**Latest package: 0.3.1.** Upload it and choose **Replace current with uploaded**.
 Existing `[sabga_leagues]` and `[sabga_history]` shortcodes gain fixture/result
 views automatically. No new shortcode, credentials or database changes are
 required. See “Fixtures and Results — version 0.3.0” below.
@@ -388,3 +388,28 @@ added if future competitions exceed that size.
 
 Cross-season player match histories and PR charts remain future extensions;
 match-by-match results for each selected historical league are now included.
+
+## Copyable fixture lists — version 0.3.1
+
+Upload `sabga-leagues-0.3.1.zip` and choose **Replace current with uploaded**.
+Refresh the league page; hard-refresh if cached styles/scripts persist.
+
+Remaining Fixtures now shows one plain line per pairing, in the format
+`Name (nickname) vs Name (nickname)`. The repetitive Player 1 / Player 2 /
+Unplayed table is removed. **Copy fixtures** copies only the currently filtered
+fixture lines, with one newline between matches and no duplicate pairings from
+the grouped display. Nicknames remain included to help identify opponents.
+
+An optional **View by player** section lists each player's opponents and count.
+Pairings appear under both participants there; choosing a player limits this
+section to that player. The main match count continues to count fixtures once.
+Exceptional open-fixture/result warnings remain visible and included in copied
+text. Results remain a date/score/PR table.
+
+Copy uses the browser's clipboard API after a click. If clipboard access is
+unavailable or denied, a selected plain-text box appears for manual copying.
+Without JavaScript the fixture list is selectable and the grouped section and
+filter form work normally; the automatic copy button stays hidden.
+
+No SQL, database, credentials or shortcode changes are required. Both current
+and historical fixture views use the new list.

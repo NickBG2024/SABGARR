@@ -25,13 +25,26 @@ const php=process.env.SABGA_TEST_PHP || 'php', harness=path.join(__dirname,'test
  await page.getByRole('link',{name:'Remaining Fixtures',exact:true}).click();
  await page.locator('.sabga-matches__status').filter({hasText:'Matches loaded.'}).waitFor();
  assert.equal(await page.locator('.sabga-leagues__standings-panel').isVisible(),false);
- assert.equal(await page.locator('.sabga-matches tbody tr').count(),2);
+ assert.equal(await page.locator('.sabga-matches .sabga-matches__fixture-list > li').count(),2);
+ await page.context().grantPermissions(['clipboard-read','clipboard-write'],{origin:'http://127.0.0.1:8765'});
+ await page.getByRole('button',{name:'Copy fixtures',exact:true}).click();
+ await page.getByText('Fixtures copied.',{exact:true}).waitFor();
+ const copied=await page.evaluate(()=>navigator.clipboard.readText());
+ assert.equal(copied.split('\n').length,2);assert.ok(copied.includes(' vs '));assert.ok(!copied.includes('Unplayed'));
+ await page.getByText('View by player',{exact:true}).click();
+ assert.equal(await page.locator('.sabga-matches__by-player dt').count(),3);
+
+ await page.screenshot({path:path.join(__dirname,'fixtures-list-desktop-preview.png'),fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+ await page.screenshot({path:path.join(__dirname,'fixtures-list-mobile-preview.png'),fullPage:true});
+ await page.setViewportSize({width:1280,height:950});
  await page.getByLabel('Filter by player').selectOption('3');
- await page.waitForFunction(()=>document.querySelector('.sabga-matches tbody')?.children.length===1);
+ await page.waitForFunction(()=>document.querySelector('.sabga-matches__fixture-list')?.children.length===1);
  assert.equal(await page.locator('.sabga-matches__report > p').first().innerText(),'1 of 2 matches');
  // Switching groups resets the player filter, and keeps the current match view.
  await page.getByLabel('League group',{exact:true}).selectOption('92');
- await page.waitForFunction(()=>document.querySelector('.sabga-matches tbody')?.children.length===2);
+ await page.waitForFunction(()=>document.querySelector('.sabga-matches__fixture-list')?.children.length===2);
  assert.equal(await page.getByLabel('Filter by player').inputValue(),'0');
  await page.getByRole('link',{name:'Results',exact:true}).click();
  await page.getByRole('columnheader',{name:'PR 1',exact:true}).waitFor();
@@ -53,7 +66,7 @@ const php=process.env.SABGA_TEST_PHP || 'php', harness=path.join(__dirname,'test
  await page.goto('http://127.0.0.1:8765/tests/history-preview.html');
  await page.getByRole('link',{name:'Remaining Fixtures',exact:true}).click();
  await page.locator('.sabga-matches__status').filter({hasText:'Matches loaded.'}).waitFor();
- assert.ok((await page.locator('.sabga-matches__note').innerText()).includes('previous series'));
+ assert.ok((await page.locator('.sabga-matches__report > .sabga-matches__note').innerText()).includes('previous series'));
  await page.getByLabel('League group',{exact:true}).selectOption('122');
  await page.waitForFunction(()=>document.querySelector('.sabga-matches').getAttribute('aria-busy')==='false');
  assert.equal(new URL(page.url()).searchParams.get('sabga_history_group'),'122');
@@ -65,11 +78,11 @@ const php=process.env.SABGA_TEST_PHP || 'php', harness=path.join(__dirname,'test
  // Ordinary links/filter forms remain usable without JavaScript.
  const plain=await browser.newPage({javaScriptEnabled:false});await install(plain);
  await plain.goto('http://127.0.0.1:8765/tests/preview.html');
- await plain.getByRole('link',{name:'Remaining Fixtures',exact:true}).click();assert.equal(await plain.locator('.sabga-matches tbody tr').count(),2);
+ await plain.getByRole('link',{name:'Remaining Fixtures',exact:true}).click();assert.equal(await plain.locator('.sabga-matches .sabga-matches__fixture-list > li').count(),2);
  await plain.getByLabel('Filter by player').selectOption('3');await plain.getByRole('button',{name:'Show matches',exact:true}).click();
- assert.equal(await plain.locator('.sabga-matches tbody tr').count(),1);
+ assert.equal(await plain.locator('.sabga-matches .sabga-matches__fixture-list > li').count(),1);
  await plain.goto('http://127.0.0.1:8765/tests/history-preview.html');await plain.getByRole('link',{name:'Results',exact:true}).click();
  assert.equal(await plain.getByRole('columnheader',{name:'PR 1',exact:true}).count(),1);
- console.log('PASS: current/historical match tabs, player filtering/reset, score/PR alignment, empty state, errors/retry, race cancellation, XSS text safety, mobile containment and no-JavaScript links/forms');
+ console.log('PASS: clipboard copy, grouped opponent counts, current/historical match tabs, player filtering/reset, score/PR alignment, empty state, errors/retry, race cancellation, XSS text safety, mobile containment and no-JavaScript links/forms');
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

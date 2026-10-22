@@ -2,7 +2,7 @@
 Contributors: sabga
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPLv2 or later
 
 Read-only proof of concept for the SABGA league website.
@@ -22,5 +22,5 @@ No league database writes, no migrations, no changes to result processing.
 Add [sabga_history] to a separate full-width page. Includes previous standings, annual PR rankings, league PR matrix and selected-season player records. Draft release for testing.
 
 == Fixtures and Results ==
-Version 0.3.0 adds Standings / Remaining Fixtures / Results navigation to both
+Version 0.3.1 adds Standings / Remaining Fixtures / Results navigation to both
 current leagues and each previous historical series/group, with player filters.
